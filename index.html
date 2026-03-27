@@ -1487,7 +1487,8 @@
             videoEl.src = "";
             
             try {
-                const targetApi = "https://api.replicate.com/v1/models/cjwbw/damo-text-to-video/predictions";
+                // YAHAN MAINE AI VIDEO MODEL CHANGE KAR DIYA HAI (Wan 2.2 Fast)
+                const targetApi = "https://api.replicate.com/v1/models/wan-video/wan-2.2-t2v-fast/predictions";
                 
                 // Call our local Node.js server
                 const createRes = await fetchFromMyBackend(targetApi, "POST", { 
