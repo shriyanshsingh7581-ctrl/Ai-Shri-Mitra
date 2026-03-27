@@ -1364,7 +1364,7 @@
                     
                     if(!cloudData.secure_url) throw new Error("Image upload failed");
 
-                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Waking Server (up to 50s)...`;
+                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Creating (15-30 sec)...`;
 
                     const targetApi = "https://api.replicate.com/v1/models/stability-ai/sdxl/predictions";
                     const inputPayload = {
@@ -1377,8 +1377,10 @@
                     const createRes = await fetchFromMyBackend(targetApi, "POST", { input: inputPayload });
                     const createData = await createRes.json();
 
-                    if (!createRes.ok || createData.error) {
-                        throw new Error(createData.error || "Backend or API error.");
+                    // SMART ERROR CHECKING
+                    if (!createRes.ok || createData.error || createData.detail) {
+                        let realError = createData.error || createData.detail || JSON.stringify(createData);
+                        throw new Error(realError);
                     }
 
                     const getUrl = createData.urls.get;
@@ -1415,7 +1417,7 @@
                             btn.disabled = false;
                             shimmer.style.display = "none";
                             placeholder.style.display = "block";
-                            alert("Error: " + err.message + "\n\n(Tip: Render's free server sleeps after 15 mins. Please try again in 1 minute while it wakes up!)");
+                            alert("Error: " + err.message);
                         }
                     };
                     setTimeout(checkStatus, 3000);
@@ -1425,7 +1427,7 @@
                     btn.disabled = false;
                     shimmer.style.display = "none";
                     placeholder.style.display = "block";
-                    alert("Error: " + e.message + "\n\n(Tip: Render's free server sleeps after 15 mins. Please try again in 1 minute while it wakes up!)");
+                    alert("Replicate API Error: " + e.message + "\n(Please check your API key in Render Environment Variables)");
                 }
             } 
             else {
@@ -1476,7 +1478,7 @@
             let actionBtns = document.getElementById("videoActionBtns");
             let placeholder = document.getElementById("videoPlaceholderText");
             
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Waking Server (up to 50s)...`; 
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Creating (Takes 1-2 min)...`; 
             btn.disabled = true;
             actionBtns.style.display = "none"; 
             placeholder.style.display = "none"; 
@@ -1494,11 +1496,11 @@
 
                 const createData = await createRes.json();
                 
-                if (!createRes.ok || createData.error) {
-                    throw new Error("Backend Error: " + (createData.error || "Unknown"));
+                // SMART ERROR CHECKING
+                if (!createRes.ok || createData.error || createData.detail) {
+                    let realError = createData.error || createData.detail || JSON.stringify(createData);
+                    throw new Error(realError);
                 }
-                
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Creating (Takes 1-2 min)...`;
 
                 const getUrl = createData.urls.get;
 
@@ -1535,7 +1537,7 @@
                         btn.disabled = false; 
                         shimmer.style.display = "none"; 
                         placeholder.style.display = "block"; 
-                        alert("Error: " + err.message + "\n\n(Tip: Render's free server sleeps after 15 mins. Please try again in 1 minute while it wakes up!)");
+                        alert("Error: " + err.message);
                     }
                 };
 
@@ -1547,7 +1549,7 @@
                 btn.disabled = false; 
                 shimmer.style.display = "none"; 
                 placeholder.style.display = "block"; 
-                alert("Error: " + e.message + "\n\n(Tip: Render's free server sleeps after 15 mins. Please try again in 1 minute while it wakes up!)");
+                alert("Replicate API Error: " + e.message + "\n(Please check your API key in Render Environment Variables)");
             }
         }
 
@@ -1760,3 +1762,4 @@
     </script>
 </body>
 </html>
+
