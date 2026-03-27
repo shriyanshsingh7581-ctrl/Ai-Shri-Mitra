@@ -325,7 +325,7 @@
             to { opacity: 1; transform: translateY(0); } 
         }
 
-        /* FLOATING GLASS BOTTOM NAV */
+        /* FLOATING GLASS BOTTOM NAV - Updated for 6 items */
         .bottom-nav { 
             position: fixed; 
             bottom: calc(20px + var(--safe-bottom)); 
@@ -342,13 +342,18 @@
             z-index: 1000; 
             display: flex; 
             align-items: center; 
-            justify-content: space-around; 
-            padding: 0 5px; 
+            justify-content: space-between; 
+            padding: 0 10px; 
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            overflow-x: auto;
+        }
+
+        .bottom-nav::-webkit-scrollbar { 
+            display: none; 
         }
         
         .nav-item { 
-            flex: 1; 
+            flex: 0 0 auto; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
@@ -358,17 +363,18 @@
             color: var(--text-muted); 
             gap: 5px;
             position: relative;
-            width: 20%;
+            width: 16%;
+            min-width: 50px;
         }
         
         .nav-item i { 
-            font-size: 1.3rem; 
+            font-size: 1.2rem; 
             transition: var(--transition); 
         }
 
         .nav-item span { 
-            font-size: 10px; 
-            font-weight: 600; 
+            font-size: 9px; 
+            font-weight: 700; 
         }
         
         .nav-item.active { 
@@ -862,14 +868,14 @@
                     </div>
 
                     <div class="image-tools">
-                        <button class="btn-mic-icon" onclick="document.getElementById('imageUpload').click()" title="Upload Image for Img2Img">
-                            <i class="fa-solid fa-paperclip"></i>
+                        <button class="btn-mic-icon" onclick="document.getElementById('imageUpload').click()" title="Upload Image for Editing">
+                            <i class="fa-solid fa-upload"></i>
                         </button>
                         <button class="btn-mic-icon" onclick="startVoiceTyping('promptInput', this)">
                             <i class="fa-solid fa-microphone"></i>
                         </button>
                         <button id="genBtn" class="btn-gradient" onclick="generateImage()">
-                            Generate Image (1 <i class="fa-solid fa-coins" style="font-size: 12px;"></i>)
+                            Generate (1 <i class="fa-solid fa-coins" style="font-size: 12px;"></i>)
                         </button>
                     </div>
                 </div>
@@ -887,11 +893,16 @@
                         <button class="action-btn-glass" onclick="downloadMedia(currentGeneratedBlob, 'image.jpg')">
                             <i class="fa-solid fa-download"></i> Save
                         </button>
-                        <button class="action-btn-glass" onclick="startIteration()">
-                            <i class="fa-solid fa-repeat"></i> Remix
-                        </button>
-                        <button id="publishBtn" class="action-btn-glass publish-btn" onclick="publishToGlobal(cloudinaryUrlOfGeneratedImage, 'image')">
+                        <button class="action-btn-glass" onclick="publishToGlobal(cloudinaryUrlOfGeneratedImage, 'image')">
                             <i class="fa-solid fa-globe"></i> Post
+                        </button>
+                    </div>
+                    <div class="action-row" style="margin-top: 8px;">
+                        <button id="upscaleBtn" class="action-btn-glass" style="color: #fbbf24; border-color: rgba(251, 191, 36, 0.3);" onclick="editImage('upscale')">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> 4K Upscale (2 <i class="fa-solid fa-coins" style="font-size: 10px;"></i>)
+                        </button>
+                        <button id="rembgBtn" class="action-btn-glass" style="color: #ec4899; border-color: rgba(236, 72, 153, 0.3);" onclick="editImage('rembg')">
+                            <i class="fa-solid fa-scissors"></i> Remove BG (1 <i class="fa-solid fa-coins" style="font-size: 10px;"></i>)
                         </button>
                     </div>
                     <span id="autoSaveStatus" style="font-size:12px; color:var(--text-muted); text-align:center; display:block; width:100%;"></span>
@@ -932,6 +943,36 @@
                 </div>
             </div>
 
+            <div id="musicTab" class="section">
+                <div class="glass-card">
+                    <textarea id="musicPromptInput" class="studio-input" rows="2" placeholder="Describe the music... e.g. 'A relaxing lofi chill beat'"></textarea>
+                    <div class="image-tools">
+                        <button class="btn-mic-icon" onclick="startVoiceTyping('musicPromptInput', this)">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <button id="genMusicBtn" class="btn-gradient" onclick="generateMusic()">
+                            Create Music (3 <i class="fa-solid fa-coins" style="font-size: 12px;"></i>)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="image-view-card" style="aspect-ratio: auto; padding: 20px; flex-direction: column;">
+                    <div class="shimmer" id="musicShimmer"></div>
+                    <div id="musicPlaceholderText" style="color: rgba(255,255,255,0.3); text-align: center; padding: 40px 0;">
+                        <i class="fa-solid fa-music" style="font-size: 2.5rem; margin-bottom: 12px; display: block;"></i> Music Canvas
+                    </div>
+                    <audio id="aiMusic" controls style="width: 100%; display: none; margin-top: 10px;"></audio>
+                </div>
+                
+                <div class="post-gen-actions" id="musicActionBtns">
+                    <div class="action-row">
+                        <button class="action-btn-glass" onclick="downloadMedia(currentGeneratedMusicBlob, 'music.mp3')">
+                            <i class="fa-solid fa-download"></i> Save MP3
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div id="galleryTab" class="section">
                 <div class="section-title"><i class="fa-solid fa-folder-open"></i> Private Vault</div>
                 <div class="gallery-grid" id="galleryGrid"></div>
@@ -964,6 +1005,9 @@
             <button class="nav-item" onclick="switchTab('videoTab', this)">
                 <i class="fa-solid fa-film"></i><span>Video</span>
             </button>
+            <button class="nav-item" onclick="switchTab('musicTab', this)">
+                <i class="fa-solid fa-music"></i><span>Music</span>
+            </button>
             <button class="nav-item" onclick="switchTab('galleryTab', this)">
                 <i class="fa-solid fa-image"></i><span>Gallery</span>
             </button>
@@ -981,7 +1025,7 @@
         <div class="recharge-box">
             <i class="fa-solid fa-coins" style="font-size: 3rem; color: #fbbf24; margin-bottom: 15px;"></i>
             <h2>Out of Coins!</h2>
-            <p>You need Mitra Coins to generate new AI images and videos. Recharge now to keep creating magic.</p>
+            <p>You need Mitra Coins to generate new AI content. Recharge now to keep creating magic.</p>
             
             <button class="btn-pay" onclick="startRazorpayPayment()">
                 Pay ₹49 for 50 Coins
@@ -1004,7 +1048,6 @@
     </div>
 
     <script>
-        // --- 1. PWA DYNAMIC SETUP ---
         const manifest = { 
             "name": "Shri Mitra AI", 
             "short_name": "Shri Mitra", 
@@ -1014,7 +1057,6 @@
             "theme_color": "#8b5cf6", 
             "icons": [{"src": "https://cdn-icons-png.flaticon.com/512/149/149071.png", "sizes": "512x512", "type": "image/png"}] 
         };
-        
         const manifestUrl = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/json'}));
         document.querySelector('head').insertAdjacentHTML('beforeend', `<link rel="manifest" href="${manifestUrl}">`);
         
@@ -1039,7 +1081,6 @@
             }
         }
 
-        // --- 2. FIREBASE & CLOUDINARY CONFIGURATION ---
         const firebaseConfig = { 
             apiKey: "AIzaSyD1ALXTuFnD9CuZWJmqW8VN3IFwl5KKuDM", 
             authDomain: "login-416ce.firebaseapp.com", 
@@ -1049,7 +1090,6 @@
             messagingSenderId: "668988371049", 
             appId: "1:668988371049:web:8e62a795b8392cb52fb2f8" 
         };
-        
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); 
         const db = firebase.database();
@@ -1057,7 +1097,6 @@
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dxeuzdwkz/image/upload";
         const CLOUDINARY_VIDEO_URL = "https://api.cloudinary.com/v1_1/dxeuzdwkz/video/upload";
         const UPLOAD_PRESET = "shri_mitra_preset"; 
-        
         const pollApiKey = "sk_cbty293zoEEDKLJXsMAaq4A2psY1yq1a";
         
         let currentUser = null; 
@@ -1071,10 +1110,9 @@
         let currentVideoPrompt = "";
         let cloudinaryUrlOfGeneratedVideo = null;
 
-        // --- 3. AUTH, SPLASH & COIN SYSTEM LOGIC ---
-        setTimeout(() => { 
-            document.getElementById('splashScreen').classList.add('hidden'); 
-        }, 1500);
+        let currentGeneratedMusicBlob = null; // New for Music
+
+        setTimeout(() => { document.getElementById('splashScreen').classList.add('hidden'); }, 1500);
 
         auth.onAuthStateChanged((user) => {
             if (user) {
@@ -1099,243 +1137,103 @@
             }
         });
 
-        function signInWithGoogle() { 
-            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); 
-        }
-        
-        function toggleLogoutDialog() { 
-            let d = document.getElementById('logoutDialog'); 
-            d.style.display = d.style.display === 'none' ? 'block' : 'none'; 
-        }
-        
-        function logout() { 
-            auth.signOut(); 
-        }
+        function signInWithGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+        function toggleLogoutDialog() { let d = document.getElementById('logoutDialog'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; }
+        function logout() { auth.signOut(); }
 
-        // --- 4. COIN & PAYMENT LOGIC (RAZORPAY) ---
         function initCoinSystem() {
             const coinRef = db.ref(`users/${currentUser.uid}/coins`);
             coinRef.on('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    userCoinBalance = snapshot.val();
-                } else {
-                    userCoinBalance = 15; 
-                    coinRef.set(userCoinBalance);
-                }
+                if (snapshot.exists()) { userCoinBalance = snapshot.val(); } 
+                else { userCoinBalance = 15; coinRef.set(userCoinBalance); }
                 document.getElementById('coinCount').innerText = userCoinBalance;
             });
         }
 
-        function openRechargeModal() {
-            document.getElementById('rechargeModal').style.display = 'flex';
-        }
-
-        function closeRechargeModal() {
-            document.getElementById('rechargeModal').style.display = 'none';
-        }
+        function openRechargeModal() { document.getElementById('rechargeModal').style.display = 'flex'; }
+        function closeRechargeModal() { document.getElementById('rechargeModal').style.display = 'none'; }
 
         function startRazorpayPayment() {
             var options = {
-                "key": "rzp_test_YourTestKeyHere", 
-                "amount": "4900", 
-                "currency": "INR",
-                "name": "Shri Mitra Studio",
-                "description": "50 Mitra Coins Recharge",
+                "key": "rzp_test_YourTestKeyHere", "amount": "4900", "currency": "INR",
+                "name": "Shri Mitra Studio", "description": "50 Mitra Coins",
                 "image": "https://cdn-icons-png.flaticon.com/512/149/149071.png",
                 "handler": function (response){
-                    alert("Payment Successful! Payment ID: " + response.razorpay_payment_id);
-                    let newBalance = userCoinBalance + 50;
-                    db.ref(`users/${currentUser.uid}/coins`).set(newBalance).then(() => {
-                        closeRechargeModal();
-                        speakText("Recharge successful.");
-                    });
+                    alert("Payment Successful!");
+                    db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance + 50).then(() => closeRechargeModal());
                 },
-                "prefill": {
-                    "name": currentUser.displayName || "",
-                    "email": currentUser.email || "",
-                },
-                "theme": {
-                    "color": "#8b5cf6"
-                }
+                "prefill": { "name": currentUser.displayName || "", "email": currentUser.email || "" },
+                "theme": { "color": "#8b5cf6" }
             };
             var rzp1 = new Razorpay(options);
-            rzp1.on('payment.failed', function (response){
-                alert("Payment Failed: " + response.error.description);
-            });
+            rzp1.on('payment.failed', function (r){ alert("Payment Failed: " + r.error.description); });
             rzp1.open();
         }
 
-        // --- 5. GENERAL UTILITY FUNCTIONS ---
         function switchTab(t, el) { 
             if(el.classList.contains('active')) return;
-            
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
             document.getElementById(t).classList.add('active'); 
-            
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); 
             el.classList.add('active'); 
         }
 
-        function toggleTheme() { 
-            document.body.classList.toggle("rcb-theme"); 
-        }
+        function toggleTheme() { document.body.classList.toggle("rcb-theme"); }
 
         function speakText(text) {
             if(!window.speechSynthesis) return;
             window.speechSynthesis.cancel();
             let utterance = new SpeechSynthesisUtterance(text.replace(/<br>/g, ' ').replace(/<[^>]*>?/gm, ''));
-            utterance.lang = 'hi-IN'; 
-            utterance.rate = 1.0;
+            utterance.lang = 'hi-IN'; utterance.rate = 1.0;
             window.speechSynthesis.speak(utterance);
         }
 
         function startVoiceTyping(id, btn) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!SpeechRecognition) {
-                alert("Voice typing not supported.");
-                return;
-            }
-            const rec = new SpeechRecognition(); 
-            rec.lang = 'hi-IN';
-            
-            rec.onstart = () => {
-                btn.classList.add("listening");
-                speakText("Listening");
-            };
-            rec.onresult = (e) => {
-                document.getElementById(id).value += " " + e.results[0][0].transcript;
-            };
-            rec.onend = () => {
-                btn.classList.remove("listening"); 
-            };
-            
+            if(!SpeechRecognition) return alert("Voice typing not supported.");
+            const rec = new SpeechRecognition(); rec.lang = 'hi-IN';
+            rec.onstart = () => { btn.classList.add("listening"); speakText("Listening"); };
+            rec.onresult = (e) => { document.getElementById(id).value += " " + e.results[0][0].transcript; };
+            rec.onend = () => { btn.classList.remove("listening"); };
             rec.start();
         }
 
-        // --- NEW: FETCH FROM OUR OWN BACKEND NODE.JS SERVER ---
         async function fetchFromMyBackend(targetUrl, method, data = null) {
-            // Frontend requests go to your LIVE Render server
-            const response = await fetch("https://shri-mitra-backend.onrender.com/api/proxy", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    targetUrl: targetUrl, 
-                    method: method, 
-                    data: data 
-                })
+            return await fetch("https://shri-mitra-backend.onrender.com/api/proxy", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ targetUrl: targetUrl, method: method, data: data })
             });
-            return response;
         }
 
-        // --- 6. ADVANCED VOICE NAVIGATION ---
-        let globalRec = null;
-        let isGlobalVoiceOn = false;
-
-        function toggleGlobalVoice() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!SpeechRecognition) return;
-            
-            let btn = document.getElementById('globalVoiceBtn');
-            
-            if(isGlobalVoiceOn) {
-                isGlobalVoiceOn = false;
-                if(globalRec) globalRec.stop();
-                btn.classList.remove('listening');
-                speakText("Voice deactivated.");
-                return;
-            }
-
-            isGlobalVoiceOn = true;
-            globalRec = new SpeechRecognition();
-            globalRec.lang = 'en-IN'; 
-            globalRec.continuous = true; 
-            globalRec.interimResults = false;
-            
-            globalRec.onstart = () => {
-                btn.classList.add('listening');
-                speakText("Listening");
-            };
-            
-            globalRec.onresult = (e) => {
-                let last = e.results.length - 1;
-                let command = e.results[last][0].transcript.toLowerCase().trim();
-                
-                if(command.includes("image") || command.includes("photo")) {
-                    switchTab('imageTab', document.querySelectorAll('.nav-item')[0]);
-                } 
-                else if(command.includes("video")) {
-                    switchTab('videoTab', document.querySelectorAll('.nav-item')[1]);
-                }
-                else if(command.includes("gallery")) {
-                    switchTab('galleryTab', document.querySelectorAll('.nav-item')[2]);
-                }
-                else if(command.includes("explore")) {
-                    switchTab('exploreTab', document.querySelectorAll('.nav-item')[3]);
-                }
-                else if(command.includes("chat")) {
-                    switchTab('chatTab', document.querySelectorAll('.nav-item')[4]);
-                }
-                else if(command.includes("generate")) {
-                    if(document.getElementById('imageTab').classList.contains('active')) {
-                        generateImage();
-                    } else if(document.getElementById('videoTab').classList.contains('active')) {
-                        generateVideo();
-                    }
-                }
-                else if(command.includes("stop")) {
-                    toggleGlobalVoice(); 
-                }
-            };
-
-            globalRec.onerror = (e) => {
-                if(e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-                    isGlobalVoiceOn = false;
-                    btn.classList.remove('listening');
-                }
-            };
-
-            globalRec.onend = () => {
-                if(isGlobalVoiceOn) {
-                    try { globalRec.start(); } catch(err){}
-                } else {
-                    btn.classList.remove('listening');
-                }
-            };
-            
-            try { globalRec.start(); } catch(e) {}
-        }
-
-        // --- 7. IMAGE STUDIO LOGIC (BACKEND ENABLED) ---
+        // --- NEW: UPLOAD LOGIC ---
         let uploadedImageFile = null;
-
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if(file) {
                 uploadedImageFile = file;
+                currentGeneratedBlob = file; // Treat upload as generated image so Editor can use it
+                cloudinaryUrlOfGeneratedImage = null; // reset cloud url
+
                 document.getElementById('uploadName').innerText = file.name;
                 document.getElementById('uploadThumb').src = URL.createObjectURL(file);
                 document.getElementById('uploadPreview').style.display = 'flex';
+
+                let img = document.getElementById("aiImage");
+                img.src = URL.createObjectURL(file);
+                img.style.display = "block";
+                document.getElementById("placeholderText").style.display = "none";
+                document.getElementById("actionBtns").style.display = "flex"; // Show Pro Editor Tools
             }
         }
-
         function clearUpload() {
-            uploadedImageFile = null;
+            uploadedImageFile = null; currentGeneratedBlob = null;
             document.getElementById('imageUpload').value = '';
             document.getElementById('uploadPreview').style.display = 'none';
         }
 
-        function startIteration() { 
-            document.getElementById('promptInput').value = `${currentPrompt}`; 
-            document.getElementById('promptInput').focus(); 
-        }
-
+        // --- IMAGE STUDIO (Pollinations / SDXL) ---
         async function generateImage() {
-            if (userCoinBalance < 1) {
-                speakText("You are out of coins.");
-                openRechargeModal();
-                return;
-            }
-
+            if (userCoinBalance < 1) return openRechargeModal();
             currentPrompt = document.getElementById("promptInput").value.trim();
             if (!currentPrompt) return;
             
@@ -1345,133 +1243,116 @@
             let actionBtns = document.getElementById("actionBtns");
             let placeholder = document.getElementById("placeholderText");
             
-            actionBtns.style.display = "none"; 
-            placeholder.style.display = "none"; 
-            shimmer.style.display = "block"; 
-            img.style.display = "none";
-            btn.disabled = true;
+            actionBtns.style.display = "none"; placeholder.style.display = "none"; 
+            shimmer.style.display = "block"; img.style.display = "none"; btn.disabled = true;
 
             if(uploadedImageFile) {
-                // IMAGE-TO-IMAGE via REPLICATE (USING LOCAL BACKEND)
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading Reference...`;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing...`;
                 try {
-                    const fd = new FormData();
-                    fd.append('file', uploadedImageFile);
-                    fd.append('upload_preset', UPLOAD_PRESET);
-                    
+                    const fd = new FormData(); fd.append('file', uploadedImageFile); fd.append('upload_preset', UPLOAD_PRESET);
                     const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: fd });
                     const cloudData = await cloudRes.json();
                     
-                    if(!cloudData.secure_url) throw new Error("Image upload failed");
-
-                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Creating (15-30 sec)...`;
-
-                    // YAHAN MAINE SDXL KA EXACT 'VERSION HASH' DAAL DIYA HAI JO KABHI FAIL NAHI HOGA
-                    const targetApi = "https://api.replicate.com/v1/predictions";
-                    
-                    const createRes = await fetchFromMyBackend(targetApi, "POST", { 
+                    const createRes = await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", { 
                         version: "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
-                        input: {
-                            prompt: currentPrompt,
-                            image: cloudData.secure_url,
-                            prompt_strength: 0.7
-                        }
+                        input: { prompt: currentPrompt, image: cloudData.secure_url, prompt_strength: 0.7 }
                     });
-
                     const createData = await createRes.json();
-
-                    // SMART ERROR CHECKING
-                    if (!createRes.ok || createData.error || createData.detail) {
-                        let realError = createData.error || createData.detail || JSON.stringify(createData);
-                        throw new Error(realError);
-                    }
-
+                    if (!createRes.ok || createData.error) throw new Error(createData.error);
                     const getUrl = createData.urls.get;
 
                     const checkStatus = async () => {
                         try {
-                            const pollRes = await fetchFromMyBackend(getUrl, "GET");
-                            const pollData = await pollRes.json();
-
+                            const pollRes = await fetchFromMyBackend(getUrl, "GET"); const pollData = await pollRes.json();
                             if (pollData.status === "succeeded") {
                                 db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 1);
-                                let outputUrl = Array.isArray(pollData.output) ? pollData.output[0] : pollData.output;
-
-                                let imgFetchRes = await fetch(outputUrl);
+                                let imgFetchRes = await fetch(Array.isArray(pollData.output) ? pollData.output[0] : pollData.output);
                                 currentGeneratedBlob = await imgFetchRes.blob();
-
                                 img.src = URL.createObjectURL(currentGeneratedBlob);
-                                img.style.display = "block";
-                                shimmer.style.display = "none";
-                                btn.innerHTML = `Generate Image (1 <i class="fa-solid fa-coins" style="font-size: 12px;"></i>)`;
-                                btn.disabled = false;
+                                img.style.display = "block"; shimmer.style.display = "none";
+                                btn.innerHTML = `Generate (1 <i class="fa-solid fa-coins"></i>)`; btn.disabled = false;
                                 actionBtns.style.display = "flex";
-
-                                speakText("Image generated successfully.");
                                 autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'autoSaveStatus', 'image.jpg');
-
-                            } else if (pollData.status === "failed") {
-                                throw new Error("Failed at Replicate model.");
-                            } else {
-                                setTimeout(checkStatus, 3000);
-                            }
-                        } catch(err) {
-                            btn.innerHTML = `Generate Image (1 <i class="fa-solid fa-coins" style="font-size: 12px;"></i>)`;
-                            btn.disabled = false;
-                            shimmer.style.display = "none";
-                            placeholder.style.display = "block";
-                            alert("Error: " + err.message);
-                        }
+                            } else if (pollData.status === "failed") throw new Error("Failed");
+                            else setTimeout(checkStatus, 3000);
+                        } catch(err) { alert(err.message); btn.innerHTML = `Generate`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; }
                     };
                     setTimeout(checkStatus, 3000);
-
-                } catch(e) {
-                    btn.innerHTML = `Generate Image (1 <i class="fa-solid fa-coins" style="font-size: 12px;"></i>)`;
-                    btn.disabled = false;
-                    shimmer.style.display = "none";
-                    placeholder.style.display = "block";
-                    alert("Replicate API Error: " + e.message + "\n(Please check your API key in Render Environment Variables)");
-                }
-            } 
-            else {
-                // TEXT-TO-IMAGE via POLLINATIONS
+                } catch(e) { alert(e.message); btn.innerHTML = `Generate`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; }
+            } else {
                 btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Wait...`; 
-                const url = `https://gen.pollinations.ai/image/${encodeURIComponent(currentPrompt)}?key=${pollApiKey}&model=flux&nologo=true`;
-                
                 try {
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error("Error");
-                    
+                    const res = await fetch(`https://gen.pollinations.ai/image/${encodeURIComponent(currentPrompt)}?key=${pollApiKey}&model=flux&nologo=true`);
                     currentGeneratedBlob = await res.blob();
                     img.src = URL.createObjectURL(currentGeneratedBlob);
-                    
                     img.onload = () => { 
-                        btn.innerHTML = `Generate Image (1 <i class="fa-solid fa-coins" style="font-size: 12px;"></i>)`; 
-                        btn.disabled = false; 
-                        shimmer.style.display = "none"; 
-                        img.style.display = "block"; 
-                        actionBtns.style.display = "flex"; 
-                        
+                        btn.innerHTML = `Generate (1 <i class="fa-solid fa-coins"></i>)`; btn.disabled = false; 
+                        shimmer.style.display = "none"; img.style.display = "block"; actionBtns.style.display = "flex"; 
                         db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 1);
                         autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'autoSaveStatus', 'image.jpg'); 
                     };
-                } catch(e) { 
-                    btn.innerHTML = `Generate Image (1 <i class="fa-solid fa-coins" style="font-size: 12px;"></i>)`; 
-                    btn.disabled = false; 
-                    shimmer.style.display = "none"; 
-                    placeholder.style.display = "block"; 
-                }
+                } catch(e) { btn.innerHTML = `Generate`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; }
             }
         }
 
-        // --- 8. REPLICATE VIDEO STUDIO LOGIC (BACKEND ENABLED) ---
-        async function generateVideo() {
-            if (userCoinBalance < 5) {
-                speakText("You need 5 coins for video generation.");
-                openRechargeModal();
-                return;
-            }
+        // --- NEW: PRO EDITOR TOOLS ---
+        async function editImage(toolType) {
+            let cost = toolType === 'upscale' ? 2 : 1;
+            if (userCoinBalance < cost) return openRechargeModal();
 
+            let targetBlob = currentGeneratedBlob;
+            if (!targetBlob) return alert("Please generate or upload an image first!");
+
+            let btn = document.getElementById(toolType + 'Btn');
+            let originalHtml = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Wait...`;
+            btn.disabled = true;
+
+            try {
+                let imgUrl = cloudinaryUrlOfGeneratedImage;
+                if (!imgUrl) {
+                    const fd = new FormData(); fd.append('file', targetBlob); fd.append('upload_preset', UPLOAD_PRESET);
+                    let cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: fd });
+                    let cloudData = await cloudRes.json();
+                    imgUrl = cloudData.secure_url;
+                }
+
+                let versionHash = toolType === 'upscale' 
+                    ? "42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b" // 4K Upscaler
+                    : "fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003"; // RemBG
+
+                const createRes = await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", {
+                    version: versionHash,
+                    input: { image: imgUrl }
+                });
+
+                const createData = await createRes.json();
+                if (!createRes.ok || createData.error) throw new Error(createData.error || "Failed");
+
+                const checkStatus = async () => {
+                    try {
+                        const pollRes = await fetchFromMyBackend(createData.urls.get, "GET");
+                        const pollData = await pollRes.json();
+
+                        if (pollData.status === "succeeded") {
+                            db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - cost);
+                            let fetchRes = await fetch(pollData.output);
+                            currentGeneratedBlob = await fetchRes.blob();
+                            cloudinaryUrlOfGeneratedImage = null; // reset for next edit
+                            
+                            document.getElementById("aiImage").src = URL.createObjectURL(currentGeneratedBlob);
+                            btn.innerHTML = originalHtml; btn.disabled = false;
+                        } else if (pollData.status === "failed") throw new Error("Editing failed.");
+                        else setTimeout(checkStatus, 3000);
+                    } catch(e) { alert(e.message); btn.innerHTML = originalHtml; btn.disabled = false; }
+                };
+                setTimeout(checkStatus, 3000);
+            } catch (error) { alert("Error: " + error.message); btn.innerHTML = originalHtml; btn.disabled = false; }
+        }
+
+        // --- VIDEO STUDIO ---
+        async function generateVideo() {
+            if (userCoinBalance < 5) return openRechargeModal();
             currentVideoPrompt = document.getElementById("videoPromptInput").value.trim();
             if (!currentVideoPrompt) return;
             
@@ -1479,219 +1360,137 @@
             let videoEl = document.getElementById("aiVideo"); 
             let shimmer = document.getElementById("videoShimmer");
             let actionBtns = document.getElementById("videoActionBtns");
-            let placeholder = document.getElementById("videoPlaceholderText");
             
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Creating (Takes 1-2 min)...`; 
-            btn.disabled = true;
-            actionBtns.style.display = "none"; 
-            placeholder.style.display = "none"; 
-            shimmer.style.display = "block"; 
-            videoEl.style.display = "none";
-            videoEl.src = "";
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Wait (1-2 min)...`; btn.disabled = true;
+            actionBtns.style.display = "none"; document.getElementById("videoPlaceholderText").style.display = "none"; 
+            shimmer.style.display = "block"; videoEl.style.display = "none"; videoEl.src = "";
             
             try {
-                // YAHAN MAINE AI VIDEO MODEL CHANGE KAR DIYA HAI (Wan 2.2 Fast)
-                const targetApi = "https://api.replicate.com/v1/models/wan-video/wan-2.2-t2v-fast/predictions";
-                
-                // Call our local Node.js server
-                const createRes = await fetchFromMyBackend(targetApi, "POST", { 
+                const createRes = await fetchFromMyBackend("https://api.replicate.com/v1/models/wan-video/wan-2.2-t2v-fast/predictions", "POST", { 
                     input: { prompt: currentVideoPrompt } 
                 });
-
                 const createData = await createRes.json();
+                if (!createRes.ok || createData.error) throw new Error(createData.error);
                 
-                // SMART ERROR CHECKING
-                if (!createRes.ok || createData.error || createData.detail) {
-                    let realError = createData.error || createData.detail || JSON.stringify(createData);
-                    throw new Error(realError);
-                }
+                const checkStatus = async () => {
+                    try {
+                        const pollRes = await fetchFromMyBackend(createData.urls.get, "GET"); const pollData = await pollRes.json();
+                        if (pollData.status === "succeeded") {
+                            db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 5);
+                            let vidFetchRes = await fetch(Array.isArray(pollData.output) ? pollData.output[0] : pollData.output);
+                            currentGeneratedVideoBlob = await vidFetchRes.blob();
+                            videoEl.src = URL.createObjectURL(currentGeneratedVideoBlob);
+                            videoEl.style.display = "block"; shimmer.style.display = "none";
+                            btn.innerHTML = `Generate Video (5 <i class="fa-solid fa-coins"></i>)`; btn.disabled = false;
+                            actionBtns.style.display = "flex";
+                            autoUploadMediaToCloudinary(currentGeneratedVideoBlob, 'video', 'videoAutoSaveStatus', 'video.mp4');
+                        } else if (pollData.status === "failed") throw new Error("Generation failed.");
+                        else setTimeout(checkStatus, 3000);
+                    } catch(err) { alert(err.message); btn.innerHTML = `Generate`; btn.disabled = false; shimmer.style.display = "none"; }
+                };
+                setTimeout(checkStatus, 3000);
+            } catch(e) { alert(e.message); btn.innerHTML = `Generate`; btn.disabled = false; shimmer.style.display = "none"; }
+        }
 
-                const getUrl = createData.urls.get;
+        // --- NEW: MUSIC STUDIO ---
+        async function generateMusic() {
+            if (userCoinBalance < 3) return openRechargeModal();
+            let prompt = document.getElementById("musicPromptInput").value.trim();
+            if (!prompt) return;
+
+            let btn = document.getElementById("genMusicBtn");
+            let audioEl = document.getElementById("aiMusic");
+            let shimmer = document.getElementById("musicShimmer");
+            let actionBtns = document.getElementById("musicActionBtns");
+            
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Composing...`; btn.disabled = true;
+            actionBtns.style.display = "none"; document.getElementById("musicPlaceholderText").style.display = "none";
+            shimmer.style.display = "block"; audioEl.style.display = "none";
+
+            try {
+                const createRes = await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", {
+                    version: "b05b1dff1d8c6dc63d14b0cdb421ce531d3bcd181eb196eb094dc30911ac681f",
+                    input: { prompt: prompt, duration: 12 }
+                });
+                const createData = await createRes.json();
+                if (!createRes.ok || createData.error) throw new Error(createData.error);
 
                 const checkStatus = async () => {
                     try {
-                        const pollRes = await fetchFromMyBackend(getUrl, "GET");
+                        const pollRes = await fetchFromMyBackend(createData.urls.get, "GET");
                         const pollData = await pollRes.json();
-
                         if (pollData.status === "succeeded") {
-                            db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 5);
-
-                            let outputUrl = Array.isArray(pollData.output) ? pollData.output[0] : pollData.output;
+                            db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 3);
+                            let fetchRes = await fetch(pollData.output);
+                            currentGeneratedMusicBlob = await fetchRes.blob();
                             
-                            let vidFetchRes = await fetch(outputUrl);
-                            currentGeneratedVideoBlob = await vidFetchRes.blob();
-                            
-                            videoEl.src = URL.createObjectURL(currentGeneratedVideoBlob);
-                            videoEl.style.display = "block";
-                            shimmer.style.display = "none";
-                            btn.innerHTML = `Generate Video (5 <i class="fa-solid fa-coins" style="font-size: 12px;"></i>)`;
-                            btn.disabled = false;
+                            audioEl.src = URL.createObjectURL(currentGeneratedMusicBlob);
+                            audioEl.style.display = "block"; shimmer.style.display = "none";
+                            btn.innerHTML = `Create Music (3 <i class="fa-solid fa-coins"></i>)`; btn.disabled = false;
                             actionBtns.style.display = "flex";
-
-                            speakText("Video generated successfully.");
-                            autoUploadMediaToCloudinary(currentGeneratedVideoBlob, 'video', 'videoAutoSaveStatus', 'video.mp4');
-
-                        } else if (pollData.status === "failed") {
-                            throw new Error("Generation failed.");
-                        } else {
-                            setTimeout(checkStatus, 3000);
-                        }
-                    } catch(err) {
-                        btn.innerHTML = `Generate Video (5 <i class="fa-solid fa-coins" style="font-size: 12px;"></i>)`; 
-                        btn.disabled = false; 
-                        shimmer.style.display = "none"; 
-                        placeholder.style.display = "block"; 
-                        alert("Error: " + err.message);
-                    }
+                        } else if (pollData.status === "failed") throw new Error("Failed.");
+                        else setTimeout(checkStatus, 3000);
+                    } catch(e) { alert(e.message); btn.innerHTML = `Generate`; btn.disabled = false; shimmer.style.display = "none"; }
                 };
-
                 setTimeout(checkStatus, 3000);
-
-            } catch(e) { 
-                console.error("Video Request Failed: ", e);
-                btn.innerHTML = `Generate Video (5 <i class="fa-solid fa-coins" style="font-size: 12px;"></i>)`; 
-                btn.disabled = false; 
-                shimmer.style.display = "none"; 
-                placeholder.style.display = "block"; 
-                alert("Replicate API Error: " + e.message + "\n(Please check your API key in Render Environment Variables)");
-            }
+            } catch (error) { alert(error.message); btn.innerHTML = `Generate`; btn.disabled = false; shimmer.style.display = "none"; }
         }
 
-        // --- 9. UNIVERSAL MEDIA UPLOAD & DOWNLOAD ---
         async function autoUploadMediaToCloudinary(blobData, type, statusElementId, fileName) {
-            let st = document.getElementById(statusElementId); 
-            st.innerText = "Saving to cloud...";
-            
-            const fd = new FormData(); 
-            fd.append('file', blobData, fileName); 
-            fd.append('upload_preset', UPLOAD_PRESET);
-            
-            const uploadUrl = (type === 'video') ? CLOUDINARY_VIDEO_URL : CLOUDINARY_URL;
-
+            let st = document.getElementById(statusElementId); st.innerText = "Saving to cloud...";
+            const fd = new FormData(); fd.append('file', blobData, fileName); fd.append('upload_preset', UPLOAD_PRESET);
             try {
-                const res = await fetch(uploadUrl, { method: 'POST', body: fd });
+                const res = await fetch(type==='video'?CLOUDINARY_VIDEO_URL:CLOUDINARY_URL, { method: 'POST', body: fd });
                 const data = await res.json();
+                if(type === 'video') cloudinaryUrlOfGeneratedVideo = data.secure_url;
+                else cloudinaryUrlOfGeneratedImage = data.secure_url;
                 
-                if (!data.secure_url) throw new Error("No URL returned");
-
-                if(type === 'video') {
-                    cloudinaryUrlOfGeneratedVideo = data.secure_url;
-                } else {
-                    cloudinaryUrlOfGeneratedImage = data.secure_url;
-                }
-                
-                let promptToSave = (type === 'video') ? currentVideoPrompt : currentPrompt;
-
                 await db.ref(`users/${currentUser.uid}/gallery`).push({ 
-                    url: data.secure_url, 
-                    prompt: promptToSave, 
-                    type: type, 
-                    timestamp: firebase.database.ServerValue.TIMESTAMP 
+                    url: data.secure_url, prompt: type==='video'?currentVideoPrompt:currentPrompt, type: type, timestamp: firebase.database.ServerValue.TIMESTAMP 
                 });
-                
-                st.innerHTML = `<i class="fa-solid fa-check" style="color: #10b981;"></i> Saved privately.`; 
-                setTimeout(() => { st.innerHTML = ""; }, 3000);
-            } catch(e) { 
-                console.error("Upload error:", e);
-                st.innerText = "Sync failed."; 
-            }
+                st.innerHTML = `<i class="fa-solid fa-check" style="color:#10b981;"></i> Saved privately.`; setTimeout(() => st.innerHTML="", 3000);
+            } catch(e) { st.innerText = "Sync failed."; }
         }
 
         function downloadMedia(blobData, fileName) { 
             if(!blobData) return; 
-            const a = document.createElement("a"); 
-            a.href = URL.createObjectURL(blobData); 
-            a.download = `ShriMitra_${Date.now()}_${fileName}`; 
-            a.click(); 
+            const a = document.createElement("a"); a.href = URL.createObjectURL(blobData); a.download = fileName; a.click(); 
         }
 
-        // --- 10. EXPLORE FEED LOGIC ---
         async function publishToGlobal(cloudUrl, type) {
             if(!cloudUrl) return;
-            let promptText = (type === 'video') ? currentVideoPrompt : currentPrompt;
-            
             await db.ref(`global_feed`).push({ 
-                url: cloudUrl, 
-                prompt: promptText, 
-                type: type,
-                author: currentUser.displayName || 'User', 
-                authorPic: currentUser.photoURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png', 
-                timestamp: firebase.database.ServerValue.TIMESTAMP, 
-                likes: 0 
+                url: cloudUrl, prompt: type==='video'?currentVideoPrompt:currentPrompt, type: type,
+                author: currentUser.displayName, authorPic: currentUser.photoURL, timestamp: firebase.database.ServerValue.TIMESTAMP, likes: 0 
             });
-            
-            alert("Posted to Community!");
-            switchTab('exploreTab', document.querySelectorAll('.nav-item')[3]);
+            alert("Posted to Community!"); switchTab('exploreTab', document.querySelectorAll('.nav-item')[4]);
         }
 
         function loadExploreFeed() {
             db.ref('global_feed').orderByChild('timestamp').limitToLast(30).on('value', snap => {
-                const grid = document.getElementById('exploreGrid'); 
-                grid.innerHTML = '';
-                
+                const grid = document.getElementById('exploreGrid'); grid.innerHTML = '';
                 if(snap.exists()) {
-                    let items = []; 
-                    snap.forEach(c => items.push({...c.val(), id: c.key}));
-                    
+                    let items = []; snap.forEach(c => items.push({...c.val(), id: c.key}));
                     items.reverse().forEach((data) => {
                         if(!data.url) return;
-                        let div = document.createElement('div'); 
-                        div.className = 'gallery-item'; 
-                        div.style.aspectRatio = "auto";
-                        
-                        let mediaHtml = '';
-                        if(data.type === 'video' || data.url.endsWith('.mp4')) {
-                            mediaHtml = `<video src="${data.url}" autoplay loop muted playsinline style="height:350px; width:100%; object-fit:cover; border-radius:20px;"></video>`;
-                        } else {
-                            mediaHtml = `<img src="${data.url}" loading="lazy" style="height:350px; width:100%; object-fit:cover; border-radius:20px;">`;
-                        }
-
-                        div.innerHTML = `
-                            ${mediaHtml}
-                            <div class="explore-overlay">
-                                <div class="explore-author"><img src="${data.authorPic}"><span>${data.author}</span></div>
-                                <div class="explore-actions">
-                                    <button class="explore-icon-btn" onclick="copyPrompt('${data.prompt.replace(/'/g, "\\'")}')"><i class="fa-regular fa-copy"></i> Copy</button>
-                                    <button class="explore-icon-btn" onclick="likePost('${data.id}')"><i class="fa-solid fa-heart" style="color:#ef4444;"></i> ${data.likes || 0}</button>
-                                </div>
-                            </div>`;
+                        let div = document.createElement('div'); div.className = 'gallery-item'; div.style.aspectRatio = "auto";
+                        let mediaHtml = data.type==='video'||data.url.endsWith('.mp4') ? `<video src="${data.url}" autoplay loop muted playsinline style="height:350px; width:100%; object-fit:cover; border-radius:20px;"></video>` : `<img src="${data.url}" loading="lazy" style="height:350px; width:100%; object-fit:cover; border-radius:20px;">`;
+                        div.innerHTML = `${mediaHtml}<div class="explore-overlay"><div class="explore-author"><img src="${data.authorPic}"><span>${data.author}</span></div><div class="explore-actions"><button class="explore-icon-btn" onclick="navigator.clipboard.writeText('${data.prompt.replace(/'/g, "\\'")}'); alert('Copied!');"><i class="fa-regular fa-copy"></i> Copy</button><button class="explore-icon-btn" onclick="db.ref('global_feed/${data.id}/likes').transaction(l=>(l||0)+1)"><i class="fa-solid fa-heart" style="color:#ef4444;"></i> ${data.likes || 0}</button></div></div>`;
                         grid.appendChild(div);
                     });
                 }
             });
         }
 
-        function likePost(id) { 
-            db.ref(`global_feed/${id}/likes`).transaction(l => (l || 0) + 1); 
-        }
-
-        function copyPrompt(txt) { 
-            navigator.clipboard.writeText(txt); 
-            alert("Prompt copied!"); 
-        }
-
-        // --- 11. PRIVATE GALLERY LOGIC ---
         function loadGallery() {
             db.ref(`users/${currentUser.uid}/gallery`).on('value', snap => {
-                const grid = document.getElementById('galleryGrid'); 
-                if(!grid) return;
-                grid.innerHTML = ''; 
-                
+                const grid = document.getElementById('galleryGrid'); if(!grid) return; grid.innerHTML = ''; 
                 if (snap.exists()) {
-                    let items = []; 
-                    snap.forEach(c => items.push(c.val()));
-                    
+                    let items = []; snap.forEach(c => items.push(c.val()));
                     items.reverse().forEach((data) => {
                         if(!data.url) return;
-                        let div = document.createElement('div'); 
-                        div.className = 'gallery-item';
-                        
-                        if(data.type === 'video' || data.url.endsWith('.mp4')) {
-                            div.innerHTML = `<video src="${data.url}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; pointer-events:none;"></video>`;
-                        } else {
-                            div.innerHTML = `<img src="${data.url}" loading="lazy">`;
-                        }
-                        
+                        let div = document.createElement('div'); div.className = 'gallery-item';
+                        div.innerHTML = data.type==='video'||data.url.endsWith('.mp4') ? `<video src="${data.url}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; pointer-events:none;"></video>` : `<img src="${data.url}" loading="lazy">`;
                         div.onclick = () => window.open(data.url, '_blank');
                         grid.appendChild(div);
                     });
@@ -1699,18 +1498,12 @@
             });
         }
 
-        // --- 12. AI CHAT LOGIC ---
         async function loadChatHistory() {
             db.ref(`users/${currentUser.uid}/chats`).once('value', snap => {
-                const box = document.getElementById("chatBox"); 
-                box.innerHTML = "";
+                const box = document.getElementById("chatBox"); box.innerHTML = "";
                 if(snap.exists()) {
                     snap.forEach(child => { 
-                        const msg = child.val(); 
-                        let div = document.createElement("div"); 
-                        div.className = `msg ${msg.role}`; 
-                        div.innerHTML = msg.text; 
-                        box.appendChild(div); 
+                        let div = document.createElement("div"); div.className = `msg ${child.val().role}`; div.innerHTML = child.val().text; box.appendChild(div); 
                     });
                 }
                 box.scrollTop = box.scrollHeight;
@@ -1718,50 +1511,22 @@
         }
 
         async function sendMessage() {
-            let input = document.getElementById("chatInput"); 
-            let text = input.value.trim(); 
-            
-            if (!text) return;
-            
-            input.value = ""; 
-            let box = document.getElementById("chatBox");
-            
-            let userDiv = document.createElement("div"); 
-            userDiv.className = "msg user"; 
-            userDiv.innerText = text; 
-            box.appendChild(userDiv); 
-            box.scrollTop = box.scrollHeight;
-            
+            let input = document.getElementById("chatInput"); let text = input.value.trim(); if (!text) return;
+            input.value = ""; let box = document.getElementById("chatBox");
+            let userDiv = document.createElement("div"); userDiv.className = "msg user"; userDiv.innerText = text; box.appendChild(userDiv); box.scrollTop = box.scrollHeight;
             db.ref(`users/${currentUser.uid}/chats`).push({ role: 'user', text: text, timestamp: firebase.database.ServerValue.TIMESTAMP });
 
-            let typing = document.createElement("div"); 
-            typing.className = "msg ai"; 
-            typing.innerHTML = `<div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`; 
-            box.appendChild(typing); 
-            box.scrollTop = box.scrollHeight;
+            let typing = document.createElement("div"); typing.className = "msg ai"; typing.innerHTML = `<div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`; box.appendChild(typing); box.scrollTop = box.scrollHeight;
 
             try {
-                let sys = "You are Shri Mitra, a helpful AI. Speak clean Hinglish.";
-                if(document.body.classList.contains("rcb-theme")) sys += " You support RCB.";
-                
+                let sys = "You are Shri Mitra, a helpful AI. Speak clean Hinglish."; if(document.body.classList.contains("rcb-theme")) sys += " You support RCB.";
                 const response = await fetch(`https://gen.pollinations.ai/text/${encodeURIComponent(text)}?system=${encodeURIComponent(sys)}&key=${pollApiKey}`);
                 let cleaned = (await response.text()).replace(/\n/g, '<br>');
-                
                 box.removeChild(typing);
-                let aiDiv = document.createElement("div"); 
-                aiDiv.className = "msg ai"; 
-                aiDiv.innerHTML = cleaned; 
-                box.appendChild(aiDiv); 
-                box.scrollTop = box.scrollHeight;
-                
+                let aiDiv = document.createElement("div"); aiDiv.className = "msg ai"; aiDiv.innerHTML = cleaned; box.appendChild(aiDiv); box.scrollTop = box.scrollHeight;
                 db.ref(`users/${currentUser.uid}/chats`).push({ role: 'ai', text: cleaned, timestamp: firebase.database.ServerValue.TIMESTAMP });
-
-                if(isGlobalVoiceOn) {
-                    speakText(cleaned);
-                }
-            } catch (err) { 
-                box.removeChild(typing); 
-            }
+                if(isGlobalVoiceOn) speakText(cleaned);
+            } catch (err) { box.removeChild(typing); }
         }
     </script>
 </body>
