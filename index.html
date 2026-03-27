@@ -1364,7 +1364,7 @@
                     
                     if(!cloudData.secure_url) throw new Error("Image upload failed");
 
-                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Creating (15-30 sec)...`;
+                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Waking Server (up to 50s)...`;
 
                     const targetApi = "https://api.replicate.com/v1/models/stability-ai/sdxl/predictions";
                     const inputPayload = {
@@ -1415,7 +1415,7 @@
                             btn.disabled = false;
                             shimmer.style.display = "none";
                             placeholder.style.display = "block";
-                            alert("Polling error: Make sure node server is running.");
+                            alert("Error: " + err.message + "\n\n(Tip: Render's free server sleeps after 15 mins. Please try again in 1 minute while it wakes up!)");
                         }
                     };
                     setTimeout(checkStatus, 3000);
@@ -1425,7 +1425,7 @@
                     btn.disabled = false;
                     shimmer.style.display = "none";
                     placeholder.style.display = "block";
-                    alert(e.message);
+                    alert("Error: " + e.message + "\n\n(Tip: Render's free server sleeps after 15 mins. Please try again in 1 minute while it wakes up!)");
                 }
             } 
             else {
@@ -1476,7 +1476,7 @@
             let actionBtns = document.getElementById("videoActionBtns");
             let placeholder = document.getElementById("videoPlaceholderText");
             
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Creating (Takes 1-2 min)...`; 
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Waking Server (up to 50s)...`; 
             btn.disabled = true;
             actionBtns.style.display = "none"; 
             placeholder.style.display = "none"; 
@@ -1497,6 +1497,8 @@
                 if (!createRes.ok || createData.error) {
                     throw new Error("Backend Error: " + (createData.error || "Unknown"));
                 }
+                
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Creating (Takes 1-2 min)...`;
 
                 const getUrl = createData.urls.get;
 
@@ -1533,7 +1535,7 @@
                         btn.disabled = false; 
                         shimmer.style.display = "none"; 
                         placeholder.style.display = "block"; 
-                        alert("Make sure node server.js is running! " + err.message);
+                        alert("Error: " + err.message + "\n\n(Tip: Render's free server sleeps after 15 mins. Please try again in 1 minute while it wakes up!)");
                     }
                 };
 
@@ -1545,7 +1547,7 @@
                 btn.disabled = false; 
                 shimmer.style.display = "none"; 
                 placeholder.style.display = "block"; 
-                alert("Please start the backend server. Run 'node server.js' in terminal.");
+                alert("Error: " + e.message + "\n\n(Tip: Render's free server sleeps after 15 mins. Please try again in 1 minute while it wakes up!)");
             }
         }
 
