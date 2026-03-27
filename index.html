@@ -1366,15 +1366,18 @@
 
                     btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Creating (15-30 sec)...`;
 
-                    const targetApi = "https://api.replicate.com/v1/models/stability-ai/sdxl/predictions";
-                    const inputPayload = {
-                        prompt: currentPrompt,
-                        image: cloudData.secure_url,
-                        prompt_strength: 0.7
-                    };
+                    // YAHAN MAINE SDXL KA EXACT 'VERSION HASH' DAAL DIYA HAI JO KABHI FAIL NAHI HOGA
+                    const targetApi = "https://api.replicate.com/v1/predictions";
+                    
+                    const createRes = await fetchFromMyBackend(targetApi, "POST", { 
+                        version: "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+                        input: {
+                            prompt: currentPrompt,
+                            image: cloudData.secure_url,
+                            prompt_strength: 0.7
+                        }
+                    });
 
-                    // Send to our Node.js server
-                    const createRes = await fetchFromMyBackend(targetApi, "POST", { input: inputPayload });
                     const createData = await createRes.json();
 
                     // SMART ERROR CHECKING
