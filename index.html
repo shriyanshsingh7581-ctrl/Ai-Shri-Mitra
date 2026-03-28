@@ -469,10 +469,10 @@
         const pollApiKey = "sk_cbty293zoEEDKLJXsMAaq4A2psY1yq1a";
         let isGlobalVoiceOn = false;
 
-        // --- GLOBAL CRASH GUARD ---
         window.onerror = function(message, source, lineno, colno, error) {
             showToast("System Error: " + message, "error");
         };
+        
         window.onunhandledrejection = function(event) {
             showToast("Async Error: " + (event.reason ? event.reason.message : "Unknown"), "error");
             document.getElementById("genBtn").disabled = false;
@@ -490,10 +490,7 @@
             }, timeout);
             
             try {
-                const response = await fetch(resource, { 
-                    ...options, 
-                    signal: controller.signal 
-                });
+                const response = await fetch(resource, { ...options, signal: controller.signal });
                 clearTimeout(id);
                 return response;
             } catch (e) {
@@ -656,18 +653,9 @@
             }
         });
 
-        function signInWithGoogle() { 
-            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); 
-        }
-        
-        function toggleLogoutDialog() { 
-            let d = document.getElementById('logoutDialog'); 
-            d.style.display = d.style.display === 'none' ? 'block' : 'none'; 
-        }
-        
-        function logout() { 
-            auth.signOut(); 
-        }
+        function signInWithGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+        function toggleLogoutDialog() { let d = document.getElementById('logoutDialog'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; }
+        function logout() { auth.signOut(); }
 
         function initCoinSystem() {
             const coinRef = db.ref(`users/${currentUser.uid}/coins`);
@@ -682,21 +670,12 @@
             });
         }
 
-        function openRechargeModal() { 
-            document.getElementById('rechargeModal').style.display = 'flex'; 
-        }
-        
-        function closeRechargeModal() { 
-            document.getElementById('rechargeModal').style.display = 'none'; 
-        }
+        function openRechargeModal() { document.getElementById('rechargeModal').style.display = 'flex'; }
+        function closeRechargeModal() { document.getElementById('rechargeModal').style.display = 'none'; }
 
         function startRazorpayPayment() {
             var options = {
-                "key": "rzp_test_YourTestKeyHere", 
-                "amount": "4900", 
-                "currency": "INR", 
-                "name": "Shri Mitra Studio", 
-                "description": "50 Mitra Coins",
+                "key": "rzp_test_YourTestKeyHere", "amount": "4900", "currency": "INR", "name": "Shri Mitra Studio", "description": "50 Mitra Coins",
                 "image": "https://cdn-icons-png.flaticon.com/512/149/149071.png",
                 "handler": function (response){
                     db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance + 50).then(() => {
@@ -704,16 +683,11 @@
                         showToast("Payment Successful! 50 Coins added. 🎉", "success");
                     });
                 },
-                "prefill": { 
-                    "name": currentUser.displayName || "", 
-                    "email": currentUser.email || "" 
-                }, 
+                "prefill": { "name": currentUser.displayName || "", "email": currentUser.email || "" }, 
                 "theme": { "color": "#8b5cf6" }
             };
             var rzp1 = new Razorpay(options); 
-            rzp1.on('payment.failed', function (r){ 
-                showToast("Payment Failed: " + r.error.description, "error"); 
-            }); 
+            rzp1.on('payment.failed', function (r){ showToast("Payment Failed: " + r.error.description, "error"); }); 
             rzp1.open();
         }
 
@@ -721,9 +695,7 @@
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
             document.getElementById(t).classList.add('active'); 
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); 
-            if(el) {
-                el.classList.add('active'); 
-            }
+            if(el) { el.classList.add('active'); }
         }
 
         function toggleCreateSheet() {
@@ -757,656 +729,18 @@
             if(!SpeechRecognition) return showToast("Voice typing not supported.", "error");
             const rec = new SpeechRecognition(); 
             rec.lang = 'hi-IN';
-            rec.onstart = () => { 
-                btn.classList.add("listening"); 
-                speakText("Listening"); 
-            };
-            rec.onresult = (e) => { 
-                document.getElementById(id).value += " " + e.results[0][0].transcript; 
-            };
-            rec.onend = () => { 
-                btn.classList.remove("listening"); 
-            };
+            rec.onstart = () => { btn.classList.add("listening"); speakText("Listening"); };
+            rec.onresult = (e) => { document.getElementById(id).value += " " + e.results[0][0].transcript; };
+            rec.onend = () => { btn.classList.remove("listening"); };
             rec.start();
         }
 
-        async function fetchFromMyBackend(targetUrl, method, data = null) {
-            return await fetchWithTimeout("https://shri-mitra-backend.onrender.com/api/proxy", {
-                method: "POST", 
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ targetUrl: targetUrl, method: method, data: data }),
-                timeout: 60000 
-            });
-        }
-
-        function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if(file) {
-                uploadedImageFile = file; 
-                currentGeneratedBlob = file; 
-                cloudinaryUrlOfGeneratedImage = null; 
-                document.getElementById('uploadName').innerText = file.name;
-                document.getElementById('uploadThumb').src = URL.createObjectURL(file);
-                document.getElementById('uploadPreview').style.display = 'flex';
-                
-                let img = document.getElementById("aiImage");
-                img.src = URL.createObjectURL(file); 
-                img.style.display = "block";
-                
-                document.getElementById("placeholderText").style.display = "none";
-                document.getElementById("actionBtns").style.display = "flex"; 
-                
-                if(!isProMode) { 
-                    showToast("Auto-switched to Pro Mode for editing! 🪄", "info"); 
-                    toggleAIModel(); 
-                }
-            }
-        }
-        
-        function clearUpload() {
-            uploadedImageFile = null; 
-            currentGeneratedBlob = null; 
-            document.getElementById('imageUpload').value = ''; 
-            document.getElementById('uploadPreview').style.display = 'none';
-        }
-
-        async function autoUploadMediaToCloudinary(blobData, type, fileName, statusId) {
-            let st = document.getElementById(statusId);
-            if(st) { 
-                st.style.display = 'block'; 
-                st.innerHTML = "<i class='fa-solid fa-spinner fa-spin' style='color:#3b82f6;'></i> Saving to Vault..."; 
-            }
-            
-            const fd = new FormData(); 
-            fd.append('file', blobData, fileName); 
-            fd.append('upload_preset', UPLOAD_PRESET);
-            
-            try {
-                const uploadUrl = type === 'video' ? CLOUDINARY_VIDEO_URL : CLOUDINARY_URL;
-                const res = await fetch(uploadUrl, { method: 'POST', body: fd });
-                const data = await res.json();
-                
-                if(data.error) {
-                    throw new Error(data.error.message);
-                }
-                
-                if(type === 'video') {
-                    cloudinaryUrlOfGeneratedVideo = data.secure_url; 
-                } else {
-                    cloudinaryUrlOfGeneratedImage = data.secure_url;
-                }
-                
-                await db.ref(`users/${currentUser.uid}/gallery`).push({ 
-                    url: data.secure_url, 
-                    prompt: type === 'video' ? currentVideoPrompt : currentPrompt, 
-                    type: type, 
-                    timestamp: firebase.database.ServerValue.TIMESTAMP 
-                });
-                
-                if(st) { 
-                    st.innerHTML = `<i class="fa-solid fa-check" style="color:#10b981;"></i> Saved securely to Vault!`; 
-                    setTimeout(() => {
-                        st.innerHTML = "";
-                    }, 4000); 
-                }
-            } catch(e) { 
-                console.log("Cloud sync failed:", e); 
-                if(st) { 
-                    st.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Save failed: ${e.message}`; 
-                }
-                showToast("Cloudinary Error: " + e.message, "error");
-            }
-        }
-
-        async function generateImage() {
-            let cost = isProMode ? 2 : 0;
-            
-            if (userCoinBalance < cost) {
-                return openRechargeModal();
-            }
-            
-            currentPrompt = document.getElementById("promptInput").value.trim();
-            if (!currentPrompt) {
-                return;
-            }
-            
-            let btn = document.getElementById("genBtn"); 
-            let img = document.getElementById("aiImage"); 
-            let shimmer = document.getElementById("shimmer"); 
-            let actionBtns = document.getElementById("actionBtns"); 
-            let placeholder = document.getElementById("placeholderText");
-            
-            actionBtns.style.display = "none"; 
-            placeholder.style.display = "none"; 
-            shimmer.style.display = "block"; 
-            img.style.display = "none"; 
-            btn.disabled = true;
-            document.getElementById('autoSaveStatus').innerHTML = ''; 
-
-            const resetUI = (errorMessage) => {
-                showToast(errorMessage, "error");
-                btn.innerHTML = isProMode ? `Generate Pro` : `Generate Fast (Free)`; 
-                btn.disabled = false; 
-                shimmer.style.display = "none"; 
-                placeholder.style.display = "block";
-            };
-
-            img.onerror = () => {
-                resetUI("Failed to display image. File might be corrupted.");
-            };
-
-            if(uploadedImageFile || isProMode) {
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Pro...`;
-                
-                try {
-                    let inputPayload = { prompt: currentPrompt };
-                    let targetApi = "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions"; 
-                    
-                    if(uploadedImageFile) {
-                        targetApi = "https://api.replicate.com/v1/models/stability-ai/sdxl/predictions";
-                        const fd = new FormData(); 
-                        fd.append('file', uploadedImageFile); 
-                        fd.append('upload_preset', UPLOAD_PRESET);
-                        
-                        const cloudResponse = await fetch(CLOUDINARY_URL, { method: 'POST', body: fd });
-                        const cloudData = await cloudResponse.json();
-                        
-                        if(cloudData.error) {
-                            throw new Error("Image Upload Error: " + cloudData.error.message);
-                        }
-                        
-                        inputPayload.image = cloudData.secure_url; 
-                        inputPayload.prompt_strength = 0.7;
-                    }
-
-                    const createRes = await fetchFromMyBackend(targetApi, "POST", { input: inputPayload });
-                    const createData = await createRes.json();
-                    
-                    if (createData.detail) {
-                        throw new Error(createData.detail); 
-                    }
-                    if (!createRes.ok || createData.error) {
-                        throw new Error(createData.error?.message || createData.error || "Server Error");
-                    }
-
-                    const checkStatus = async () => {
-                        try {
-                            const pollResponse = await fetchFromMyBackend(createData.urls.get, "GET");
-                            const pollData = await pollResponse.json();
-                            
-                            if (pollData.status === "succeeded") {
-                                db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - cost);
-                                
-                                let outputUrl = Array.isArray(pollData.output) ? pollData.output[0] : pollData.output;
-                                
-                                const imageFetchResponse = await fetchWithTimeout(outputUrl, {timeout: 15000});
-                                currentGeneratedBlob = await imageFetchResponse.blob();
-                                
-                                if (currentGeneratedBlob.size < 1000) {
-                                    throw new Error("Server sent invalid file.");
-                                }
-
-                                img.onload = () => {
-                                    btn.innerHTML = `Generate Pro (2 <i class="fa-solid fa-coins"></i>)`; 
-                                    btn.disabled = false; 
-                                    actionBtns.style.display = "flex";
-                                    shimmer.style.display = "none"; 
-                                    img.style.display = "block";
-                                    
-                                    showToast("Image generated successfully! 🎨", "success");
-                                    autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus');
-                                };
-                                img.src = URL.createObjectURL(currentGeneratedBlob);
-
-                            } else if (pollData.status === "failed") {
-                                throw new Error(pollData.error || "Generation Failed"); 
-                            } else {
-                                setTimeout(checkStatus, 3000);
-                            }
-                        } catch(err) { 
-                            resetUI(err.name === 'AbortError' ? "Timeout!" : err.message);
-                        }
-                    }; 
-                    setTimeout(checkStatus, 3000);
-                    
-                } catch(e) { 
-                    resetUI(e.name === 'AbortError' ? "Server Sleeping. Try Again." : e.message);
-                }
-            } else {
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fast Gen...`; 
-                
-                try {
-                    let seed = Math.floor(Math.random() * 1000000);
-                    let url = `https://image.pollinations.ai/prompt/${encodeURIComponent(currentPrompt)}?nologo=true&seed=${seed}`;
-                    
-                    const response = await fetchWithTimeout(url, { timeout: 25000 });
-                    
-                    if(!response.ok) {
-                        throw new Error("Image server is busy!");
-                    }
-                    
-                    currentGeneratedBlob = await response.blob();
-                    
-                    if (!currentGeneratedBlob.type.startsWith('image/')) {
-                         throw new Error("Received bad file from AI Server.");
-                    }
-
-                    img.onload = () => { 
-                        btn.innerHTML = `Generate Fast (Free)`; 
-                        btn.disabled = false; 
-                        shimmer.style.display = "none"; 
-                        img.style.display = "block"; 
-                        actionBtns.style.display = "flex"; 
-                        
-                        showToast("Image generated instantly! ⚡", "success");
-                        autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus'); 
-                    };
-                    
-                    img.onerror = () => { 
-                        throw new Error("Failed to show image."); 
-                    };
-                    
-                    img.src = URL.createObjectURL(currentGeneratedBlob);
-
-                } catch(e) { 
-                    let msg = e.name === 'AbortError' ? "Server timeout. Try again." : e.message;
-                    resetUI("Fast Gen Error: " + msg);
-                }
-            }
-        }
-
-        async function editImage(toolType) {
-            let cost = toolType === 'upscale' ? 2 : 1; 
-            
-            if (userCoinBalance < cost) {
-                return openRechargeModal();
-            }
-            
-            let targetBlob = currentGeneratedBlob; 
-            
-            if (!targetBlob) {
-                return showToast("Please generate or upload an image first!", "error");
-            }
-
-            let btn = document.getElementById(toolType + 'Btn'); 
-            let originalHtml = btn.innerHTML; 
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Wait...`; 
-            btn.disabled = true;
-
-            try {
-                let imgUrl = cloudinaryUrlOfGeneratedImage;
-                
-                if (!imgUrl) {
-                    const fd = new FormData(); 
-                    fd.append('file', targetBlob); 
-                    fd.append('upload_preset', UPLOAD_PRESET);
-                    
-                    const cloudResponse = await fetch(CLOUDINARY_URL, { method: 'POST', body: fd });
-                    const cloudData = await cloudResponse.json();
-                    
-                    if(cloudData.error) {
-                        throw new Error("Upload Error: " + cloudData.error.message);
-                    }
-                    imgUrl = cloudData.secure_url;
-                }
-                
-                let targetApi = toolType === 'upscale' ? 
-                    "https://api.replicate.com/v1/models/nightmareai/real-esrgan/predictions" : 
-                    "https://api.replicate.com/v1/models/cjwbw/rembg/predictions"; 
-                
-                let inputPayload = toolType === 'upscale' ? { image: imgUrl, scale: 2 } : { image: imgUrl };
-
-                const createRes = await fetchFromMyBackend(targetApi, "POST", { input: inputPayload });
-                const createData = await createRes.json();
-                
-                if (createData.detail) {
-                    throw new Error(createData.detail);
-                }
-                if (createData.error) {
-                    throw new Error(createData.error?.message || createData.error);
-                }
-                if (!createRes.ok) {
-                    throw new Error("Server Error");
-                }
-
-                const checkStatus = async () => {
-                    try {
-                        const pollResponse = await fetchFromMyBackend(createData.urls.get, "GET");
-                        const pollData = await pollResponse.json();
-                        
-                        if (pollData.status === "succeeded") {
-                            db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - cost);
-                            
-                            const imageFetchResponse = await fetchWithTimeout(pollData.output);
-                            currentGeneratedBlob = await imageFetchResponse.blob(); 
-                            cloudinaryUrlOfGeneratedImage = null; 
-                            
-                            let img = document.getElementById("aiImage");
-                            img.onload = () => {
-                                btn.innerHTML = originalHtml; 
-                                btn.disabled = false;
-                                showToast("Image edited successfully! ✨", "success");
-                                autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'edited.jpg', 'autoSaveStatus');
-                            };
-                            
-                            img.onerror = () => { 
-                                throw new Error("Edited image rendering failed."); 
-                            };
-                            
-                            img.src = URL.createObjectURL(currentGeneratedBlob);
-
-                        } else if (pollData.status === "failed") {
-                            throw new Error("Editing failed."); 
-                        } else {
-                            setTimeout(checkStatus, 3000);
-                        }
-                    } catch(e) { 
-                        showToast(e.name === 'AbortError' ? "Timeout" : e.message, "error"); 
-                        btn.innerHTML = originalHtml; 
-                        btn.disabled = false; 
-                    }
-                }; 
-                setTimeout(checkStatus, 3000);
-                
-            } catch (error) { 
-                showToast(error.name === 'AbortError' ? "Timeout" : error.message, "error"); 
-                btn.innerHTML = originalHtml; 
-                btn.disabled = false; 
-            }
-        }
-
-        async function generateVideo() {
-            if (userCoinBalance < 5) {
-                return openRechargeModal();
-            }
-            
-            currentVideoPrompt = document.getElementById("videoPromptInput").value.trim(); 
-            
-            if (!currentVideoPrompt) {
-                return;
-            }
-            
-            let btn = document.getElementById("genVideoBtn"); 
-            let videoEl = document.getElementById("aiVideo"); 
-            let shimmer = document.getElementById("videoShimmer"); 
-            let actionBtns = document.getElementById("videoActionBtns");
-            
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Wait (1-2 min)...`; 
-            btn.disabled = true;
-            actionBtns.style.display = "none"; 
-            document.getElementById("videoPlaceholderText").style.display = "none"; 
-            shimmer.style.display = "block"; 
-            videoEl.style.display = "none"; 
-            videoEl.src = "";
-            document.getElementById('videoAutoSaveStatus').innerHTML = ''; 
-
-            try {
-                showToast("Video engine starting...", "info");
-                
-                const createResponse = await fetchFromMyBackend("https://api.replicate.com/v1/models/wan-video/wan-2.2-t2v-fast/predictions", "POST", { input: { prompt: currentVideoPrompt } });
-                const createData = await createResponse.json();
-                
-                if (createData.error) {
-                    throw new Error(createData.error?.message || "Video API Error");
-                }
-                
-                const checkStatus = async () => {
-                    try {
-                        const pollResponse = await fetchFromMyBackend(createData.urls.get, "GET");
-                        const pollData = await pollResponse.json();
-                        
-                        if (pollData.status === "succeeded") {
-                            db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 5);
-                            
-                            let outputUrl = Array.isArray(pollData.output) ? pollData.output[0] : pollData.output;
-                            const videoFetchResponse = await fetchWithTimeout(outputUrl);
-                            
-                            currentGeneratedVideoBlob = await videoFetchResponse.blob();
-                            videoEl.src = URL.createObjectURL(currentGeneratedVideoBlob); 
-                            videoEl.style.display = "block"; 
-                            shimmer.style.display = "none";
-                            
-                            btn.innerHTML = `Generate Video (5 <i class="fa-solid fa-coins"></i>)`; 
-                            btn.disabled = false; 
-                            actionBtns.style.display = "flex";
-                            
-                            showToast("Video rendered successfully! 🎬", "success");
-                            autoUploadMediaToCloudinary(currentGeneratedVideoBlob, 'video', 'video.mp4', 'videoAutoSaveStatus');
-                            
-                        } else if (pollData.status === "failed") {
-                            throw new Error("Generation failed."); 
-                        } else {
-                            setTimeout(checkStatus, 3000);
-                        }
-                    } catch(err) { 
-                        showToast(err.name === 'AbortError' ? "Timeout" : err.message, "error"); 
-                        btn.innerHTML = `Generate Video`; 
-                        btn.disabled = false; 
-                        shimmer.style.display = "none"; 
-                    }
-                }; 
-                setTimeout(checkStatus, 3000);
-                
-            } catch(e) { 
-                showToast(e.name === 'AbortError' ? "Timeout" : e.message, "error"); 
-                btn.innerHTML = `Generate Video`; 
-                btn.disabled = false; 
-                shimmer.style.display = "none"; 
-            }
-        }
-
-        async function generateMusic() {
-            if (userCoinBalance < 3) {
-                return openRechargeModal();
-            }
-            
-            let prompt = document.getElementById("musicPromptInput").value.trim(); 
-            
-            if (!prompt) {
-                return;
-            }
-
-            let btn = document.getElementById("genMusicBtn"); 
-            let audioEl = document.getElementById("aiMusic");
-            let shimmer = document.getElementById("musicShimmer"); 
-            let actionBtns = document.getElementById("musicActionBtns");
-            
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Composing...`; 
-            btn.disabled = true;
-            actionBtns.style.display = "none"; 
-            document.getElementById("musicPlaceholderText").style.display = "none"; 
-            shimmer.style.display = "block"; 
-            audioEl.style.display = "none";
-
-            try {
-                showToast("Music engine starting...", "info");
-                
-                const createResponse = await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", { 
-                    version: "b05b1dff1d8c6dc63d14b0cdb421ce531d3bcd181eb196eb094dc30911ac681f", 
-                    input: { prompt: prompt, duration: 12 } 
-                });
-                const createData = await createResponse.json();
-                
-                if (createData.error) {
-                    throw new Error(createData.error?.message || "Music API Error");
-                }
-
-                const checkStatus = async () => {
-                    try {
-                        const pollResponse = await fetchFromMyBackend(createData.urls.get, "GET");
-                        const pollData = await pollResponse.json();
-                        
-                        if (pollData.status === "succeeded") {
-                            db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 3);
-                            
-                            const musicFetchResponse = await fetchWithTimeout(pollData.output);
-                            currentGeneratedMusicBlob = await musicFetchResponse.blob();
-                            
-                            audioEl.src = URL.createObjectURL(currentGeneratedMusicBlob); 
-                            audioEl.style.display = "block"; 
-                            shimmer.style.display = "none";
-                            
-                            btn.innerHTML = `Create Music (3 <i class="fa-solid fa-coins"></i>)`; 
-                            btn.disabled = false; 
-                            actionBtns.style.display = "flex";
-                            
-                            showToast("Music track ready! 🎵", "success");
-                            
-                        } else if (pollData.status === "failed") {
-                            throw new Error("Failed."); 
-                        } else {
-                            setTimeout(checkStatus, 3000);
-                        }
-                    } catch(e) { 
-                        showToast(e.name === 'AbortError' ? "Timeout" : e.message, "error"); 
-                        btn.innerHTML = `Create Music`; 
-                        btn.disabled = false; 
-                        shimmer.style.display = "none"; 
-                    }
-                }; 
-                setTimeout(checkStatus, 3000);
-                
-            } catch (error) { 
-                showToast(error.name === 'AbortError' ? "Timeout" : error.message, "error"); 
-                btn.innerHTML = `Create Music`; 
-                btn.disabled = false; 
-                shimmer.style.display = "none"; 
-            }
-        }
-
-        function downloadMedia(blobData, fileName) { 
-            if(!blobData) {
-                return;
-            } 
-            const a = document.createElement("a"); 
-            a.href = URL.createObjectURL(blobData); 
-            a.download = fileName; 
-            a.click(); 
-            showToast("Downloaded securely! 📥", "success");
-        }
-
-        async function publishToGlobal(cloudUrl, type) {
-            if(!cloudUrl) {
-                return showToast("File is still saving to cloud. Please wait 2 seconds.", "info");
-            }
-            
-            await db.ref(`global_feed`).push({ 
-                url: cloudUrl, 
-                prompt: type === 'video' ? currentVideoPrompt : currentPrompt, 
-                type: type, 
-                author: currentUser.displayName, 
-                authorPic: currentUser.photoURL, 
-                timestamp: firebase.database.ServerValue.TIMESTAMP, 
-                likes: 0 
-            });
-            
-            showToast("Posted to Community Feed! 🌍", "success"); 
-            switchMainTab('exploreTab', document.querySelectorAll('.nav-item')[0]);
-        }
-
-        function loadExploreFeed() {
-            db.ref('global_feed').orderByChild('timestamp').limitToLast(30).on('value', snap => {
-                const grid = document.getElementById('exploreGrid'); 
-                grid.innerHTML = '';
-                
-                if(snap.exists()) {
-                    let items = []; 
-                    snap.forEach(c => items.push({...c.val(), id: c.key}));
-                    
-                    items.reverse().forEach((data) => {
-                        if(!data.url) return;
-                        
-                        let div = document.createElement('div'); 
-                        div.className = 'gallery-item'; 
-                        div.style.aspectRatio = "auto";
-                        
-                        let mediaHtml = data.type === 'video' || data.url.endsWith('.mp4') ? 
-                            `<video src="${data.url}" autoplay loop muted playsinline style="height:350px; width:100%; object-fit:cover; border-radius:20px;"></video>` : 
-                            `<img src="${data.url}" loading="lazy" style="height:350px; width:100%; object-fit:cover; border-radius:20px;">`;
-                            
-                        div.innerHTML = `
-                            ${mediaHtml}
-                            <div class="explore-overlay">
-                                <div class="explore-author">
-                                    <img src="${data.authorPic}">
-                                    <span>${data.author}</span>
-                                </div>
-                                <div class="explore-actions">
-                                    <button class="explore-icon-btn" onclick="navigator.clipboard.writeText('${data.prompt.replace(/'/g, "\\'")}'); showToast('Prompt copied! 📋', 'info');">
-                                        <i class="fa-regular fa-copy"></i> Copy
-                                    </button>
-                                    <button class="explore-icon-btn" onclick="db.ref('global_feed/${data.id}/likes').transaction(l=>(l||0)+1)">
-                                        <i class="fa-solid fa-heart" style="color:#ef4444;"></i> ${data.likes || 0}
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                        grid.appendChild(div);
-                    });
-                }
-            });
-        }
-
-        function loadGallery() {
-            db.ref(`users/${currentUser.uid}/gallery`).on('value', snap => {
-                const grid = document.getElementById('galleryGrid'); 
-                if(!grid) return; 
-                grid.innerHTML = ''; 
-                
-                if (snap.exists()) {
-                    let items = []; 
-                    snap.forEach(c => items.push(c.val()));
-                    
-                    items.reverse().forEach((data) => {
-                        if(!data.url) return;
-                        
-                        let div = document.createElement('div'); 
-                        div.className = 'gallery-item';
-                        
-                        div.innerHTML = data.type === 'video' || data.url.endsWith('.mp4') ? 
-                            `<video src="${data.url}" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover; pointer-events:none;"></video>` : 
-                            `<img src="${data.url}" loading="lazy">`;
-                            
-                        div.onclick = () => window.open(data.url, '_blank');
-                        grid.appendChild(div);
-                    });
-                } else {
-                    grid.innerHTML = `
-                        <div style="grid-column: span 2; text-align: center; color: var(--text-muted); padding: 40px 0;">
-                            <i class="fa-solid fa-ghost" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.5;"></i>
-                            <p>Your vault is empty.<br>Click the <b>+</b> button to create magic!</p>
-                        </div>
-                    `;
-                }
-            });
-        }
-
-        function loadChatHistory() {
-            db.ref(`users/${currentUser.uid}/chats`).once('value', snap => {
-                const box = document.getElementById("chatBox"); 
-                box.innerHTML = "";
-                
-                if(snap.exists()) {
-                    snap.forEach(child => { 
-                        let div = document.createElement("div"); 
-                        div.className = `msg ${child.val().role}`; 
-                        div.innerHTML = child.val().text; 
-                        box.appendChild(div); 
-                    });
-                }
-                setTimeout(() => { 
-                    box.scrollTop = box.scrollHeight; 
-                }, 100);
-            });
-        }
-
+        // --- CHAT: BACKEND PROXY (FIXED URL AND CATCH) ---
         async function sendMessage() {
             let input = document.getElementById("chatInput"); 
             let text = input.value.trim(); 
             
-            if (!text) {
-                return;
-            }
+            if (!text) return;
             
             if(isProMode && userCoinBalance < 1) {
                 return openRechargeModal();
@@ -1422,9 +756,7 @@
             box.scrollTop = box.scrollHeight;
             
             db.ref(`users/${currentUser.uid}/chats`).push({ 
-                role: 'user', 
-                text: text, 
-                timestamp: firebase.database.ServerValue.TIMESTAMP 
+                role: 'user', text: text, timestamp: firebase.database.ServerValue.TIMESTAMP 
             });
 
             let typing = document.createElement("div"); 
@@ -1438,7 +770,6 @@
             box.scrollTop = box.scrollHeight;
 
             let searchContext = "";
-            
             const qStr = text.toLowerCase().trim();
             const smallTalk = [
                 'hi', 'hello', 'hey', 'hy', 'hii', 'hiii', 'good morning', 
@@ -1450,15 +781,14 @@
             
             let needsSearch = !smallTalk.includes(qStr);
 
+            // --- FIXED: USING SECURE BACKEND FOR SEARCH API ---
             if (needsSearch) {
                 try {
-                    const searchRes = await fetch("https://google.serper.dev/search", {
+                    const searchRes = await fetchWithTimeout("https://shri-mitra-backend.onrender.com/api/search", {
                         method: "POST",
-                        headers: { 
-                            "X-API-KEY": "909c887350a367f292a29ff6d00c6ff786f0ae10", 
-                            "Content-Type": "application/json" 
-                        },
-                        body: JSON.stringify({ q: text, gl: "in" })
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ query: text }),
+                        timeout: 30000 
                     });
                     
                     const searchData = await searchRes.json();
@@ -1470,7 +800,7 @@
                         }
                     }
                 } catch (e) { 
-                    console.log("Direct Search failed:", e); 
+                    console.log("Backend Search failed:", e); 
                 }
             }
 
@@ -1480,10 +810,8 @@
 
             if (searchContext) { 
                 proPrompt = `${searchContext}\n\nIMPORTANT RULE: Answer the user's question based ONLY on the LATEST LIVE INTERNET DATA above. Do not use your old memory.\n\nUser's Question: ${text}`; 
-                
                 let shortContext = searchContext.substring(0, 350).replace(/[^a-zA-Z0-9 .,:-]/g, " "); 
                 fastPrompt = `${shortContext} Answer based on this data. Question: ${text}`; 
-                
                 sys += " You must use the provided data to answer.";
             }
 
@@ -1493,18 +821,29 @@
 
             if(isProMode) {
                 try {
-                    const createResponse = await fetchFromMyBackend("https://api.replicate.com/v1/models/meta/meta-llama-3-70b-instruct/predictions", "POST", { 
-                        input: { prompt: proPrompt, system_prompt: sys, max_tokens: 1024 } 
+                    const createResponse = await fetchWithTimeout("https://shri-mitra-backend.onrender.com/api/proxy", {
+                        method: "POST", 
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ 
+                            targetUrl: "https://api.replicate.com/v1/models/meta/meta-llama-3-70b-instruct/predictions", 
+                            method: "POST", 
+                            data: { input: { prompt: proPrompt, system_prompt: sys, max_tokens: 1024 } } 
+                        }),
+                        timeout: 60000
                     });
-                    const createData = await createResponse.json();
                     
-                    if (createData.error) {
-                        throw new Error(createData.error);
-                    }
+                    const createData = await createResponse.json();
+                    if (createData.error) throw new Error(createData.error);
 
                     const checkStatus = async () => {
                         try {
-                            const pollResponse = await fetchFromMyBackend(createData.urls.get, "GET");
+                            const pollResponse = await fetchWithTimeout("https://shri-mitra-backend.onrender.com/api/proxy", {
+                                method: "POST", 
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ targetUrl: createData.urls.get, method: "GET" }),
+                                timeout: 30000
+                            });
+                            
                             const pollData = await pollResponse.json();
                             
                             if (pollData.status === "succeeded") {
@@ -1528,9 +867,7 @@
                                 box.scrollTop = box.scrollHeight;
                                 
                                 db.ref(`users/${currentUser.uid}/chats`).push({ 
-                                    role: 'ai', 
-                                    text: cleaned, 
-                                    timestamp: firebase.database.ServerValue.TIMESTAMP 
+                                    role: 'ai', text: cleaned, timestamp: firebase.database.ServerValue.TIMESTAMP 
                                 });
                                 
                                 if(isGlobalVoiceOn) speakText(cleaned);
@@ -1554,7 +891,6 @@
             } else {
                 try {
                     const url = `https://text.pollinations.ai/${encodeURIComponent(fastPrompt)}?system=${encodeURIComponent(sys)}`;
-                    
                     const response = await fetchWithTimeout(url, {timeout: 15000});
                     let rawText = await response.text();
                     
@@ -1580,9 +916,7 @@
                     box.scrollTop = box.scrollHeight;
                     
                     db.ref(`users/${currentUser.uid}/chats`).push({ 
-                        role: 'ai', 
-                        text: cleaned, 
-                        timestamp: firebase.database.ServerValue.TIMESTAMP 
+                        role: 'ai', text: cleaned, timestamp: firebase.database.ServerValue.TIMESTAMP 
                     });
                     
                     if(isGlobalVoiceOn) speakText(cleaned);
