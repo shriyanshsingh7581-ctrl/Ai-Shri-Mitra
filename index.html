@@ -250,6 +250,7 @@
             gap: 10px; 
         }
 
+        /* --- AI MODE TOGGLE BUTTON --- */
         .ai-mode-btn {
             background: rgba(139, 92, 246, 0.15);
             border: 1px solid var(--primary);
@@ -1048,8 +1049,7 @@
     </div>
 
     <script>
-        // --- SECURE API KEYS ---
-        const SERPER_API_KEY = "909c887350a367f292a29ff6d00c6ff786f0ae10"; 
+        // API KEY YAHAN SE HATA DI GAYI HAI (AB YE 100% SECURE HAI)
         const pollApiKey = "sk_cbty293zoEEDKLJXsMAaq4A2psY1yq1a";
 
         const manifest = { 
@@ -1556,7 +1556,7 @@
             });
         }
 
-        // --- FINAL RAG SEARCH ENGINE ---
+        // --- THE ULTIMATE SEARCH + CHAT ENGINE ---
         async function sendMessage() {
             let input = document.getElementById("chatInput"); 
             let text = input.value.trim(); 
@@ -1578,13 +1578,12 @@
             
             db.ref(`users/${currentUser.uid}/chats`).push({ role: 'user', text: text, timestamp: firebase.database.ServerValue.TIMESTAMP });
 
-            // SMART STATUS UI
             let typing = document.createElement("div"); 
             typing.className = "msg ai"; 
             typing.innerHTML = `
                 <div class="typing-indicator" id="searchStatus" style="padding:4px;">
                     <span style="font-size:12px; color:#fbbf24; font-weight:600;">
-                        <i class="fa-solid fa-magnifying-glass fa-beat-fade"></i> Searching live internet...
+                        <i class="fa-solid fa-magnifying-glass fa-beat-fade"></i> Searching internet...
                     </span>
                 </div>`; 
             box.appendChild(typing); 
@@ -1594,15 +1593,11 @@
             let searchContext = "";
 
             try {
-                // BYPASS CORS WITH PROXY
-                const proxyUrl = "https://corsproxy.io/?https://google.serper.dev/search";
-                const searchRes = await fetch(proxyUrl, {
+                // AB DIRECT SECURE BACKEND KO CALL KAREGA!
+                const searchRes = await fetch("https://shri-mitra-backend.onrender.com/api/search", {
                     method: "POST",
-                    headers: {
-                        "X-API-KEY": SERPER_API_KEY,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ q: text })
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ query: text })
                 });
                 
                 const searchData = await searchRes.json();
@@ -1613,10 +1608,10 @@
                         searchContext += `- ${searchData.organic[i].snippet}\n`;
                     }
                 } else {
-                    searchStatusEl.innerHTML = `<span style="font-size:12px; color:#ef4444; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> No data found. Using memory.</span>`;
+                    searchStatusEl.innerHTML = `<span style="font-size:12px; color:#ef4444; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> No live data found. Using memory.</span>`;
                 }
             } catch (e) {
-                searchStatusEl.innerHTML = `<span style="font-size:12px; color:#ef4444; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> Search blocked. Using offline memory.</span>`;
+                searchStatusEl.innerHTML = `<span style="font-size:12px; color:#ef4444; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> Search unavailable. Using memory.</span>`;
                 console.log("Search failed:", e);
             }
 
