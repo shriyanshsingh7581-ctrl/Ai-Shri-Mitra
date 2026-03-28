@@ -305,6 +305,7 @@
                             <i class="fa-solid fa-scissors"></i> Remove BG (1 <i class="fa-solid fa-coins" style="font-size: 10px;"></i>)
                         </button>
                     </div>
+                    <span id="autoSaveStatus" style="font-size:13px; font-weight:600; text-align:center; display:block; width:100%; margin-top:8px;"></span>
                 </div>
             </div>
 
@@ -339,6 +340,7 @@
                             <i class="fa-solid fa-globe"></i> Post
                         </button>
                     </div>
+                    <span id="videoAutoSaveStatus" style="font-size:13px; font-weight:600; text-align:center; display:block; width:100%; margin-top:8px;"></span>
                 </div>
             </div>
 
@@ -560,7 +562,6 @@
                 document.getElementById('loginOverlay').classList.remove('active'); 
                 document.getElementById('mainApp').style.display = 'block';
                 
-                // Safely update profile images/names (in case user data is missing)
                 let picUrl = user.photoURL ? user.photoURL : "https://cdn-icons-png.flaticon.com/512/149/149071.png";
                 let uName = user.displayName ? user.displayName : "Creator";
                 
@@ -659,6 +660,7 @@
             });
         }
 
+        let uploadedImageFile = null;
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if(file) {
@@ -677,6 +679,37 @@
             uploadedImageFile = null; currentGeneratedBlob = null; document.getElementById('imageUpload').value = ''; document.getElementById('uploadPreview').style.display = 'none';
         }
 
+        // --- NEW AUTO SAVE WITH VISUAL FEEDBACK ---
+        async function autoUploadMediaToCloudinary(blobData, type, fileName, statusId) {
+            let st = document.getElementById(statusId);
+            if(st) { st.style.display = 'block'; st.innerHTML = "<i class='fa-solid fa-spinner fa-spin' style='color:#3b82f6;'></i> Saving to Private Vault..."; }
+            
+            const fd = new FormData(); fd.append('file', blobData, fileName); fd.append('upload_preset', UPLOAD_PRESET);
+            try {
+                const uploadUrl = type === 'video' ? CLOUDINARY_VIDEO_URL : CLOUDINARY_URL;
+                const res = await fetch(uploadUrl, { method: 'POST', body: fd });
+                const data = await res.json();
+                
+                if(data.error) throw new Error(data.error.message);
+                
+                if(type === 'video') cloudinaryUrlOfGeneratedVideo = data.secure_url; 
+                else cloudinaryUrlOfGeneratedImage = data.secure_url;
+                
+                await db.ref(`users/${currentUser.uid}/gallery`).push({ 
+                    url: data.secure_url, 
+                    prompt: type === 'video' ? currentVideoPrompt : currentPrompt, 
+                    type: type, 
+                    timestamp: firebase.database.ServerValue.TIMESTAMP 
+                });
+                
+                if(st) { st.innerHTML = `<i class="fa-solid fa-check" style="color:#10b981;"></i> Saved securely to Vault!`; setTimeout(() => st.innerHTML="", 4000); }
+            } catch(e) { 
+                console.log("Cloud sync failed:", e); 
+                if(st) { st.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Save failed: Check connection.`; }
+                showToast("Failed to save to Vault. Is Cloudinary Full?", "error");
+            }
+        }
+
         async function generateImage() {
             let cost = isProMode ? 2 : 0;
             if (userCoinBalance < cost) return openRechargeModal();
@@ -686,6 +719,7 @@
             let btn = document.getElementById("genBtn"); let img = document.getElementById("aiImage"); 
             let shimmer = document.getElementById("shimmer"); let actionBtns = document.getElementById("actionBtns"); let placeholder = document.getElementById("placeholderText");
             actionBtns.style.display = "none"; placeholder.style.display = "none"; shimmer.style.display = "block"; img.style.display = "none"; btn.disabled = true;
+            document.getElementById('autoSaveStatus').innerHTML = ''; // Reset status
 
             if(uploadedImageFile || isProMode) {
                 btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Pro...`;
@@ -710,7 +744,7 @@
                                 img.src = URL.createObjectURL(currentGeneratedBlob); img.style.display = "block"; shimmer.style.display = "none";
                                 btn.innerHTML = isProMode ? `Generate Pro (2 <i class="fa-solid fa-coins"></i>)` : `Generate Fast (Free)`; btn.disabled = false; actionBtns.style.display = "flex";
                                 showToast("Image generated successfully! 🎨", "success");
-                                autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg');
+                                autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus');
                             } else if (pollData.status === "failed") throw new Error("Failed"); else setTimeout(checkStatus, 3000);
                         } catch(err) { showToast(err.message, "error"); btn.innerHTML = isProMode ? `Generate Pro` : `Generate Fast`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; }
                     }; setTimeout(checkStatus, 3000);
@@ -723,7 +757,7 @@
                     img.onload = () => { 
                         btn.innerHTML = `Generate Fast (Free)`; btn.disabled = false; shimmer.style.display = "none"; img.style.display = "block"; actionBtns.style.display = "flex"; 
                         showToast("Image generated instantly! ⚡", "success");
-                        autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg'); 
+                        autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus'); 
                     };
                 } catch(e) { showToast("Generation failed", "error"); btn.innerHTML = `Generate Fast (Free)`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; }
             }
@@ -754,6 +788,8 @@
                             document.getElementById("aiImage").src = URL.createObjectURL(currentGeneratedBlob);
                             btn.innerHTML = originalHtml; btn.disabled = false;
                             showToast("Image edited successfully! ✨", "success");
+                            // Auto save the edited version too!
+                            autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'edited.jpg', 'autoSaveStatus');
                         } else if (pollData.status === "failed") throw new Error("Editing failed."); else setTimeout(checkStatus, 3000);
                     } catch(e) { showToast(e.message, "error"); btn.innerHTML = originalHtml; btn.disabled = false; }
                 }; setTimeout(checkStatus, 3000);
@@ -768,7 +804,8 @@
             let shimmer = document.getElementById("videoShimmer"); let actionBtns = document.getElementById("videoActionBtns");
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Wait (1-2 min)...`; btn.disabled = true;
             actionBtns.style.display = "none"; document.getElementById("videoPlaceholderText").style.display = "none"; shimmer.style.display = "block"; videoEl.style.display = "none"; videoEl.src = "";
-            
+            document.getElementById('videoAutoSaveStatus').innerHTML = ''; // Reset status
+
             try {
                 const createData = await (await fetchFromMyBackend("https://api.replicate.com/v1/models/wan-video/wan-2.2-t2v-fast/predictions", "POST", { input: { prompt: currentVideoPrompt } })).json();
                 if (createData.error) throw new Error(createData.error);
@@ -782,7 +819,7 @@
                             videoEl.src = URL.createObjectURL(currentGeneratedVideoBlob); videoEl.style.display = "block"; shimmer.style.display = "none";
                             btn.innerHTML = `Generate Video (5 <i class="fa-solid fa-coins"></i>)`; btn.disabled = false; actionBtns.style.display = "flex";
                             showToast("Video rendered successfully! 🎬", "success");
-                            autoUploadMediaToCloudinary(currentGeneratedVideoBlob, 'video', 'video.mp4');
+                            autoUploadMediaToCloudinary(currentGeneratedVideoBlob, 'video', 'video.mp4', 'videoAutoSaveStatus');
                         } else if (pollData.status === "failed") throw new Error("Generation failed."); else setTimeout(checkStatus, 3000);
                     } catch(err) { showToast(err.message, "error"); btn.innerHTML = `Generate Video`; btn.disabled = false; shimmer.style.display = "none"; }
                 }; setTimeout(checkStatus, 3000);
@@ -817,22 +854,13 @@
             } catch (error) { showToast(error.message, "error"); btn.innerHTML = `Create Music`; btn.disabled = false; shimmer.style.display = "none"; }
         }
 
-        async function autoUploadMediaToCloudinary(blobData, type, fileName) {
-            const fd = new FormData(); fd.append('file', blobData, fileName); fd.append('upload_preset', UPLOAD_PRESET);
-            try {
-                const data = await (await fetch(type==='video'?CLOUDINARY_VIDEO_URL:CLOUDINARY_URL, { method: 'POST', body: fd })).json();
-                if(type === 'video') cloudinaryUrlOfGeneratedVideo = data.secure_url; else cloudinaryUrlOfGeneratedImage = data.secure_url;
-                await db.ref(`users/${currentUser.uid}/gallery`).push({ url: data.secure_url, prompt: type==='video'?currentVideoPrompt:currentPrompt, type: type, timestamp: firebase.database.ServerValue.TIMESTAMP });
-            } catch(e) { console.log("Cloud sync failed."); }
-        }
-
         function downloadMedia(blobData, fileName) { 
             if(!blobData) return; const a = document.createElement("a"); a.href = URL.createObjectURL(blobData); a.download = fileName; a.click(); 
             showToast("Downloaded securely! 📥", "success");
         }
 
         async function publishToGlobal(cloudUrl, type) {
-            if(!cloudUrl) return;
+            if(!cloudUrl) return showToast("File is still saving to cloud. Please wait 2 seconds.", "info");
             await db.ref(`global_feed`).push({ url: cloudUrl, prompt: type==='video'?currentVideoPrompt:currentPrompt, type: type, author: currentUser.displayName, authorPic: currentUser.photoURL, timestamp: firebase.database.ServerValue.TIMESTAMP, likes: 0 });
             showToast("Posted to Community Feed! 🌍", "success"); switchMainTab('exploreTab', document.querySelectorAll('.nav-item')[0]);
         }
