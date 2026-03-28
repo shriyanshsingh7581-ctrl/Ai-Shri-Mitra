@@ -467,7 +467,7 @@
 
     <script>
         const pollApiKey = "sk_cbty293zoEEDKLJXsMAaq4A2psY1yq1a";
-        let isGlobalVoiceOn = false; // BUG 1 FIXED HERE
+        let isGlobalVoiceOn = false;
 
         // --- GLOBAL CRASH GUARD ---
         window.onerror = function(message, source, lineno, colno, error) {
@@ -591,6 +591,7 @@
         let cloudinaryUrlOfGeneratedVideo = null;
         let currentGeneratedMusicBlob = null; 
         let isProMode = false;
+        let uploadedImageFile = null;
 
         function toggleAIModel() {
             isProMode = !isProMode;
@@ -857,166 +858,160 @@
             }
         }
 
-        // --- FULLY UNCOMPRESSED IMAGE GENERATION (BUG 2 FIXED HERE) ---
         async function generateImage() {
-            try {
-                let cost = isProMode ? 2 : 0;
-                
-                if (userCoinBalance < cost) {
-                    return openRechargeModal();
-                }
-                
-                currentPrompt = document.getElementById("promptInput").value.trim();
-                if (!currentPrompt) {
-                    return;
-                }
-                
-                let btn = document.getElementById("genBtn"); 
-                let img = document.getElementById("aiImage"); 
-                let shimmer = document.getElementById("shimmer"); 
-                let actionBtns = document.getElementById("actionBtns"); 
-                let placeholder = document.getElementById("placeholderText");
-                
-                actionBtns.style.display = "none"; 
-                placeholder.style.display = "none"; 
-                shimmer.style.display = "block"; 
-                img.style.display = "none"; 
-                btn.disabled = true;
-                document.getElementById('autoSaveStatus').innerHTML = ''; 
+            let cost = isProMode ? 2 : 0;
+            
+            if (userCoinBalance < cost) {
+                return openRechargeModal();
+            }
+            
+            currentPrompt = document.getElementById("promptInput").value.trim();
+            if (!currentPrompt) {
+                return;
+            }
+            
+            let btn = document.getElementById("genBtn"); 
+            let img = document.getElementById("aiImage"); 
+            let shimmer = document.getElementById("shimmer"); 
+            let actionBtns = document.getElementById("actionBtns"); 
+            let placeholder = document.getElementById("placeholderText");
+            
+            actionBtns.style.display = "none"; 
+            placeholder.style.display = "none"; 
+            shimmer.style.display = "block"; 
+            img.style.display = "none"; 
+            btn.disabled = true;
+            document.getElementById('autoSaveStatus').innerHTML = ''; 
 
-                // FIXED: Direct UI reset function, no throwing errors into the void!
-                const resetUI = (errorMessage) => {
-                    showToast(errorMessage, "error");
-                    btn.innerHTML = isProMode ? `Generate Pro` : `Generate Fast (Free)`; 
-                    btn.disabled = false; 
-                    shimmer.style.display = "none"; 
-                    placeholder.style.display = "block";
-                };
+            const resetUI = (errorMessage) => {
+                showToast(errorMessage, "error");
+                btn.innerHTML = isProMode ? `Generate Pro` : `Generate Fast (Free)`; 
+                btn.disabled = false; 
+                shimmer.style.display = "none"; 
+                placeholder.style.display = "block";
+            };
 
-                img.onerror = () => {
-                    resetUI("Failed to display image. File might be corrupted.");
-                };
+            img.onerror = () => {
+                resetUI("Failed to display image. File might be corrupted.");
+            };
 
-                if(uploadedImageFile || isProMode) {
-                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Pro...`;
+            if(uploadedImageFile || isProMode) {
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Pro...`;
+                
+                try {
+                    let inputPayload = { prompt: currentPrompt };
+                    let targetApi = "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions"; 
                     
-                    try {
-                        let inputPayload = { prompt: currentPrompt };
-                        let targetApi = "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions"; 
+                    if(uploadedImageFile) {
+                        targetApi = "https://api.replicate.com/v1/models/stability-ai/sdxl/predictions";
+                        const fd = new FormData(); 
+                        fd.append('file', uploadedImageFile); 
+                        fd.append('upload_preset', UPLOAD_PRESET);
                         
-                        if(uploadedImageFile) {
-                            targetApi = "https://api.replicate.com/v1/models/stability-ai/sdxl/predictions";
-                            const fd = new FormData(); 
-                            fd.append('file', uploadedImageFile); 
-                            fd.append('upload_preset', UPLOAD_PRESET);
-                            
-                            const cloudResponse = await fetch(CLOUDINARY_URL, { method: 'POST', body: fd });
-                            const cloudData = await cloudResponse.json();
-                            
-                            if(cloudData.error) {
-                                throw new Error("Image Upload Error: " + cloudData.error.message);
-                            }
-                            
-                            inputPayload.image = cloudData.secure_url; 
-                            inputPayload.prompt_strength = 0.7;
-                        }
-
-                        const createRes = await fetchFromMyBackend(targetApi, "POST", { input: inputPayload });
-                        const createData = await createRes.json();
+                        const cloudResponse = await fetch(CLOUDINARY_URL, { method: 'POST', body: fd });
+                        const cloudData = await cloudResponse.json();
                         
-                        if (createData.detail) {
-                            throw new Error(createData.detail); 
+                        if(cloudData.error) {
+                            throw new Error("Image Upload Error: " + cloudData.error.message);
                         }
-                        if (!createRes.ok || createData.error) {
-                            throw new Error(createData.error?.message || createData.error || "Server Error");
-                        }
+                        
+                        inputPayload.image = cloudData.secure_url; 
+                        inputPayload.prompt_strength = 0.7;
+                    }
 
-                        const checkStatus = async () => {
-                            try {
-                                const pollResponse = await fetchFromMyBackend(createData.urls.get, "GET");
-                                const pollData = await pollResponse.json();
+                    const createRes = await fetchFromMyBackend(targetApi, "POST", { input: inputPayload });
+                    const createData = await createRes.json();
+                    
+                    if (createData.detail) {
+                        throw new Error(createData.detail); 
+                    }
+                    if (!createRes.ok || createData.error) {
+                        throw new Error(createData.error?.message || createData.error || "Server Error");
+                    }
+
+                    const checkStatus = async () => {
+                        try {
+                            const pollResponse = await fetchFromMyBackend(createData.urls.get, "GET");
+                            const pollData = await pollResponse.json();
+                            
+                            if (pollData.status === "succeeded") {
+                                db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - cost);
                                 
-                                if (pollData.status === "succeeded") {
-                                    db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - cost);
-                                    
-                                    let outputUrl = Array.isArray(pollData.output) ? pollData.output[0] : pollData.output;
-                                    
-                                    const imageFetchResponse = await fetchWithTimeout(outputUrl, {timeout: 15000});
-                                    currentGeneratedBlob = await imageFetchResponse.blob();
-                                    
-                                    if (currentGeneratedBlob.size < 1000) {
-                                        throw new Error("Server sent invalid file.");
-                                    }
-
-                                    img.onload = () => {
-                                        btn.innerHTML = `Generate Pro (2 <i class="fa-solid fa-coins"></i>)`; 
-                                        btn.disabled = false; 
-                                        actionBtns.style.display = "flex";
-                                        shimmer.style.display = "none"; 
-                                        img.style.display = "block";
-                                        
-                                        showToast("Image generated successfully! 🎨", "success");
-                                        autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus');
-                                    };
-                                    
-                                    img.src = URL.createObjectURL(currentGeneratedBlob);
-
-                                } else if (pollData.status === "failed") {
-                                    throw new Error(pollData.error || "Generation Failed"); 
-                                } else {
-                                    setTimeout(checkStatus, 3000);
+                                let outputUrl = Array.isArray(pollData.output) ? pollData.output[0] : pollData.output;
+                                
+                                const imageFetchResponse = await fetchWithTimeout(outputUrl, {timeout: 15000});
+                                currentGeneratedBlob = await imageFetchResponse.blob();
+                                
+                                if (currentGeneratedBlob.size < 1000) {
+                                    throw new Error("Server sent invalid file.");
                                 }
-                            } catch(err) { 
-                                resetUI(err.name === 'AbortError' ? "Timeout!" : err.message);
+
+                                img.onload = () => {
+                                    btn.innerHTML = `Generate Pro (2 <i class="fa-solid fa-coins"></i>)`; 
+                                    btn.disabled = false; 
+                                    actionBtns.style.display = "flex";
+                                    shimmer.style.display = "none"; 
+                                    img.style.display = "block";
+                                    
+                                    showToast("Image generated successfully! 🎨", "success");
+                                    autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus');
+                                };
+                                img.src = URL.createObjectURL(currentGeneratedBlob);
+
+                            } else if (pollData.status === "failed") {
+                                throw new Error(pollData.error || "Generation Failed"); 
+                            } else {
+                                setTimeout(checkStatus, 3000);
                             }
-                        }; 
-                        setTimeout(checkStatus, 3000);
-                        
-                    } catch(e) { 
-                        resetUI(e.name === 'AbortError' ? "Server Sleeping. Try Again." : e.message);
-                    }
-                } else {
-                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fast Gen...`; 
+                        } catch(err) { 
+                            resetUI(err.name === 'AbortError' ? "Timeout!" : err.message);
+                        }
+                    }; 
+                    setTimeout(checkStatus, 3000);
                     
-                    try {
-                        let seed = Math.floor(Math.random() * 1000000);
-                        let url = `https://image.pollinations.ai/prompt/${encodeURIComponent(currentPrompt)}?nologo=true&seed=${seed}`;
-                        
-                        const response = await fetchWithTimeout(url, { timeout: 25000 });
-                        
-                        if(!response.ok) {
-                            throw new Error("Image server is busy!");
-                        }
-                        
-                        currentGeneratedBlob = await response.blob();
-                        
-                        if (!currentGeneratedBlob.type.startsWith('image/')) {
-                             throw new Error("Received bad file from AI Server.");
-                        }
-
-                        img.onload = () => { 
-                            btn.innerHTML = `Generate Fast (Free)`; 
-                            btn.disabled = false; 
-                            shimmer.style.display = "none"; 
-                            img.style.display = "block"; 
-                            actionBtns.style.display = "flex"; 
-                            
-                            showToast("Image generated instantly! ⚡", "success");
-                            autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus'); 
-                        };
-                        
-                        img.src = URL.createObjectURL(currentGeneratedBlob);
-
-                    } catch(e) { 
-                        let msg = e.name === 'AbortError' ? "Server timeout. Try again." : e.message;
-                        resetUI("Fast Gen Error: " + msg);
-                    }
+                } catch(e) { 
+                    resetUI(e.name === 'AbortError' ? "Server Sleeping. Try Again." : e.message);
                 }
-            } catch (globalError) {
-                showToast("System error: " + globalError.message, "error");
-                document.getElementById("genBtn").disabled = false;
-                document.getElementById("shimmer").style.display = "none";
-                document.getElementById("placeholderText").style.display = "block";
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fast Gen...`; 
+                
+                try {
+                    let seed = Math.floor(Math.random() * 1000000);
+                    let url = `https://image.pollinations.ai/prompt/${encodeURIComponent(currentPrompt)}?nologo=true&seed=${seed}`;
+                    
+                    const response = await fetchWithTimeout(url, { timeout: 25000 });
+                    
+                    if(!response.ok) {
+                        throw new Error("Image server is busy!");
+                    }
+                    
+                    currentGeneratedBlob = await response.blob();
+                    
+                    if (!currentGeneratedBlob.type.startsWith('image/')) {
+                         throw new Error("Received bad file from AI Server.");
+                    }
+
+                    img.onload = () => { 
+                        btn.innerHTML = `Generate Fast (Free)`; 
+                        btn.disabled = false; 
+                        shimmer.style.display = "none"; 
+                        img.style.display = "block"; 
+                        actionBtns.style.display = "flex"; 
+                        
+                        showToast("Image generated instantly! ⚡", "success");
+                        autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus'); 
+                    };
+                    
+                    img.onerror = () => { 
+                        throw new Error("Failed to show image."); 
+                    };
+                    
+                    img.src = URL.createObjectURL(currentGeneratedBlob);
+
+                } catch(e) { 
+                    let msg = e.name === 'AbortError' ? "Server timeout. Try again." : e.message;
+                    resetUI("Fast Gen Error: " + msg);
+                }
             }
         }
 
@@ -1095,9 +1090,7 @@
                             };
                             
                             img.onerror = () => { 
-                                showToast("Failed to display edited image.", "error"); 
-                                btn.innerHTML = originalHtml; 
-                                btn.disabled = false;
+                                throw new Error("Edited image rendering failed."); 
                             };
                             
                             img.src = URL.createObjectURL(currentGeneratedBlob);
