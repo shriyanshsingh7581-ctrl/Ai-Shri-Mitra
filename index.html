@@ -1556,7 +1556,7 @@
             });
         }
 
-        // --- MEGA RAG SEARCH ENGINE (GOOGLE + AI) ---
+        // --- MEGA RAG SEARCH ENGINE (GOOGLE + AI) + MARKDOWN FIX ---
         async function sendMessage() {
             let input = document.getElementById("chatInput"); 
             let text = input.value.trim(); 
@@ -1637,7 +1637,12 @@
 
                             if (pollData.status === "succeeded") {
                                 db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 1);
-                                let cleaned = pollData.output.join("").replace(/\n/g, '<br>');
+                                
+                                // --- MARKDOWN FORMATTER (STARS REMOVER) ---
+                                let rawText = pollData.output.join("");
+                                let cleaned = rawText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Make bold
+                                cleaned = cleaned.replace(/\*/g, ''); // Remove remaining single stars
+                                cleaned = cleaned.replace(/\n/g, '<br>'); // Add lines
                                 
                                 box.removeChild(typing);
                                 let aiDiv = document.createElement("div"); aiDiv.className = "msg ai"; aiDiv.innerHTML = cleaned; 
@@ -1666,9 +1671,12 @@
                     rawText = rawText.split('**Support Pollinations.AI:**')[0];
                     rawText = rawText.split('🌸 **Ad** 🌸')[0];
                     rawText = rawText.split('Powered by Pollinations.AI')[0];
-                    rawText = rawText.replace(/---+$/, '').trim(); // Remove left over lines
+                    rawText = rawText.replace(/---+$/, '').trim(); 
                     
-                    let cleaned = rawText.replace(/\n/g, '<br>');
+                    // --- MARKDOWN FORMATTER (STARS REMOVER) ---
+                    let cleaned = rawText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Make bold
+                    cleaned = cleaned.replace(/\*/g, ''); // Remove remaining single stars
+                    cleaned = cleaned.replace(/\n/g, '<br>'); // Add lines
                     
                     box.removeChild(typing);
                     let aiDiv = document.createElement("div"); aiDiv.className = "msg ai"; aiDiv.innerHTML = cleaned; 
