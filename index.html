@@ -1584,7 +1584,6 @@
             box.appendChild(typing); 
             box.scrollTop = box.scrollHeight;
 
-            // 1. LIVE GOOGLE SEARCH (Using Serper API)
             let searchContext = "";
             try {
                 const searchRes = await fetch("https://google.serper.dev/search", {
@@ -1607,7 +1606,6 @@
                 console.log("Search API error, proceeding without it.");
             }
 
-            // 2. PREPARE THE FINAL QUESTION
             let proPrompt = text;
             let fastPrompt = text;
 
@@ -1623,7 +1621,6 @@
             if(document.body.classList.contains("rcb-theme")) sys += " You are a die-hard fan of RCB (Royal Challengers Bangalore).";
 
             if(isProMode) {
-                // PRO MODE (Llama 70B + Web Search)
                 try {
                     const targetApi = "https://api.replicate.com/v1/models/meta/meta-llama-3-70b-instruct/predictions";
                     const createRes = await fetchFromMyBackend(targetApi, "POST", { 
@@ -1657,15 +1654,21 @@
                 } catch (err) { box.removeChild(typing); alert("Pro Chat Error: " + err.message); }
             
             } else {
-                // FAST MODE (Pollinations GET request safely truncated)
                 try {
-                    // Truncated string easily passes URL length limits
                     const url = `https://text.pollinations.ai/${encodeURIComponent(fastPrompt)}?system=${encodeURIComponent(sys)}`;
                     const response = await fetch(url);
                     
                     if(!response.ok) throw new Error("Network Error");
 
-                    let cleaned = (await response.text()).replace(/\n/g, '<br>');
+                    let rawText = await response.text();
+                    
+                    // --- AD BLOCKER FOR POLLINATIONS ---
+                    rawText = rawText.split('**Support Pollinations.AI:**')[0];
+                    rawText = rawText.split('🌸 **Ad** 🌸')[0];
+                    rawText = rawText.split('Powered by Pollinations.AI')[0];
+                    rawText = rawText.replace(/---+$/, '').trim(); // Remove left over lines
+                    
+                    let cleaned = rawText.replace(/\n/g, '<br>');
                     
                     box.removeChild(typing);
                     let aiDiv = document.createElement("div"); aiDiv.className = "msg ai"; aiDiv.innerHTML = cleaned; 
