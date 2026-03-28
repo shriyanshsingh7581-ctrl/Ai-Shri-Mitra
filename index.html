@@ -209,7 +209,6 @@
         .dialog-btn { width: 100%; text-align: left; padding: 14px 16px; font-size: 14px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 12px; border-radius: 12px; }
         .dialog-btn:hover { background: rgba(255,255,255,0.1); }
         .dialog-btn.red { color: #ef4444; }
-
     </style>
 </head>
 <body>
@@ -469,6 +468,21 @@
     <script>
         const pollApiKey = "sk_cbty293zoEEDKLJXsMAaq4A2psY1yq1a";
 
+        // --- NEW TIMEOUT UTILITY (ROKS THE SILENT HANG) ---
+        async function fetchWithTimeout(resource, options = {}) {
+            const { timeout = 25000 } = options; // Default 25 seconds wait limit
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), timeout);
+            try {
+                const response = await fetch(resource, { ...options, signal: controller.signal });
+                clearTimeout(id);
+                return response;
+            } catch (e) {
+                clearTimeout(id);
+                throw e; // Pass error down so we can show Toast
+            }
+        }
+
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -647,10 +661,12 @@
             rec.start();
         }
 
+        // --- BACKEND PROXY (WITH TIMEOUT FOR SLEEPING SERVERS) ---
         async function fetchFromMyBackend(targetUrl, method, data = null) {
-            return await fetch("https://shri-mitra-backend.onrender.com/api/proxy", {
+            return await fetchWithTimeout("https://shri-mitra-backend.onrender.com/api/proxy", {
                 method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ targetUrl: targetUrl, method: method, data: data })
+                body: JSON.stringify({ targetUrl: targetUrl, method: method, data: data }),
+                timeout: 60000 // 60 seconds (Backend jagane ke liye zyada time chahiye)
             });
         }
 
@@ -672,7 +688,6 @@
             uploadedImageFile = null; currentGeneratedBlob = null; document.getElementById('imageUpload').value = ''; document.getElementById('uploadPreview').style.display = 'none';
         }
 
-        // --- FIXED UPLOAD FUNCTION WITH ERROR CATCHING ---
         async function autoUploadMediaToCloudinary(blobData, type, fileName, statusId) {
             let st = document.getElementById(statusId);
             if(st) { st.style.display = 'block'; st.innerHTML = "<i class='fa-solid fa-spinner fa-spin' style='color:#3b82f6;'></i> Saving to Vault..."; }
@@ -705,6 +720,7 @@
             }
         }
 
+        // --- SUPER FIXED IMAGE GENERATION (NO MORE SILENT HANGS) ---
         async function generateImage() {
             let cost = isProMode ? 2 : 0;
             if (userCoinBalance < cost) return openRechargeModal();
@@ -713,31 +729,29 @@
             
             let btn = document.getElementById("genBtn"); let img = document.getElementById("aiImage"); 
             let shimmer = document.getElementById("shimmer"); let actionBtns = document.getElementById("actionBtns"); let placeholder = document.getElementById("placeholderText");
-            
-            // --- UI RESET ---
             actionBtns.style.display = "none"; placeholder.style.display = "none"; shimmer.style.display = "block"; img.style.display = "none"; btn.disabled = true;
             document.getElementById('autoSaveStatus').innerHTML = ''; 
-
-            // --- FAILSAFE SILENT ERROR CATCHER ---
-            img.onerror = () => {
-                showToast("Failed to load image. Invalid format from server.", "error");
-                btn.innerHTML = isProMode ? `Generate Pro` : `Generate Fast (Free)`; 
-                btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block";
-            };
 
             if(uploadedImageFile || isProMode) {
                 btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Pro...`;
                 try {
                     let inputPayload = { prompt: currentPrompt };
-                    let targetVersion = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"; 
+                    // Sahi Pro Model Endpoints laga diye
+                    let targetApi = "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions"; 
+                    
                     if(uploadedImageFile) {
+                        targetApi = "https://api.replicate.com/v1/models/stability-ai/sdxl/predictions";
                         const fd = new FormData(); fd.append('file', uploadedImageFile); fd.append('upload_preset', UPLOAD_PRESET);
                         const cloudData = await (await fetch(CLOUDINARY_URL, { method: 'POST', body: fd })).json();
                         if(cloudData.error) throw new Error("Image Upload Error: " + cloudData.error.message);
                         inputPayload.image = cloudData.secure_url; inputPayload.prompt_strength = 0.7;
                     }
-                    const createRes = await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", { version: targetVersion, input: inputPayload });
+
+                    const createRes = await fetchFromMyBackend(targetApi, "POST", { input: inputPayload });
                     const createData = await createRes.json();
+                    
+                    // Naya Error Parser (Replicate kabhi-kabhi error detail mein bhejta hai)
+                    if (createData.detail) throw new Error(createData.detail); 
                     if (!createRes.ok || createData.error) throw new Error(createData.error?.message || createData.error || "Server Error");
 
                     const checkStatus = async () => {
@@ -747,7 +761,7 @@
                                 db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - cost);
                                 
                                 let outputUrl = Array.isArray(pollData.output) ? pollData.output[0] : pollData.output;
-                                currentGeneratedBlob = await (await fetch(outputUrl)).blob();
+                                currentGeneratedBlob = await (await fetchWithTimeout(outputUrl, {timeout: 10000})).blob();
                                 
                                 img.onload = () => {
                                     btn.innerHTML = `Generate Pro (2 <i class="fa-solid fa-coins"></i>)`; btn.disabled = false; actionBtns.style.display = "flex";
@@ -755,19 +769,22 @@
                                     showToast("Image generated successfully! 🎨", "success");
                                     autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus');
                                 };
+                                img.onerror = () => { throw new Error("Failed to load image on screen."); };
                                 img.src = URL.createObjectURL(currentGeneratedBlob);
 
                             } else if (pollData.status === "failed") {
-                                throw new Error("Replicate API Failed");
+                                throw new Error(pollData.error || "Generation Failed"); 
                             } else {
                                 setTimeout(checkStatus, 3000);
                             }
                         } catch(err) { 
-                            showToast(err.message, "error"); btn.innerHTML = `Generate Pro`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; 
+                            showToast(err.name === 'AbortError' ? "Timeout!" : err.message, "error"); 
+                            btn.innerHTML = `Generate Pro`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; 
                         }
                     }; setTimeout(checkStatus, 3000);
                 } catch(e) { 
-                    showToast(e.message, "error"); btn.innerHTML = `Generate Pro`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; 
+                    showToast(e.name === 'AbortError' ? "Server Sleeping. Try Again." : e.message, "error"); 
+                    btn.innerHTML = `Generate Pro`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; 
                 }
             } else {
                 btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fast Gen...`; 
@@ -775,14 +792,14 @@
                     let seed = Math.floor(Math.random() * 1000000);
                     let url = `https://image.pollinations.ai/prompt/${encodeURIComponent(currentPrompt)}?nologo=true&seed=${seed}`;
                     
-                    const response = await fetch(url);
+                    // TIMEOUT LAGA DIYA HAI: Ab ye hang nahi hoga! 
+                    const response = await fetchWithTimeout(url, { timeout: 25000 });
                     if(!response.ok) throw new Error("Image server is busy!");
                     
                     currentGeneratedBlob = await response.blob();
                     
-                    // Failsafe: Check if blob is actually an image and not HTML error page
                     if (!currentGeneratedBlob.type.startsWith('image/')) {
-                         throw new Error("Received invalid image format from server.");
+                         throw new Error("Received bad file from AI Server.");
                     }
 
                     img.onload = () => { 
@@ -790,10 +807,12 @@
                         showToast("Image generated instantly! ⚡", "success");
                         autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus'); 
                     };
+                    img.onerror = () => { throw new Error("Failed to show image."); };
                     img.src = URL.createObjectURL(currentGeneratedBlob);
 
                 } catch(e) { 
-                    showToast("Fast Gen Error: " + e.message, "error"); btn.innerHTML = `Generate Fast (Free)`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; 
+                    showToast(e.name === 'AbortError' ? "Server took too long. Try again!" : "Fast Gen Error: " + e.message, "error"); 
+                    btn.innerHTML = `Generate Fast (Free)`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; 
                 }
             }
         }
@@ -812,24 +831,34 @@
                     if(cloudData.error) throw new Error("Upload Error: " + cloudData.error.message);
                     imgUrl = cloudData.secure_url;
                 }
-                let versionHash = toolType === 'upscale' ? "42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b" : "fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003"; 
-                const createData = await (await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", { version: versionHash, input: { image: imgUrl } })).json();
-                if (createData.error) throw new Error(createData.error?.message || "Failed");
+                
+                let targetApi = toolType === 'upscale' ? 
+                    "https://api.replicate.com/v1/models/nightmareai/real-esrgan/predictions" : 
+                    "https://api.replicate.com/v1/models/cjwbw/rembg/predictions"; 
+                
+                let inputPayload = toolType === 'upscale' ? { image: imgUrl, scale: 2 } : { image: imgUrl };
+
+                const createRes = await fetchFromMyBackend(targetApi, "POST", { input: inputPayload });
+                const createData = await createRes.json();
+                
+                if (createData.detail) throw new Error(createData.detail);
+                if (createData.error) throw new Error(createData.error?.message || createData.error);
+                if (!createRes.ok) throw new Error("Server Error");
 
                 const checkStatus = async () => {
                     try {
                         const pollData = await (await fetchFromMyBackend(createData.urls.get, "GET")).json();
                         if (pollData.status === "succeeded") {
                             db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - cost);
-                            currentGeneratedBlob = await (await fetch(pollData.output)).blob(); cloudinaryUrlOfGeneratedImage = null; 
+                            currentGeneratedBlob = await (await fetchWithTimeout(pollData.output)).blob(); cloudinaryUrlOfGeneratedImage = null; 
                             document.getElementById("aiImage").src = URL.createObjectURL(currentGeneratedBlob);
                             btn.innerHTML = originalHtml; btn.disabled = false;
                             showToast("Image edited successfully! ✨", "success");
                             autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'edited.jpg', 'autoSaveStatus');
                         } else if (pollData.status === "failed") throw new Error("Editing failed."); else setTimeout(checkStatus, 3000);
-                    } catch(e) { showToast(e.message, "error"); btn.innerHTML = originalHtml; btn.disabled = false; }
+                    } catch(e) { showToast(e.name === 'AbortError' ? "Timeout" : e.message, "error"); btn.innerHTML = originalHtml; btn.disabled = false; }
                 }; setTimeout(checkStatus, 3000);
-            } catch (error) { showToast(error.message, "error"); btn.innerHTML = originalHtml; btn.disabled = false; }
+            } catch (error) { showToast(error.name === 'AbortError' ? "Timeout" : error.message, "error"); btn.innerHTML = originalHtml; btn.disabled = false; }
         }
 
         async function generateVideo() {
@@ -852,15 +881,15 @@
                         const pollData = await (await fetchFromMyBackend(createData.urls.get, "GET")).json();
                         if (pollData.status === "succeeded") {
                             db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 5);
-                            currentGeneratedVideoBlob = await (await fetch(Array.isArray(pollData.output) ? pollData.output[0] : pollData.output)).blob();
+                            currentGeneratedVideoBlob = await (await fetchWithTimeout(Array.isArray(pollData.output) ? pollData.output[0] : pollData.output)).blob();
                             videoEl.src = URL.createObjectURL(currentGeneratedVideoBlob); videoEl.style.display = "block"; shimmer.style.display = "none";
                             btn.innerHTML = `Generate Video (5 <i class="fa-solid fa-coins"></i>)`; btn.disabled = false; actionBtns.style.display = "flex";
                             showToast("Video rendered successfully! 🎬", "success");
                             autoUploadMediaToCloudinary(currentGeneratedVideoBlob, 'video', 'video.mp4', 'videoAutoSaveStatus');
                         } else if (pollData.status === "failed") throw new Error("Generation failed."); else setTimeout(checkStatus, 3000);
-                    } catch(err) { showToast(err.message, "error"); btn.innerHTML = `Generate Video`; btn.disabled = false; shimmer.style.display = "none"; }
+                    } catch(err) { showToast(err.name === 'AbortError' ? "Timeout" : err.message, "error"); btn.innerHTML = `Generate Video`; btn.disabled = false; shimmer.style.display = "none"; }
                 }; setTimeout(checkStatus, 3000);
-            } catch(e) { showToast(e.message, "error"); btn.innerHTML = `Generate Video`; btn.disabled = false; shimmer.style.display = "none"; }
+            } catch(e) { showToast(e.name === 'AbortError' ? "Timeout" : e.message, "error"); btn.innerHTML = `Generate Video`; btn.disabled = false; shimmer.style.display = "none"; }
         }
 
         async function generateMusic() {
@@ -882,14 +911,14 @@
                         const pollData = await (await fetchFromMyBackend(createData.urls.get, "GET")).json();
                         if (pollData.status === "succeeded") {
                             db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 3);
-                            currentGeneratedMusicBlob = await (await fetch(pollData.output)).blob();
+                            currentGeneratedMusicBlob = await (await fetchWithTimeout(pollData.output)).blob();
                             audioEl.src = URL.createObjectURL(currentGeneratedMusicBlob); audioEl.style.display = "block"; shimmer.style.display = "none";
                             btn.innerHTML = `Create Music (3 <i class="fa-solid fa-coins"></i>)`; btn.disabled = false; actionBtns.style.display = "flex";
                             showToast("Music track ready! 🎵", "success");
                         } else if (pollData.status === "failed") throw new Error("Failed."); else setTimeout(checkStatus, 3000);
-                    } catch(e) { showToast(e.message, "error"); btn.innerHTML = `Create Music`; btn.disabled = false; shimmer.style.display = "none"; }
+                    } catch(e) { showToast(e.name === 'AbortError' ? "Timeout" : e.message, "error"); btn.innerHTML = `Create Music`; btn.disabled = false; shimmer.style.display = "none"; }
                 }; setTimeout(checkStatus, 3000);
-            } catch (error) { showToast(error.message, "error"); btn.innerHTML = `Create Music`; btn.disabled = false; shimmer.style.display = "none"; }
+            } catch (error) { showToast(error.name === 'AbortError' ? "Timeout" : error.message, "error"); btn.innerHTML = `Create Music`; btn.disabled = false; shimmer.style.display = "none"; }
         }
 
         function downloadMedia(blobData, fileName) { 
@@ -1026,13 +1055,13 @@
             } else {
                 try {
                     const url = `https://text.pollinations.ai/${encodeURIComponent(fastPrompt)}?system=${encodeURIComponent(sys)}`;
-                    let rawText = await (await fetch(url)).text();
+                    let rawText = await (await fetchWithTimeout(url, {timeout: 15000})).text();
                     rawText = rawText.split('**Support Pollinations.AI:**')[0].split('🌸 **Ad** 🌸')[0].split('Powered by Pollinations.AI')[0].replace(/---+$/, '').trim(); 
                     let cleaned = rawText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/### (.*?)\n/g, '<strong>$1</strong><br>').replace(/## (.*?)\n/g, '<strong>$1</strong><br>').replace(/# (.*?)\n/g, '<strong>$1</strong><br>').replace(/---/g, '').replace(/\n/g, '<br>'); 
                     box.removeChild(typing); let aiDiv = document.createElement("div"); aiDiv.className = "msg ai"; aiDiv.innerHTML = cleaned; box.appendChild(aiDiv); box.scrollTop = box.scrollHeight;
                     db.ref(`users/${currentUser.uid}/chats`).push({ role: 'ai', text: cleaned, timestamp: firebase.database.ServerValue.TIMESTAMP });
                     if(isGlobalVoiceOn) speakText(cleaned);
-                } catch (err) { box.removeChild(typing); showToast("Chat Error. Try again or use Pro Mode.", "error"); }
+                } catch (err) { box.removeChild(typing); showToast(err.name === 'AbortError' ? "Chat server busy." : "Chat Error.", "error"); }
             }
         }
     </script>
