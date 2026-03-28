@@ -209,7 +209,6 @@
         .dialog-btn { width: 100%; text-align: left; padding: 14px 16px; font-size: 14px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 12px; border-radius: 12px; }
         .dialog-btn:hover { background: rgba(255,255,255,0.1); }
         .dialog-btn.red { color: #ef4444; }
-
     </style>
 </head>
 <body>
@@ -467,8 +466,6 @@
     </div>
 
     <script>
-        const pollApiKey = "sk_cbty293zoEEDKLJXsMAaq4A2psY1yq1a";
-
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -672,9 +669,10 @@
             uploadedImageFile = null; currentGeneratedBlob = null; document.getElementById('imageUpload').value = ''; document.getElementById('uploadPreview').style.display = 'none';
         }
 
+        // --- FIXED UPLOAD FUNCTION WITH ERROR CATCHING ---
         async function autoUploadMediaToCloudinary(blobData, type, fileName, statusId) {
             let st = document.getElementById(statusId);
-            if(st) { st.style.display = 'block'; st.innerHTML = "<i class='fa-solid fa-spinner fa-spin' style='color:#3b82f6;'></i> Saving to Private Vault..."; }
+            if(st) { st.style.display = 'block'; st.innerHTML = "<i class='fa-solid fa-spinner fa-spin' style='color:#3b82f6;'></i> Saving to Vault..."; }
             
             const fd = new FormData(); fd.append('file', blobData, fileName); fd.append('upload_preset', UPLOAD_PRESET);
             try {
@@ -682,9 +680,7 @@
                 const res = await fetch(uploadUrl, { method: 'POST', body: fd });
                 const data = await res.json();
                 
-                if(data.error) {
-                    throw new Error(data.error.message);
-                }
+                if(data.error) throw new Error(data.error.message);
                 
                 if(type === 'video') cloudinaryUrlOfGeneratedVideo = data.secure_url; 
                 else cloudinaryUrlOfGeneratedImage = data.secure_url;
@@ -699,7 +695,7 @@
                 if(st) { st.innerHTML = `<i class="fa-solid fa-check" style="color:#10b981;"></i> Saved securely to Vault!`; setTimeout(() => st.innerHTML="", 4000); }
             } catch(e) { 
                 console.log("Cloud sync failed:", e); 
-                if(st) { st.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Save failed: ${e.message}`; }
+                if(st) { st.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Save failed. Check Cloudinary settings.`; }
                 showToast("Cloudinary Error: " + e.message, "error");
             }
         }
@@ -716,19 +712,20 @@
             document.getElementById('autoSaveStatus').innerHTML = ''; 
 
             if(uploadedImageFile || isProMode) {
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Pro...`;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Waking Server (Wait 30s)...`;
+                showToast("Pro engine warming up...", "info");
                 try {
                     let inputPayload = { prompt: currentPrompt };
                     let targetVersion = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"; 
                     if(uploadedImageFile) {
                         const fd = new FormData(); fd.append('file', uploadedImageFile); fd.append('upload_preset', UPLOAD_PRESET);
                         const cloudData = await (await fetch(CLOUDINARY_URL, { method: 'POST', body: fd })).json();
-                        if(cloudData.error) throw new Error("Image Upload Error: " + cloudData.error.message);
+                        if(cloudData.error) throw new Error("Cloudinary Error: " + cloudData.error.message);
                         inputPayload.image = cloudData.secure_url; inputPayload.prompt_strength = 0.7;
                     }
                     const createRes = await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", { version: targetVersion, input: inputPayload });
                     const createData = await createRes.json();
-                    if (!createRes.ok || createData.error) throw new Error(createData.error);
+                    if (!createRes.ok || createData.error) throw new Error(createData.error?.message || createData.error || "Server Sleep Error");
 
                     const checkStatus = async () => {
                         try {
@@ -747,14 +744,18 @@
             } else {
                 btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fast Gen...`; 
                 try {
-                    currentGeneratedBlob = await (await fetch(`https://gen.pollinations.ai/image/${encodeURIComponent(currentPrompt)}?key=${pollApiKey}&model=flux&nologo=true`)).blob();
+                    let seed = Math.floor(Math.random() * 1000000);
+                    let url = `https://image.pollinations.ai/prompt/${encodeURIComponent(currentPrompt)}?nologo=true&seed=${seed}`;
+                    const response = await fetch(url);
+                    if(!response.ok) throw new Error("Image server busy!");
+                    currentGeneratedBlob = await response.blob();
                     img.src = URL.createObjectURL(currentGeneratedBlob);
                     img.onload = () => { 
                         btn.innerHTML = `Generate Fast (Free)`; btn.disabled = false; shimmer.style.display = "none"; img.style.display = "block"; actionBtns.style.display = "flex"; 
                         showToast("Image generated instantly! ⚡", "success");
                         autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus'); 
                     };
-                } catch(e) { showToast("Generation failed", "error"); btn.innerHTML = `Generate Fast (Free)`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; }
+                } catch(e) { showToast("Fast Gen Error: " + e.message, "error"); btn.innerHTML = `Generate Fast (Free)`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; }
             }
         }
 
@@ -774,7 +775,7 @@
                 }
                 let versionHash = toolType === 'upscale' ? "42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b" : "fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003"; 
                 const createData = await (await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", { version: versionHash, input: { image: imgUrl } })).json();
-                if (createData.error) throw new Error(createData.error || "Failed");
+                if (createData.error) throw new Error(createData.error?.message || "Failed");
 
                 const checkStatus = async () => {
                     try {
@@ -803,8 +804,9 @@
             document.getElementById('videoAutoSaveStatus').innerHTML = ''; 
 
             try {
+                showToast("Video engine starting...", "info");
                 const createData = await (await fetchFromMyBackend("https://api.replicate.com/v1/models/wan-video/wan-2.2-t2v-fast/predictions", "POST", { input: { prompt: currentVideoPrompt } })).json();
-                if (createData.error) throw new Error(createData.error);
+                if (createData.error) throw new Error(createData.error?.message || "Video API Error");
                 
                 const checkStatus = async () => {
                     try {
@@ -832,8 +834,9 @@
             actionBtns.style.display = "none"; document.getElementById("musicPlaceholderText").style.display = "none"; shimmer.style.display = "block"; audioEl.style.display = "none";
 
             try {
+                showToast("Music engine starting...", "info");
                 const createData = await (await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", { version: "b05b1dff1d8c6dc63d14b0cdb421ce531d3bcd181eb196eb094dc30911ac681f", input: { prompt: prompt, duration: 12 } })).json();
-                if (createData.error) throw new Error(createData.error);
+                if (createData.error) throw new Error(createData.error?.message || "Music API Error");
 
                 const checkStatus = async () => {
                     try {
@@ -929,7 +932,7 @@
 
             if (needsSearch) {
                 try {
-                    // SILENT SEARCH (No UI Updates)
+                    // SILENT SEARCH
                     const searchRes = await fetch("https://google.serper.dev/search", {
                         method: "POST",
                         headers: { 
