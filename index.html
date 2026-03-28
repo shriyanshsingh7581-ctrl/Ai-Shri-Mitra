@@ -659,7 +659,6 @@
             });
         }
 
-        let uploadedImageFile = null;
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if(file) {
@@ -908,7 +907,7 @@
             });
         }
 
-        // --- SMART RAG SEARCH ENGINE (FIXED) ---
+        // --- DIRECT BROWSER SEARCH (NO SLEEPING) ---
         async function sendMessage() {
             let input = document.getElementById("chatInput"); let text = input.value.trim(); if (!text) return;
             if(isProMode && userCoinBalance < 1) return openRechargeModal();
@@ -918,36 +917,56 @@
             db.ref(`users/${currentUser.uid}/chats`).push({ role: 'user', text: text, timestamp: firebase.database.ServerValue.TIMESTAMP });
 
             let typing = document.createElement("div"); typing.className = "msg ai"; 
-            typing.innerHTML = `<div class="typing-indicator" id="searchStatus" style="padding:4px;"><span style="font-size:12px; color:#fbbf24; font-weight:600;"><i class="fa-solid fa-magnifying-glass fa-beat-fade"></i> Thinking...</span></div>`; 
+            typing.innerHTML = `<div class="typing-indicator" id="searchStatus" style="padding:4px;"><span style="font-size:12px; color:#fbbf24; font-weight:600;"><i class="fa-solid fa-magnifying-glass fa-beat-fade"></i> Searching Live Internet...</span></div>`; 
             box.appendChild(typing); box.scrollTop = box.scrollHeight;
 
             let searchStatusEl = document.getElementById("searchStatus"); let searchContext = "";
             
-            // --- SMART FILTER FIX ---
-            // Ab ye filter har lamba sawal search karega. Sirf 'hi', 'hello' jaise words ko chhod kar.
             const qStr = text.toLowerCase().trim();
             const smallTalk = ['hi', 'hello', 'hey', 'hy', 'hii', 'hiii', 'good morning', 'good night', 'kaise ho', 'how are you', 'who are you', 'tum kaun ho', 'what are you doing', 'kya kar rahe ho', 'thank you', 'thanks', 'ok', 'okay', 'bye', 'good', 'nice', 'wow', 'awesome', 'yes', 'no', 'haan', 'na'];
             
-            // Agar text small talk mein NAHI hai, tabhi search karo
             let needsSearch = !smallTalk.includes(qStr);
 
             if (needsSearch) {
                 try {
-                    const searchData = await (await fetch("https://shri-mitra-backend.onrender.com/api/search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: text }) })).json();
+                    // DIRECT SERPER CALL (No Render Backend, No Sleeping!)
+                    const searchRes = await fetch("https://google.serper.dev/search", {
+                        method: "POST",
+                        headers: { 
+                            "X-API-KEY": "909c887350a367f292a29ff6d00c6ff786f0ae10", 
+                            "Content-Type": "application/json" 
+                        },
+                        body: JSON.stringify({ q: text, gl: "in" })
+                    });
+                    
+                    const searchData = await searchRes.json();
                     if (searchData.organic && searchData.organic.length > 0) {
-                        searchStatusEl.innerHTML = `<span style="font-size:12px; color:#10b981; font-weight:600;"><i class="fa-solid fa-check"></i> Internet data found!</span>`;
+                        searchStatusEl.innerHTML = `<span style="font-size:12px; color:#10b981; font-weight:600;"><i class="fa-solid fa-check"></i> Latest News Found!</span>`;
                         searchContext = "LATEST LIVE INTERNET DATA:\n";
-                        for (let i = 0; i < Math.min(3, searchData.organic.length); i++) searchContext += `- ${searchData.organic[i].snippet}\n`;
+                        for (let i = 0; i < Math.min(3, searchData.organic.length); i++) {
+                            searchContext += `- ${searchData.organic[i].snippet}\n`;
+                        }
+                    } else {
+                        searchStatusEl.innerHTML = `<span style="font-size:12px; color:#ef4444; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> No live data found.</span>`;
                     }
-                } catch (e) { console.log("Search failed"); }
+                } catch (e) { 
+                    searchStatusEl.innerHTML = `<span style="font-size:12px; color:#ef4444; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> Search Failed.</span>`;
+                    console.log("Direct Search failed:", e); 
+                }
             } else {
                 searchStatusEl.innerHTML = `<span style="font-size:12px; color:#3b82f6; font-weight:600;"><div class="dots-row"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></span>`;
             }
 
             let proPrompt = text; let fastPrompt = text;
-            if (searchContext) { proPrompt = `${searchContext}\n\nUser's Question: ${text}`; fastPrompt = `${searchContext.substring(0, 400)}...\n\nQuestion: ${text}`; }
+            let sys = "You are Shri Mitra, a helpful AI created by Shriyansh. Speak clean Hinglish.";
 
-            let sys = "You are Shri Mitra, a helpful AI created by Shriyansh. Speak clean Hinglish. Always answer naturally based on the provided live internet data if available.";
+            if (searchContext) { 
+                proPrompt = `${searchContext}\n\nIMPORTANT RULE: Answer the user's question based ONLY on the LATEST LIVE INTERNET DATA above. Do not use your old memory.\n\nUser's Question: ${text}`; 
+                let shortContext = searchContext.substring(0, 350).replace(/[^a-zA-Z0-9 .,:-]/g, " "); 
+                fastPrompt = `${shortContext} Answer based on this data. Question: ${text}`; 
+                sys += " You must use the provided data to answer.";
+            }
+
             if(document.body.classList.contains("rcb-theme")) sys += " You are a die-hard fan of RCB.";
 
             if(isProMode) {
