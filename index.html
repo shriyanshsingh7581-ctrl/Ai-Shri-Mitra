@@ -250,7 +250,6 @@
             gap: 10px; 
         }
 
-        /* --- AI MODE TOGGLE BUTTON --- */
         .ai-mode-btn {
             background: rgba(139, 92, 246, 0.15);
             border: 1px solid var(--primary);
@@ -799,8 +798,7 @@
         .dialog-btn:hover { background: rgba(255,255,255,0.1); }
         .dialog-btn.red { color: #ef4444; }
 
-        .typing-indicator { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
-        .dots-row { display: flex; gap: 5px; }
+        .typing-indicator { display: flex; gap: 5px; padding: 8px 4px; }
         .dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
         .dot:nth-child(1) { animation-delay: -0.32s; }
         .dot:nth-child(2) { animation-delay: -0.16s; }
@@ -1049,7 +1047,6 @@
     </div>
 
     <script>
-        // API KEY YAHAN SE HATA DI GAYI HAI (AB YE 100% SECURE HAI)
         const pollApiKey = "sk_cbty293zoEEDKLJXsMAaq4A2psY1yq1a";
 
         const manifest = { 
@@ -1556,7 +1553,7 @@
             });
         }
 
-        // --- THE ULTIMATE SEARCH + CHAT ENGINE ---
+        // --- THE FINAL SMART CHAT ENGINE ---
         async function sendMessage() {
             let input = document.getElementById("chatInput"); 
             let text = input.value.trim(); 
@@ -1578,41 +1575,49 @@
             
             db.ref(`users/${currentUser.uid}/chats`).push({ role: 'user', text: text, timestamp: firebase.database.ServerValue.TIMESTAMP });
 
+            // CLEAN TYPING INDICATOR (No "Searching Internet" text)
             let typing = document.createElement("div"); 
             typing.className = "msg ai"; 
-            typing.innerHTML = `
-                <div class="typing-indicator" id="searchStatus" style="padding:4px;">
-                    <span style="font-size:12px; color:#fbbf24; font-weight:600;">
-                        <i class="fa-solid fa-magnifying-glass fa-beat-fade"></i> Searching internet...
-                    </span>
-                </div>`; 
+            typing.innerHTML = `<div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`; 
             box.appendChild(typing); 
             box.scrollTop = box.scrollHeight;
 
-            let searchStatusEl = document.getElementById("searchStatus");
-            let searchContext = "";
+            // --- SMART FILTER: Should we search Google? ---
+            function shouldSearchInternet(query) {
+                const q = query.toLowerCase().trim().replace(/[^a-z0-9 ]/g, ''); 
+                const smallTalk = ['hi', 'hello', 'hey', 'hy', 'hii', 'hiii', 'good morning', 'good night', 'kaise ho', 'how are you', 'who are you', 'tum kaun ho', 'what are you doing', 'kya kar rahe ho', 'thank you', 'thanks', 'ok', 'okay', 'bye', 'good evening', 'good afternoon', 'awesome', 'great', 'nice', 'wow', 'acha', 'hmm'];
+                if(smallTalk.includes(q)) return false;
 
-            try {
-                // AB DIRECT SECURE BACKEND KO CALL KAREGA!
-                const searchRes = await fetch("https://shri-mitra-backend.onrender.com/api/search", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query: text })
-                });
-                
-                const searchData = await searchRes.json();
-                if (searchData.organic && searchData.organic.length > 0) {
-                    searchStatusEl.innerHTML = `<span style="font-size:12px; color:#10b981; font-weight:600;"><i class="fa-solid fa-check"></i> Internet data found! Answering...</span>`;
-                    searchContext = "LATEST LIVE INTERNET DATA:\n";
-                    for (let i = 0; i < Math.min(3, searchData.organic.length); i++) {
-                        searchContext += `- ${searchData.organic[i].snippet}\n`;
-                    }
-                } else {
-                    searchStatusEl.innerHTML = `<span style="font-size:12px; color:#ef4444; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> No live data found. Using memory.</span>`;
+                const words = q.split(" ");
+                if(words.length <= 2) {
+                    const urgentWords = ['price', 'weather', 'score', 'match', 'news', 'stock', 'today', 'aaj', 'rate', 'time'];
+                    const needsLive = urgentWords.some(w => q.includes(w));
+                    if(!needsLive) return false; 
                 }
-            } catch (e) {
-                searchStatusEl.innerHTML = `<span style="font-size:12px; color:#ef4444; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> Search unavailable. Using memory.</span>`;
-                console.log("Search failed:", e);
+                return true;
+            }
+
+            let searchContext = "";
+            let needsSearch = shouldSearchInternet(text);
+
+            if (needsSearch) {
+                try {
+                    const searchRes = await fetch("https://shri-mitra-backend.onrender.com/api/search", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ query: text })
+                    });
+                    
+                    const searchData = await searchRes.json();
+                    if (searchData.organic && searchData.organic.length > 0) {
+                        searchContext = "LATEST LIVE INTERNET DATA:\n";
+                        for (let i = 0; i < Math.min(3, searchData.organic.length); i++) {
+                            searchContext += `- ${searchData.organic[i].snippet}\n`;
+                        }
+                    }
+                } catch (e) {
+                    console.log("Search API error, proceeding without it.");
+                }
             }
 
             let proPrompt = text;
@@ -1624,7 +1629,7 @@
                 fastPrompt = `${shortContext}...\n\nQuestion: ${text}`;
             }
 
-            let sys = "You are Shri Mitra, a highly advanced and helpful AI created by Shriyansh. Speak clean Hinglish. Always answer naturally based on the provided live internet data if available. Do not invent facts if you don't know.";
+            let sys = "You are Shri Mitra, a helpful AI created by Shriyansh. Speak clean Hinglish. Always answer naturally based on the provided live internet data if available. Do not invent facts.";
             if(document.body.classList.contains("rcb-theme")) sys += " You are a die-hard fan of RCB (Royal Challengers Bangalore).";
 
             if(isProMode) {
@@ -1646,8 +1651,14 @@
                                 db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 1);
                                 
                                 let rawText = pollData.output.join("");
+                                
+                                // ADVANCED CLEANER (Hatao faltu markdown)
                                 let cleaned = rawText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
-                                cleaned = cleaned.replace(/\*/g, ''); 
+                                cleaned = cleaned.replace(/\*(.*?)\*/g, '<em>$1</em>'); 
+                                cleaned = cleaned.replace(/### (.*?)\n/g, '<strong>$1</strong><br>'); 
+                                cleaned = cleaned.replace(/## (.*?)\n/g, '<strong>$1</strong><br>'); 
+                                cleaned = cleaned.replace(/# (.*?)\n/g, '<strong>$1</strong><br>'); 
+                                cleaned = cleaned.replace(/---/g, ''); 
                                 cleaned = cleaned.replace(/\n/g, '<br>'); 
                                 
                                 box.removeChild(typing);
@@ -1678,9 +1689,13 @@
                     rawText = rawText.split('Powered by Pollinations.AI')[0];
                     rawText = rawText.replace(/---+$/, '').trim(); 
                     
+                    // ADVANCED CLEANER
                     let cleaned = rawText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
                     cleaned = cleaned.replace(/\*(.*?)\*/g, '<em>$1</em>'); 
-                    cleaned = cleaned.replace(/\*/g, ''); 
+                    cleaned = cleaned.replace(/### (.*?)\n/g, '<strong>$1</strong><br>'); 
+                    cleaned = cleaned.replace(/## (.*?)\n/g, '<strong>$1</strong><br>'); 
+                    cleaned = cleaned.replace(/# (.*?)\n/g, '<strong>$1</strong><br>'); 
+                    cleaned = cleaned.replace(/---/g, ''); 
                     cleaned = cleaned.replace(/\n/g, '<br>'); 
                     
                     box.removeChild(typing);
