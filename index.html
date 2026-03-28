@@ -1049,7 +1049,7 @@
 
     <script>
         // --- SECURE API KEYS ---
-        const SERPER_API_KEY = "909c887350a367f292a29ff6d00c6ff786f0ae10"; // NEW LIVE SEARCH API
+        const SERPER_API_KEY = "909c887350a367f292a29ff6d00c6ff786f0ae10"; 
         const pollApiKey = "sk_cbty293zoEEDKLJXsMAaq4A2psY1yq1a";
 
         const manifest = { 
@@ -1613,7 +1613,7 @@
                 finalPrompt = `${searchContext}\n\nUser's Actual Question: ${text}`;
             }
 
-            let sys = "You are Shri Mitra, a highly advanced and helpful AI created by Shriyansh. Speak clean Hinglish.";
+            let sys = "You are Shri Mitra, a highly advanced and helpful AI created by Shriyansh. Speak clean Hinglish. Always answer naturally based on the provided live internet data if available.";
             if(document.body.classList.contains("rcb-theme")) sys += " You are a die-hard fan of RCB (Royal Challengers Bangalore).";
 
             if(isProMode) {
@@ -1651,9 +1651,19 @@
                 } catch (err) { box.removeChild(typing); alert("Pro Chat Error: " + err.message); }
             
             } else {
-                // FAST MODE (Pollinations + Web Search)
+                // FAST MODE (Pollinations + Web Search fixed via POST request)
                 try {
-                    const response = await fetch(`https://gen.pollinations.ai/text/${encodeURIComponent(finalPrompt)}?system=${encodeURIComponent(sys)}&key=${pollApiKey}`);
+                    const response = await fetch("https://text.pollinations.ai/", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            messages: [
+                                { role: "system", content: sys },
+                                { role: "user", content: finalPrompt }
+                            ]
+                        })
+                    });
+                    
                     let cleaned = (await response.text()).replace(/\n/g, '<br>');
                     
                     box.removeChild(typing);
@@ -1663,7 +1673,10 @@
 
                     if(isGlobalVoiceOn) speakText(cleaned);
 
-                } catch (err) { box.removeChild(typing); }
+                } catch (err) { 
+                    box.removeChild(typing); 
+                    alert("Chat Error: " + err.message);
+                }
             }
         }
     </script>
