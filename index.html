@@ -555,7 +555,6 @@
 
         setTimeout(() => { document.getElementById('splashScreen').classList.add('hidden'); }, 1500);
 
-        // --- FIXED AUTH LISTENER ---
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user; 
@@ -679,7 +678,6 @@
             uploadedImageFile = null; currentGeneratedBlob = null; document.getElementById('imageUpload').value = ''; document.getElementById('uploadPreview').style.display = 'none';
         }
 
-        // --- NEW AUTO SAVE WITH VISUAL FEEDBACK ---
         async function autoUploadMediaToCloudinary(blobData, type, fileName, statusId) {
             let st = document.getElementById(statusId);
             if(st) { st.style.display = 'block'; st.innerHTML = "<i class='fa-solid fa-spinner fa-spin' style='color:#3b82f6;'></i> Saving to Private Vault..."; }
@@ -719,7 +717,7 @@
             let btn = document.getElementById("genBtn"); let img = document.getElementById("aiImage"); 
             let shimmer = document.getElementById("shimmer"); let actionBtns = document.getElementById("actionBtns"); let placeholder = document.getElementById("placeholderText");
             actionBtns.style.display = "none"; placeholder.style.display = "none"; shimmer.style.display = "block"; img.style.display = "none"; btn.disabled = true;
-            document.getElementById('autoSaveStatus').innerHTML = ''; // Reset status
+            document.getElementById('autoSaveStatus').innerHTML = ''; 
 
             if(uploadedImageFile || isProMode) {
                 btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Pro...`;
@@ -788,7 +786,6 @@
                             document.getElementById("aiImage").src = URL.createObjectURL(currentGeneratedBlob);
                             btn.innerHTML = originalHtml; btn.disabled = false;
                             showToast("Image edited successfully! ✨", "success");
-                            // Auto save the edited version too!
                             autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'edited.jpg', 'autoSaveStatus');
                         } else if (pollData.status === "failed") throw new Error("Editing failed."); else setTimeout(checkStatus, 3000);
                     } catch(e) { showToast(e.message, "error"); btn.innerHTML = originalHtml; btn.disabled = false; }
@@ -804,7 +801,7 @@
             let shimmer = document.getElementById("videoShimmer"); let actionBtns = document.getElementById("videoActionBtns");
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Wait (1-2 min)...`; btn.disabled = true;
             actionBtns.style.display = "none"; document.getElementById("videoPlaceholderText").style.display = "none"; shimmer.style.display = "block"; videoEl.style.display = "none"; videoEl.src = "";
-            document.getElementById('videoAutoSaveStatus').innerHTML = ''; // Reset status
+            document.getElementById('videoAutoSaveStatus').innerHTML = ''; 
 
             try {
                 const createData = await (await fetchFromMyBackend("https://api.replicate.com/v1/models/wan-video/wan-2.2-t2v-fast/predictions", "POST", { input: { prompt: currentVideoPrompt } })).json();
@@ -911,7 +908,7 @@
             });
         }
 
-        // --- RAG SEARCH ENGINE ---
+        // --- SMART RAG SEARCH ENGINE (FIXED) ---
         async function sendMessage() {
             let input = document.getElementById("chatInput"); let text = input.value.trim(); if (!text) return;
             if(isProMode && userCoinBalance < 1) return openRechargeModal();
@@ -925,7 +922,14 @@
             box.appendChild(typing); box.scrollTop = box.scrollHeight;
 
             let searchStatusEl = document.getElementById("searchStatus"); let searchContext = "";
-            let needsSearch = (text.split(" ").length <= 3 && ['price', 'weather', 'score', 'match', 'news', 'stock', 'today', 'aaj'].some(w => text.toLowerCase().includes(w)));
+            
+            // --- SMART FILTER FIX ---
+            // Ab ye filter har lamba sawal search karega. Sirf 'hi', 'hello' jaise words ko chhod kar.
+            const qStr = text.toLowerCase().trim();
+            const smallTalk = ['hi', 'hello', 'hey', 'hy', 'hii', 'hiii', 'good morning', 'good night', 'kaise ho', 'how are you', 'who are you', 'tum kaun ho', 'what are you doing', 'kya kar rahe ho', 'thank you', 'thanks', 'ok', 'okay', 'bye', 'good', 'nice', 'wow', 'awesome', 'yes', 'no', 'haan', 'na'];
+            
+            // Agar text small talk mein NAHI hai, tabhi search karo
+            let needsSearch = !smallTalk.includes(qStr);
 
             if (needsSearch) {
                 try {
@@ -979,4 +983,3 @@
     </script>
 </body>
 </html>
-
