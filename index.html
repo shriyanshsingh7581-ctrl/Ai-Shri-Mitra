@@ -209,6 +209,7 @@
         .dialog-btn { width: 100%; text-align: left; padding: 14px 16px; font-size: 14px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 12px; border-radius: 12px; }
         .dialog-btn:hover { background: rgba(255,255,255,0.1); }
         .dialog-btn.red { color: #ef4444; }
+
     </style>
 </head>
 <body>
@@ -466,6 +467,8 @@
     </div>
 
     <script>
+        const pollApiKey = "sk_cbty293zoEEDKLJXsMAaq4A2psY1yq1a";
+
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -680,7 +683,9 @@
                 const res = await fetch(uploadUrl, { method: 'POST', body: fd });
                 const data = await res.json();
                 
-                if(data.error) throw new Error(data.error.message);
+                if(data.error) {
+                    throw new Error(data.error.message);
+                }
                 
                 if(type === 'video') cloudinaryUrlOfGeneratedVideo = data.secure_url; 
                 else cloudinaryUrlOfGeneratedImage = data.secure_url;
@@ -695,7 +700,7 @@
                 if(st) { st.innerHTML = `<i class="fa-solid fa-check" style="color:#10b981;"></i> Saved securely to Vault!`; setTimeout(() => st.innerHTML="", 4000); }
             } catch(e) { 
                 console.log("Cloud sync failed:", e); 
-                if(st) { st.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Save failed. Check Cloudinary settings.`; }
+                if(st) { st.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Save failed: ${e.message}`; }
                 showToast("Cloudinary Error: " + e.message, "error");
             }
         }
@@ -708,54 +713,88 @@
             
             let btn = document.getElementById("genBtn"); let img = document.getElementById("aiImage"); 
             let shimmer = document.getElementById("shimmer"); let actionBtns = document.getElementById("actionBtns"); let placeholder = document.getElementById("placeholderText");
+            
+            // --- UI RESET ---
             actionBtns.style.display = "none"; placeholder.style.display = "none"; shimmer.style.display = "block"; img.style.display = "none"; btn.disabled = true;
             document.getElementById('autoSaveStatus').innerHTML = ''; 
 
+            // --- FAILSAFE SILENT ERROR CATCHER ---
+            img.onerror = () => {
+                showToast("Failed to load image. Invalid format from server.", "error");
+                btn.innerHTML = isProMode ? `Generate Pro` : `Generate Fast (Free)`; 
+                btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block";
+            };
+
             if(uploadedImageFile || isProMode) {
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Waking Server (Wait 30s)...`;
-                showToast("Pro engine warming up...", "info");
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing Pro...`;
                 try {
                     let inputPayload = { prompt: currentPrompt };
                     let targetVersion = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"; 
                     if(uploadedImageFile) {
                         const fd = new FormData(); fd.append('file', uploadedImageFile); fd.append('upload_preset', UPLOAD_PRESET);
                         const cloudData = await (await fetch(CLOUDINARY_URL, { method: 'POST', body: fd })).json();
-                        if(cloudData.error) throw new Error("Cloudinary Error: " + cloudData.error.message);
+                        if(cloudData.error) throw new Error("Image Upload Error: " + cloudData.error.message);
                         inputPayload.image = cloudData.secure_url; inputPayload.prompt_strength = 0.7;
                     }
                     const createRes = await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", { version: targetVersion, input: inputPayload });
                     const createData = await createRes.json();
-                    if (!createRes.ok || createData.error) throw new Error(createData.error?.message || createData.error || "Server Sleep Error");
+                    if (!createRes.ok || createData.error) throw new Error(createData.error?.message || createData.error || "Server Error");
 
                     const checkStatus = async () => {
                         try {
                             const pollData = await (await fetchFromMyBackend(createData.urls.get, "GET")).json();
                             if (pollData.status === "succeeded") {
                                 db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - cost);
-                                currentGeneratedBlob = await (await fetch(Array.isArray(pollData.output) ? pollData.output[0] : pollData.output)).blob();
-                                img.src = URL.createObjectURL(currentGeneratedBlob); img.style.display = "block"; shimmer.style.display = "none";
-                                btn.innerHTML = isProMode ? `Generate Pro (2 <i class="fa-solid fa-coins"></i>)` : `Generate Fast (Free)`; btn.disabled = false; actionBtns.style.display = "flex";
-                                showToast("Image generated successfully! 🎨", "success");
-                                autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus');
-                            } else if (pollData.status === "failed") throw new Error("Failed"); else setTimeout(checkStatus, 3000);
-                        } catch(err) { showToast(err.message, "error"); btn.innerHTML = isProMode ? `Generate Pro` : `Generate Fast`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; }
+                                
+                                let outputUrl = Array.isArray(pollData.output) ? pollData.output[0] : pollData.output;
+                                currentGeneratedBlob = await (await fetch(outputUrl)).blob();
+                                
+                                img.onload = () => {
+                                    btn.innerHTML = `Generate Pro (2 <i class="fa-solid fa-coins"></i>)`; btn.disabled = false; actionBtns.style.display = "flex";
+                                    shimmer.style.display = "none"; img.style.display = "block";
+                                    showToast("Image generated successfully! 🎨", "success");
+                                    autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus');
+                                };
+                                img.src = URL.createObjectURL(currentGeneratedBlob);
+
+                            } else if (pollData.status === "failed") {
+                                throw new Error("Replicate API Failed");
+                            } else {
+                                setTimeout(checkStatus, 3000);
+                            }
+                        } catch(err) { 
+                            showToast(err.message, "error"); btn.innerHTML = `Generate Pro`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; 
+                        }
                     }; setTimeout(checkStatus, 3000);
-                } catch(e) { showToast(e.message, "error"); btn.innerHTML = isProMode ? `Generate Pro` : `Generate Fast`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; }
+                } catch(e) { 
+                    showToast(e.message, "error"); btn.innerHTML = `Generate Pro`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; 
+                }
             } else {
                 btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Fast Gen...`; 
                 try {
                     let seed = Math.floor(Math.random() * 1000000);
                     let url = `https://image.pollinations.ai/prompt/${encodeURIComponent(currentPrompt)}?nologo=true&seed=${seed}`;
+                    
                     const response = await fetch(url);
-                    if(!response.ok) throw new Error("Image server busy!");
+                    if(!response.ok) throw new Error("Image server is busy!");
+                    
                     currentGeneratedBlob = await response.blob();
-                    img.src = URL.createObjectURL(currentGeneratedBlob);
+                    
+                    // Failsafe: Check if blob is actually an image and not HTML error page
+                    if (!currentGeneratedBlob.type.startsWith('image/')) {
+                         throw new Error("Received invalid image format from server.");
+                    }
+
                     img.onload = () => { 
                         btn.innerHTML = `Generate Fast (Free)`; btn.disabled = false; shimmer.style.display = "none"; img.style.display = "block"; actionBtns.style.display = "flex"; 
                         showToast("Image generated instantly! ⚡", "success");
                         autoUploadMediaToCloudinary(currentGeneratedBlob, 'image', 'image.jpg', 'autoSaveStatus'); 
                     };
-                } catch(e) { showToast("Fast Gen Error: " + e.message, "error"); btn.innerHTML = `Generate Fast (Free)`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; }
+                    img.src = URL.createObjectURL(currentGeneratedBlob);
+
+                } catch(e) { 
+                    showToast("Fast Gen Error: " + e.message, "error"); btn.innerHTML = `Generate Fast (Free)`; btn.disabled = false; shimmer.style.display = "none"; placeholder.style.display = "block"; 
+                }
             }
         }
 
