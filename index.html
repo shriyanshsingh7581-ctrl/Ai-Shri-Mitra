@@ -1068,9 +1068,8 @@
             <button class="nav-item" onclick="switchMainTab('galleryTab', this)">
                 <i class="fa-solid fa-folder-open"></i><span>Gallery</span>
             </button>
-            <button class="nav-item" onclick="toggleLogoutDialog()">
-                <img id="navProfilePic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
-                <span>Profile</span>
+            <button class="nav-item" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon"></i><span>Theme</span>
             </button>
         </nav>
         
@@ -1214,6 +1213,7 @@
             messagingSenderId: "668988371049", 
             appId: "1:668988371049:web:8e62a795b8392cb52fb2f8" 
         };
+        
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); 
         const db = firebase.database();
@@ -1233,8 +1233,6 @@
         let currentGeneratedMusicBlob = null; 
         let isProMode = false;
         let uploadedImageFile = null;
-
-        // NEW: Chat Attachment Variable
         let chatUploadedImageFile = null;
 
         function toggleAIModel() {
@@ -1280,7 +1278,6 @@
                 let uName = user.displayName ? user.displayName : "Creator";
                 
                 document.getElementById('userPic').src = picUrl;
-                document.getElementById('navProfilePic').src = picUrl;
                 document.getElementById('userLabel').innerText = uName;
                 
                 db.ref(`users/${currentUser.uid}/chats`).off(); 
@@ -1399,7 +1396,9 @@
 
         function startVoiceTyping(id, btn) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!SpeechRecognition) return showToast("Voice typing not supported.", "error");
+            if(!SpeechRecognition) {
+                return showToast("Voice typing not supported.", "error");
+            }
             const rec = new SpeechRecognition(); 
             rec.lang = 'hi-IN';
             rec.onstart = () => { 
@@ -1455,7 +1454,6 @@
             document.getElementById('uploadPreview').style.display = 'none';
         }
 
-        // NEW: Chat Image Handlers
         function handleChatImageUpload(event) {
             const file = event.target.files[0];
             if(file) {
@@ -1585,7 +1583,7 @@
                         const createData = await createRes.json();
                         
                         if (createData.detail) {
-                            throw new Error(createData.detail); 
+                            throw new Error(JSON.stringify(createData.detail)); 
                         }
                         if (!createRes.ok || createData.error) {
                             throw new Error(createData.error?.message || createData.error || "Server Error");
@@ -1645,13 +1643,13 @@
                         const response = await fetchWithTimeout(url, { timeout: 25000 });
                         
                         if(!response.ok) {
-                            throw new Error("Image server is busy!");
+                            throw new Error("Traffic zyada hai, kripya 5 seconds baad try karein ya Pro mode lagayein.");
                         }
                         
                         currentGeneratedBlob = await response.blob();
                         
                         if (!currentGeneratedBlob.type.startsWith('image/')) {
-                             throw new Error("Received bad file from AI Server.");
+                             throw new Error("Server thoda busy hai, kripya dobara click karein.");
                         }
 
                         img.onload = () => { 
@@ -1668,8 +1666,8 @@
                         img.src = URL.createObjectURL(currentGeneratedBlob);
 
                     } catch(e) { 
-                        let msg = e.name === 'AbortError' ? "Server timeout. Try again." : e.message;
-                        resetUI("Fast Gen Error: " + msg);
+                        let msg = e.name === 'AbortError' ? "Server thoda slow hai, dobara try karein." : e.message;
+                        resetUI("Fast Gen: " + msg);
                     }
                 }
             } catch (globalError) {
@@ -1725,7 +1723,7 @@
                 const createData = await createRes.json();
                 
                 if (createData.detail) {
-                    throw new Error(createData.detail);
+                    throw new Error(JSON.stringify(createData.detail));
                 }
                 if (createData.error) {
                     throw new Error(createData.error?.message || createData.error);
@@ -2067,7 +2065,6 @@
             });
         }
 
-        // --- NEW VISION AI SUPPORT IN CHAT ---
         async function sendMessage() {
             let input = document.getElementById("chatInput"); 
             let text = input.value.trim(); 
@@ -2077,24 +2074,21 @@
                 return;
             }
 
-            // Default prompt if only image is sent
             if (!text && fileToUpload) {
                 text = "Explain this image.";
             }
             
-            // Vision processing needs 1 coin (uses Pro logic internally)
             if((isProMode || fileToUpload) && userCoinBalance < 1) {
                 return openRechargeModal();
             }
 
             input.value = ""; 
-            clearChatUpload(); // UI clear immediately
+            clearChatUpload(); 
             
             let box = document.getElementById("chatBox");
             let userDiv = document.createElement("div"); 
             userDiv.className = "msg user"; 
             
-            // Show Image in User Bubble if attached
             if (fileToUpload) {
                 let localUrl = URL.createObjectURL(fileToUpload);
                 userDiv.innerHTML = `<img src="${localUrl}" style="max-width: 100%; border-radius: 8px; margin-bottom: 8px; display: block;">${text}`;
@@ -2122,7 +2116,6 @@
                 try {
                     searchStatusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading image...`;
                     
-                    // 1. Upload to Cloudinary to get public URL
                     const fd = new FormData(); 
                     fd.append('file', fileToUpload); 
                     fd.append('upload_preset', UPLOAD_PRESET);
@@ -2136,7 +2129,6 @@
                     
                     let uploadedImageUrl = cloudData.secure_url;
 
-                    // Push user message with Cloudinary URL to Firebase History
                     db.ref(`users/${currentUser.uid}/chats`).push({ 
                         role: 'user', 
                         text: `<img src="${uploadedImageUrl}" style="max-width: 100%; border-radius: 8px; margin-bottom: 8px; display: block;">${text}`, 
@@ -2145,17 +2137,17 @@
 
                     searchStatusEl.innerHTML = `<i class="fa-solid fa-eye fa-beat-fade"></i> Analyzing image...`;
 
-                    // 2. Call Llama 3.2 11B Vision Model
-                    let sys = "You are Shri Mitra, a helpful AI. Answer cleanly in Hinglish. You are looking at an image.";
-                    const createResponse = await fetchFromMyBackend("https://api.replicate.com/v1/models/meta/llama-3.2-11b-vision-instruct/predictions", "POST", { 
-                        input: { prompt: text, image: uploadedImageUrl, max_tokens: 1024 } 
+                    // --- BUG 2 FIXED: STABLE LLaVA 1.5 VISION MODEL ---
+                    const createResponse = await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", { 
+                        version: "2073d706593dfa64be4c19ed1d6ce3b42f2ed84766cb7301c2dbbf808aa86638", 
+                        input: { prompt: text, image: uploadedImageUrl } 
                     });
                     
                     const createData = await createResponse.json();
                     
-                    if (createData.error) {
-                        throw new Error(createData.error);
-                    }
+                    if (createData.detail) throw new Error(JSON.stringify(createData.detail));
+                    if (createData.error) throw new Error(createData.error);
+                    if (!createData.urls || !createData.urls.get) throw new Error("Vision Server Failed.");
 
                     const checkStatus = async () => {
                         try {
@@ -2207,7 +2199,6 @@
             } 
             // --- BRANCH 2: NORMAL CHAT (NO IMAGE) ---
             else {
-                // Instantly save text to firebase
                 db.ref(`users/${currentUser.uid}/chats`).push({ 
                     role: 'user', 
                     text: text, 
@@ -2369,4 +2360,3 @@
     </script>
 </body>
 </html>
-
