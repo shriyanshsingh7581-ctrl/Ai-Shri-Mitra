@@ -109,8 +109,6 @@
         .ai-mode-btn { background: rgba(139, 92, 246, 0.15); border: 1px solid var(--primary); padding: 6px 10px; border-radius: 20px; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 12px; color: var(--text-main); cursor: pointer; transition: var(--transition); }
         .coin-badge { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13px; color: #fbbf24; cursor: pointer; }
         .coin-badge i { animation: flipCoin 3s infinite linear; }
-        @keyframes flipCoin { 0%, 100% { transform: rotateY(0deg); } 50% { transform: rotateY(180deg); } }
-
         .user-profile-thumb img { width: 36px; height: 36px; border-radius: 12px; object-fit: cover; border: 2px solid transparent; background: var(--gradient); padding: 2px; cursor: pointer; }
 
         /* --- CUSTOM TOAST NOTIFICATIONS --- */
@@ -472,50 +470,53 @@
     </div>
 
     <script>
-        // --- 100% BULLETPROOF GLOBAL VARIABLES ---
-        let pollApiKey = "sk_cbty293zoEEDKLJXsMAaq4A2psY1yq1a";
-        let isGlobalVoiceOn = false;
-        let currentUser = null; 
-        let userCoinBalance = 0;
-        let currentGeneratedBlob = null; 
-        let currentPrompt = ""; 
-        let cloudinaryUrlOfGeneratedImage = null;
-        let currentGeneratedVideoBlob = null; 
-        let currentVideoPrompt = ""; 
-        let cloudinaryUrlOfGeneratedVideo = null;
-        let currentGeneratedMusicBlob = null; 
-        let isProMode = false;
-        let uploadedImageFile = null;
-        let chatUploadedImageFile = null;
+        // --- 100% BULLETPROOF GLOBAL VARIABLES (USING VAR) ---
+        var pollApiKey = "sk_cbty293zoEEDKLJXsMAaq4A2psY1yq1a";
+        var isGlobalVoiceOn = false;
+        var currentUser = null; 
+        var userCoinBalance = 0;
+        var currentGeneratedBlob = null; 
+        var currentPrompt = ""; 
+        var cloudinaryUrlOfGeneratedImage = null;
+        var currentGeneratedVideoBlob = null; 
+        var currentVideoPrompt = ""; 
+        var cloudinaryUrlOfGeneratedVideo = null;
+        var currentGeneratedMusicBlob = null; 
+        var isProMode = false;
+        var uploadedImageFile = null;
+        var chatUploadedImageFile = null;
+        var deferredPrompt;
 
         // --- GLOBAL CRASH GUARD ---
         window.onerror = function(message, source, lineno, colno, error) {
             console.error("System Error caught:", message);
-            showToast("System Error: " + message, "error");
+            if(document.getElementById('toastContainer')) {
+                showToast("System Error: " + message, "error");
+            }
         };
         
         window.onunhandledrejection = function(event) {
             console.error("Async Error caught:", event.reason);
-            showToast("Async Error: " + (event.reason ? event.reason.message : "Unknown"), "error");
-            document.getElementById("genBtn").disabled = false;
-            document.getElementById("shimmer").style.display = "none";
-            if (document.getElementById("aiImage").style.display === "none") {
-                document.getElementById("placeholderText").style.display = "block";
+            if(document.getElementById('toastContainer')) {
+                showToast("Async Error: " + (event.reason ? event.reason.message : "Unknown"), "error");
+            }
+            let btn = document.getElementById("genBtn");
+            if(btn) btn.disabled = false;
+            let shm = document.getElementById("shimmer");
+            if(shm) shm.style.display = "none";
+            let img = document.getElementById("aiImage");
+            let ph = document.getElementById("placeholderText");
+            if (img && ph && img.style.display === "none") {
+                ph.style.display = "block";
             }
         };
 
         async function fetchWithTimeout(resource, options = {}) {
             const { timeout = 30000 } = options; 
             const controller = new AbortController();
-            const id = setTimeout(() => {
-                controller.abort();
-            }, timeout);
-            
+            const id = setTimeout(() => { controller.abort(); }, timeout);
             try {
-                const response = await fetch(resource, { 
-                    ...options, 
-                    signal: controller.signal 
-                });
+                const response = await fetch(resource, { ...options, signal: controller.signal });
                 clearTimeout(id);
                 return response;
             } catch (e) {
@@ -543,23 +544,16 @@
 
             setTimeout(() => {
                 toast.style.animation = 'toastFadeOut 0.4s forwards';
-                setTimeout(() => {
-                    toast.remove();
-                }, 400);
+                setTimeout(() => { toast.remove(); }, 400);
             }, 5000);
         }
 
-        const manifest = { 
-            "name": "Shri Mitra AI", 
-            "short_name": "Shri Mitra", 
-            "start_url": ".", 
-            "display": "standalone", 
-            "background_color": "#0b0c10", 
-            "theme_color": "#8b5cf6", 
+        var manifest = { 
+            "name": "Shri Mitra AI", "short_name": "Shri Mitra", "start_url": ".", "display": "standalone", 
+            "background_color": "#0b0c10", "theme_color": "#8b5cf6", 
             "icons": [{"src": "https://cdn-icons-png.flaticon.com/512/149/149071.png", "sizes": "512x512", "type": "image/png"}] 
         };
-        
-        const manifestUrl = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/json'}));
+        var manifestUrl = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/json'}));
         document.querySelector('head').insertAdjacentHTML('beforeend', `<link rel="manifest" href="${manifestUrl}">`);
         
         if ('serviceWorker' in navigator) {
@@ -569,7 +563,6 @@
             `], {type: 'application/javascript'}))).catch(err => console.log(err));
         }
 
-        let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault(); 
             deferredPrompt = e; 
@@ -586,7 +579,8 @@
             }
         }
 
-        const firebaseConfig = { 
+        // --- FIREBASE SAFE INIT ---
+        var firebaseConfig = { 
             apiKey: "AIzaSyD1ALXTuFnD9CuZWJmqW8VN3IFwl5KKuDM", 
             authDomain: "login-416ce.firebaseapp.com", 
             databaseURL: "https://login-416ce-default-rtdb.firebaseio.com", 
@@ -595,13 +589,17 @@
             messagingSenderId: "668988371049", 
             appId: "1:668988371049:web:8e62a795b8392cb52fb2f8" 
         };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(); 
-        const db = firebase.database();
         
-        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dxeuzdwkz/image/upload";
-        const CLOUDINARY_VIDEO_URL = "https://api.cloudinary.com/v1_1/dxeuzdwkz/video/upload";
-        const UPLOAD_PRESET = "shri_mitra_preset"; 
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        var auth = firebase.auth(); 
+        var db = firebase.database();
+        
+        var CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dxeuzdwkz/image/upload";
+        var CLOUDINARY_VIDEO_URL = "https://api.cloudinary.com/v1_1/dxeuzdwkz/video/upload";
+        var UPLOAD_PRESET = "shri_mitra_preset"; 
 
         function toggleAIModel() {
             isProMode = !isProMode;
@@ -633,7 +631,8 @@
         }
 
         setTimeout(() => { 
-            document.getElementById('splashScreen').classList.add('hidden'); 
+            let splash = document.getElementById('splashScreen');
+            if(splash) splash.classList.add('hidden'); 
         }, 1500);
 
         auth.onAuthStateChanged((user) => {
@@ -980,8 +979,7 @@
                     
                     try {
                         let seed = Math.floor(Math.random() * 1000000);
-                        let encodedPrompt = encodeURIComponent(currentPrompt);
-                        let url = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true&seed=${seed}`;
+                        let url = `https://image.pollinations.ai/prompt/${encodeURIComponent(currentPrompt)}?nologo=true&seed=${seed}`;
                         
                         const response = await fetchWithTimeout(url, { timeout: 25000 });
                         
@@ -992,7 +990,7 @@
                         currentGeneratedBlob = await response.blob();
                         
                         if (!currentGeneratedBlob.type.startsWith('image/')) {
-                             throw new Error("Server ne invalid file di, kripya dobara click karein.");
+                             throw new Error("Server thoda busy hai, kripya dobara click karein.");
                         }
 
                         img.onload = () => { 
@@ -1368,7 +1366,7 @@
             });
         }
 
-        // --- NEW VISION AI SUPPORT (100% FIXED) ---
+        // --- NEW VISION AI SUPPORT (STABLE) ---
         async function sendMessage() {
             let input = document.getElementById("chatInput"); 
             let text = input.value.trim(); 
@@ -1377,7 +1375,7 @@
             if (!text && !fileToUpload) return;
 
             if (!text && fileToUpload) {
-                text = "Describe this image in detail.";
+                text = "Explain this image.";
             }
             
             if((isProMode || fileToUpload) && userCoinBalance < 1) {
@@ -1413,7 +1411,7 @@
 
             let searchStatusEl = document.getElementById("searchStatus"); 
 
-            // --- BRANCH 1: VISION MODE (Llama 3.2 11B Vision - Direct Model Call) ---
+            // --- BRANCH 1: VISION MODE (LLaVA) ---
             if (fileToUpload) {
                 try {
                     searchStatusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Uploading image...`;
@@ -1436,16 +1434,16 @@
 
                     searchStatusEl.innerHTML = `<i class="fa-solid fa-eye fa-beat-fade"></i> Analyzing image...`;
 
-                    // --- FIX: NO MORE "VERSION NOT FOUND". USING DIRECT LLAMA 3.2 VISION ---
-                    const createResponse = await fetchFromMyBackend("https://api.replicate.com/v1/models/meta/llama-3.2-11b-vision-instruct/predictions", "POST", { 
-                        input: { prompt: text, image: uploadedImageUrl, max_tokens: 1024 } 
+                    // --- LLAVA MODEL (FAST & STABLE) ---
+                    const createResponse = await fetchFromMyBackend("https://api.replicate.com/v1/models/yorickvp/llava-13b/predictions", "POST", { 
+                        input: { image: uploadedImageUrl, prompt: text } 
                     });
                     
                     const createData = await createResponse.json();
                     
                     if (createData.detail) throw new Error(typeof createData.detail === 'string' ? createData.detail : JSON.stringify(createData.detail));
                     if (createData.error) throw new Error(createData.error.message || createData.error);
-                    if (!createData.urls || !createData.urls.get) throw new Error("Vision API Error: Could not initialize model.");
+                    if (!createData.urls || !createData.urls.get) throw new Error("Vision Server Failed.");
 
                     const checkStatus = async () => {
                         try {
@@ -1565,5 +1563,89 @@
                                 const pollData = await pollResponse.json();
                                 
                                 if (pollData.status === "succeeded") {
-                                    db.ref(`users/${currentUser.uid
+                                    db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 1);
+                                    
+                                    let cleaned = pollData.output.join("");
+                                    cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                                    cleaned = cleaned.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                                    cleaned = cleaned.replace(/### (.*?)\n/g, '<strong>$1</strong><br>');
+                                    cleaned = cleaned.replace(/## (.*?)\n/g, '<strong>$1</strong><br>');
+                                    cleaned = cleaned.replace(/# (.*?)\n/g, '<strong>$1</strong><br>');
+                                    cleaned = cleaned.replace(/---/g, '');
+                                    cleaned = cleaned.replace(/\n/g, '<br>');
+                                    
+                                    box.removeChild(typing); 
+                                    
+                                    let aiDiv = document.createElement("div"); 
+                                    aiDiv.className = "msg ai"; 
+                                    aiDiv.innerHTML = cleaned; 
+                                    box.appendChild(aiDiv); 
+                                    box.scrollTop = box.scrollHeight;
+                                    
+                                    db.ref(`users/${currentUser.uid}/chats`).push({ 
+                                        role: 'ai', text: cleaned, timestamp: firebase.database.ServerValue.TIMESTAMP 
+                                    });
+                                    
+                                    if(isGlobalVoiceOn) speakText(cleaned);
+
+                                } else if (pollData.status === "failed") {
+                                    throw new Error("Failed."); 
+                                } else {
+                                    setTimeout(checkStatus, 2000);
+                                }
+                            } catch(err) { 
+                                box.removeChild(typing); 
+                                showToast(err.message, "error"); 
+                            }
+                        }; 
+                        setTimeout(checkStatus, 2000);
+                        
+                    } catch (err) { 
+                        box.removeChild(typing); 
+                        showToast("Pro Chat Error: " + err.message, "error"); 
+                    }
+                } else {
+                    try {
+                        const url = `https://text.pollinations.ai/${encodeURIComponent(fastPrompt)}?system=${encodeURIComponent(sys)}`;
+                        
+                        const response = await fetchWithTimeout(url, {timeout: 15000});
+                        let rawText = await response.text();
+                        
+                        rawText = rawText.split('**Support Pollinations.AI:**')[0];
+                        rawText = rawText.split('🌸 **Ad** 🌸')[0];
+                        rawText = rawText.split('Powered by Pollinations.AI')[0];
+                        rawText = rawText.replace(/---+$/, '').trim(); 
+                        
+                        let cleaned = rawText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                        cleaned = cleaned.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                        cleaned = cleaned.replace(/### (.*?)\n/g, '<strong>$1</strong><br>');
+                        cleaned = cleaned.replace(/## (.*?)\n/g, '<strong>$1</strong><br>');
+                        cleaned = cleaned.replace(/# (.*?)\n/g, '<strong>$1</strong><br>');
+                        cleaned = cleaned.replace(/---/g, '');
+                        cleaned = cleaned.replace(/\n/g, '<br>');
+                        
+                        box.removeChild(typing); 
+                        
+                        let aiDiv = document.createElement("div"); 
+                        aiDiv.className = "msg ai"; 
+                        aiDiv.innerHTML = cleaned; 
+                        box.appendChild(aiDiv); 
+                        box.scrollTop = box.scrollHeight;
+                        
+                        db.ref(`users/${currentUser.uid}/chats`).push({ 
+                            role: 'ai', text: cleaned, timestamp: firebase.database.ServerValue.TIMESTAMP 
+                        });
+                        
+                        if(isGlobalVoiceOn) speakText(cleaned);
+
+                    } catch (err) { 
+                        box.removeChild(typing); 
+                        showToast(err.name === 'AbortError' ? "Chat server busy." : "Chat Error.", "error"); 
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
 
