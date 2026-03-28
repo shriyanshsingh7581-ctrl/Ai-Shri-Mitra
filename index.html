@@ -250,7 +250,6 @@
             gap: 10px; 
         }
 
-        /* --- AI MODE TOGGLE BUTTON --- */
         .ai-mode-btn {
             background: rgba(139, 92, 246, 0.15);
             border: 1px solid var(--primary);
@@ -799,7 +798,8 @@
         .dialog-btn:hover { background: rgba(255,255,255,0.1); }
         .dialog-btn.red { color: #ef4444; }
 
-        .typing-indicator { display: flex; gap: 5px; padding: 8px 4px; }
+        .typing-indicator { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
+        .dots-row { display: flex; gap: 5px; }
         .dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
         .dot:nth-child(1) { animation-delay: -0.32s; }
         .dot:nth-child(2) { animation-delay: -0.16s; }
@@ -1556,7 +1556,7 @@
             });
         }
 
-        // --- MEGA RAG SEARCH ENGINE (GOOGLE + AI) + MARKDOWN FIX ---
+        // --- FINAL RAG SEARCH ENGINE ---
         async function sendMessage() {
             let input = document.getElementById("chatInput"); 
             let text = input.value.trim(); 
@@ -1578,15 +1578,25 @@
             
             db.ref(`users/${currentUser.uid}/chats`).push({ role: 'user', text: text, timestamp: firebase.database.ServerValue.TIMESTAMP });
 
+            // SMART STATUS UI
             let typing = document.createElement("div"); 
             typing.className = "msg ai"; 
-            typing.innerHTML = `<div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`; 
+            typing.innerHTML = `
+                <div class="typing-indicator" id="searchStatus" style="padding:4px;">
+                    <span style="font-size:12px; color:#fbbf24; font-weight:600;">
+                        <i class="fa-solid fa-magnifying-glass fa-beat-fade"></i> Searching live internet...
+                    </span>
+                </div>`; 
             box.appendChild(typing); 
             box.scrollTop = box.scrollHeight;
 
+            let searchStatusEl = document.getElementById("searchStatus");
             let searchContext = "";
+
             try {
-                const searchRes = await fetch("https://google.serper.dev/search", {
+                // BYPASS CORS WITH PROXY
+                const proxyUrl = "https://corsproxy.io/?https://google.serper.dev/search";
+                const searchRes = await fetch(proxyUrl, {
                     method: "POST",
                     headers: {
                         "X-API-KEY": SERPER_API_KEY,
@@ -1597,13 +1607,17 @@
                 
                 const searchData = await searchRes.json();
                 if (searchData.organic && searchData.organic.length > 0) {
+                    searchStatusEl.innerHTML = `<span style="font-size:12px; color:#10b981; font-weight:600;"><i class="fa-solid fa-check"></i> Internet data found! Answering...</span>`;
                     searchContext = "LATEST LIVE INTERNET DATA:\n";
                     for (let i = 0; i < Math.min(3, searchData.organic.length); i++) {
                         searchContext += `- ${searchData.organic[i].snippet}\n`;
                     }
+                } else {
+                    searchStatusEl.innerHTML = `<span style="font-size:12px; color:#ef4444; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> No data found. Using memory.</span>`;
                 }
             } catch (e) {
-                console.log("Search API error, proceeding without it.");
+                searchStatusEl.innerHTML = `<span style="font-size:12px; color:#ef4444; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> Search blocked. Using offline memory.</span>`;
+                console.log("Search failed:", e);
             }
 
             let proPrompt = text;
@@ -1611,13 +1625,11 @@
 
             if (searchContext) {
                 proPrompt = `${searchContext}\n\nUser's Question: ${text}`;
-                
-                // SMART TRIMMER FOR FAST MODE (GET request ki limit ke liye)
                 let shortContext = searchContext.substring(0, 400); 
                 fastPrompt = `${shortContext}...\n\nQuestion: ${text}`;
             }
 
-            let sys = "You are Shri Mitra, a highly advanced and helpful AI created by Shriyansh. Speak clean Hinglish. Always answer naturally based on the provided live internet data if available.";
+            let sys = "You are Shri Mitra, a highly advanced and helpful AI created by Shriyansh. Speak clean Hinglish. Always answer naturally based on the provided live internet data if available. Do not invent facts if you don't know.";
             if(document.body.classList.contains("rcb-theme")) sys += " You are a die-hard fan of RCB (Royal Challengers Bangalore).";
 
             if(isProMode) {
@@ -1638,11 +1650,10 @@
                             if (pollData.status === "succeeded") {
                                 db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance - 1);
                                 
-                                // --- MARKDOWN FORMATTER (STARS REMOVER) ---
                                 let rawText = pollData.output.join("");
-                                let cleaned = rawText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Make bold
-                                cleaned = cleaned.replace(/\*/g, ''); // Remove remaining single stars
-                                cleaned = cleaned.replace(/\n/g, '<br>'); // Add lines
+                                let cleaned = rawText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
+                                cleaned = cleaned.replace(/\*/g, ''); 
+                                cleaned = cleaned.replace(/\n/g, '<br>'); 
                                 
                                 box.removeChild(typing);
                                 let aiDiv = document.createElement("div"); aiDiv.className = "msg ai"; aiDiv.innerHTML = cleaned; 
@@ -1667,16 +1678,15 @@
 
                     let rawText = await response.text();
                     
-                    // --- AD BLOCKER FOR POLLINATIONS ---
                     rawText = rawText.split('**Support Pollinations.AI:**')[0];
                     rawText = rawText.split('🌸 **Ad** 🌸')[0];
                     rawText = rawText.split('Powered by Pollinations.AI')[0];
                     rawText = rawText.replace(/---+$/, '').trim(); 
                     
-                    // --- MARKDOWN FORMATTER (STARS REMOVER) ---
-                    let cleaned = rawText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Make bold
-                    cleaned = cleaned.replace(/\*/g, ''); // Remove remaining single stars
-                    cleaned = cleaned.replace(/\n/g, '<br>'); // Add lines
+                    let cleaned = rawText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
+                    cleaned = cleaned.replace(/\*(.*?)\*/g, '<em>$1</em>'); 
+                    cleaned = cleaned.replace(/\*/g, ''); 
+                    cleaned = cleaned.replace(/\n/g, '<br>'); 
                     
                     box.removeChild(typing);
                     let aiDiv = document.createElement("div"); aiDiv.className = "msg ai"; aiDiv.innerHTML = cleaned; 
