@@ -210,11 +210,6 @@
         .dialog-btn:hover { background: rgba(255,255,255,0.1); }
         .dialog-btn.red { color: #ef4444; }
 
-        .typing-indicator { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
-        .dots-row { display: flex; gap: 5px; }
-        .dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
-        .dot:nth-child(1) { animation-delay: -0.32s; }
-        .dot:nth-child(2) { animation-delay: -0.16s; }
     </style>
 </head>
 <body>
@@ -490,7 +485,7 @@
             setTimeout(() => {
                 toast.style.animation = 'toastFadeOut 0.4s forwards';
                 setTimeout(() => toast.remove(), 400);
-            }, 3000);
+            }, 5000);
         }
 
         const manifest = { "name": "Shri Mitra AI", "short_name": "Shri Mitra", "start_url": ".", "display": "standalone", "background_color": "#0b0c10", "theme_color": "#8b5cf6", "icons": [{"src": "https://cdn-icons-png.flaticon.com/512/149/149071.png", "sizes": "512x512", "type": "image/png"}] };
@@ -687,7 +682,9 @@
                 const res = await fetch(uploadUrl, { method: 'POST', body: fd });
                 const data = await res.json();
                 
-                if(data.error) throw new Error(data.error.message);
+                if(data.error) {
+                    throw new Error(data.error.message);
+                }
                 
                 if(type === 'video') cloudinaryUrlOfGeneratedVideo = data.secure_url; 
                 else cloudinaryUrlOfGeneratedImage = data.secure_url;
@@ -702,8 +699,8 @@
                 if(st) { st.innerHTML = `<i class="fa-solid fa-check" style="color:#10b981;"></i> Saved securely to Vault!`; setTimeout(() => st.innerHTML="", 4000); }
             } catch(e) { 
                 console.log("Cloud sync failed:", e); 
-                if(st) { st.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Save failed: Check connection.`; }
-                showToast("Failed to save to Vault. Is Cloudinary Full?", "error");
+                if(st) { st.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Save failed: ${e.message}`; }
+                showToast("Cloudinary Error: " + e.message, "error");
             }
         }
 
@@ -725,8 +722,9 @@
                     let targetVersion = "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b"; 
                     if(uploadedImageFile) {
                         const fd = new FormData(); fd.append('file', uploadedImageFile); fd.append('upload_preset', UPLOAD_PRESET);
-                        const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: fd });
-                        inputPayload.image = (await cloudRes.json()).secure_url; inputPayload.prompt_strength = 0.7;
+                        const cloudData = await (await fetch(CLOUDINARY_URL, { method: 'POST', body: fd })).json();
+                        if(cloudData.error) throw new Error("Image Upload Error: " + cloudData.error.message);
+                        inputPayload.image = cloudData.secure_url; inputPayload.prompt_strength = 0.7;
                     }
                     const createRes = await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", { version: targetVersion, input: inputPayload });
                     const createData = await createRes.json();
@@ -770,7 +768,9 @@
                 let imgUrl = cloudinaryUrlOfGeneratedImage;
                 if (!imgUrl) {
                     const fd = new FormData(); fd.append('file', targetBlob); fd.append('upload_preset', UPLOAD_PRESET);
-                    imgUrl = (await (await fetch(CLOUDINARY_URL, { method: 'POST', body: fd })).json()).secure_url;
+                    const cloudData = await (await fetch(CLOUDINARY_URL, { method: 'POST', body: fd })).json();
+                    if(cloudData.error) throw new Error("Upload Error: " + cloudData.error.message);
+                    imgUrl = cloudData.secure_url;
                 }
                 let versionHash = toolType === 'upscale' ? "42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b" : "fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003"; 
                 const createData = await (await fetchFromMyBackend("https://api.replicate.com/v1/predictions", "POST", { version: versionHash, input: { image: imgUrl } })).json();
@@ -907,7 +907,7 @@
             });
         }
 
-        // --- DIRECT BROWSER SEARCH (NO SLEEPING) ---
+        // --- SILENT & CLEAN DIRECT SEARCH ENGINE ---
         async function sendMessage() {
             let input = document.getElementById("chatInput"); let text = input.value.trim(); if (!text) return;
             if(isProMode && userCoinBalance < 1) return openRechargeModal();
@@ -917,10 +917,10 @@
             db.ref(`users/${currentUser.uid}/chats`).push({ role: 'user', text: text, timestamp: firebase.database.ServerValue.TIMESTAMP });
 
             let typing = document.createElement("div"); typing.className = "msg ai"; 
-            typing.innerHTML = `<div class="typing-indicator" id="searchStatus" style="padding:4px;"><span style="font-size:12px; color:#fbbf24; font-weight:600;"><i class="fa-solid fa-magnifying-glass fa-beat-fade"></i> Searching Live Internet...</span></div>`; 
+            typing.innerHTML = `<div class="typing-indicator" style="padding:8px 12px; font-weight:600; color:var(--primary); font-size:13px; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-circle-notch fa-spin"></i> Thinking...</div>`; 
             box.appendChild(typing); box.scrollTop = box.scrollHeight;
 
-            let searchStatusEl = document.getElementById("searchStatus"); let searchContext = "";
+            let searchContext = "";
             
             const qStr = text.toLowerCase().trim();
             const smallTalk = ['hi', 'hello', 'hey', 'hy', 'hii', 'hiii', 'good morning', 'good night', 'kaise ho', 'how are you', 'who are you', 'tum kaun ho', 'what are you doing', 'kya kar rahe ho', 'thank you', 'thanks', 'ok', 'okay', 'bye', 'good', 'nice', 'wow', 'awesome', 'yes', 'no', 'haan', 'na'];
@@ -929,7 +929,7 @@
 
             if (needsSearch) {
                 try {
-                    // DIRECT SERPER CALL (No Render Backend, No Sleeping!)
+                    // SILENT SEARCH (No UI Updates)
                     const searchRes = await fetch("https://google.serper.dev/search", {
                         method: "POST",
                         headers: { 
@@ -941,20 +941,14 @@
                     
                     const searchData = await searchRes.json();
                     if (searchData.organic && searchData.organic.length > 0) {
-                        searchStatusEl.innerHTML = `<span style="font-size:12px; color:#10b981; font-weight:600;"><i class="fa-solid fa-check"></i> Latest News Found!</span>`;
                         searchContext = "LATEST LIVE INTERNET DATA:\n";
                         for (let i = 0; i < Math.min(3, searchData.organic.length); i++) {
                             searchContext += `- ${searchData.organic[i].snippet}\n`;
                         }
-                    } else {
-                        searchStatusEl.innerHTML = `<span style="font-size:12px; color:#ef4444; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> No live data found.</span>`;
                     }
                 } catch (e) { 
-                    searchStatusEl.innerHTML = `<span style="font-size:12px; color:#ef4444; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> Search Failed.</span>`;
                     console.log("Direct Search failed:", e); 
                 }
-            } else {
-                searchStatusEl.innerHTML = `<span style="font-size:12px; color:#3b82f6; font-weight:600;"><div class="dots-row"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></span>`;
             }
 
             let proPrompt = text; let fastPrompt = text;
