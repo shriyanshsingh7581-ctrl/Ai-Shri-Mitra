@@ -346,9 +346,6 @@
         const UPLOAD_PRESET = "shri_mitra_preset";
         const REMOVE_BG_API_KEY = "WPREb6KfsRrmaBb99FoBFonv";
 
-        // 🔥 YAHAN APNI GROQ API KEY PASTE KAREIN 🔥
-        const GROQ_API_KEY = "PASTE_YOUR_GROQ_API_KEY_HERE"; 
-
         const discoverData = [
             { type: 'image', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=500', title: 'Cyberpunk Portrait', tag: 'Image' },
             { type: 'image', url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=500', title: 'Royal Wedding AI', tag: 'Image' },
@@ -470,7 +467,7 @@
             });
         }
 
-        // --- INTELLIGENT GROQ AI CHAT ENGINE ---
+        // --- INTELLIGENT GROQ AI CHAT ENGINE (PROXY CONNECTED) ---
         async function sendChatMessage() {
             let input = document.getElementById('chatInput'); 
             let text = input.value.trim(); 
@@ -486,28 +483,21 @@
             hist.scrollTop = hist.scrollHeight;
 
             try {
-                if(GROQ_API_KEY === "PASTE_YOUR_GROQ_API_KEY_HERE" || !GROQ_API_KEY) {
-                    throw new Error("Groq API Key is missing. Please add it to the code.");
-                }
+                let targetUrl = "https://api.groq.com/openai/v1/chat/completions";
+                let payload = {
+                    model: "llama3-8b-8192", 
+                    messages: [
+                        { role: "system", content: "You are NexArt AI, a highly intelligent, creative, and friendly AI assistant created by Shriyansh. Keep your answers clear, helpful, and human-like." },
+                        { role: "user", content: text }
+                    ]
+                };
 
-                let response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${GROQ_API_KEY}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        model: "llama3-8b-8192", // Groq's super fast model
-                        messages: [
-                            { role: "system", content: "You are NexArt AI, a highly intelligent, creative, and friendly AI assistant created by Shriyansh. Keep your answers clear, helpful, and human-like. Keep answers relatively concise." },
-                            { role: "user", content: text }
-                        ]
-                    })
-                });
-
-                let data = await response.json();
-                if (data.error) throw new Error(data.error.message);
+                // Groq API ko aapke Render backend proxy se pass kar rahe hain
+                let data = await fetchFromMyBackend(targetUrl, "POST", payload);
                 
+                if (data.error) throw new Error(data.error.message || data.error);
+                if (!data.choices || !data.choices[0]) throw new Error("Invalid response from server");
+
                 let reply = data.choices[0].message.content;
                 
                 document.getElementById(typingId).remove();
@@ -562,7 +552,7 @@
                 if (!res.ok) throw new Error(result.error || result.detail || `Server Status: ${res.status}`);
                 if (result.error) throw new Error(result.error);
                 return result;
-            } catch(e) { throw new Error("Render Backend Down ya Replicate Key Error."); }
+            } catch(e) { throw new Error("Render Backend Down ya API Key Error."); }
         }
 
         let loaderInterval;
@@ -717,3 +707,4 @@
     </script>
 </body>
 </html>
+
