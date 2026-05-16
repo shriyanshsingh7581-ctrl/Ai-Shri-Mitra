@@ -331,7 +331,7 @@
             c.appendChild(t); setTimeout(() => { t.style.animation = 'toastIn 0.3s reverse forwards'; setTimeout(() => t.remove(), 300); }, 3000); 
         }
 
-        // --- CHECK SAVED SESSION ON APP LOAD ---
+        // --- CHECK SAVED SESSION & FIX BLACK SCREEN BUG ---
         window.addEventListener('load', function() {
             setTimeout(function() {
                 var splash = document.getElementById('splashScreen');
@@ -341,15 +341,20 @@
                 }
             }, 1200);
 
-            // AUTO-LOGIN LOGIC
-            let savedSession = localStorage.getItem('nexart_session');
-            if (savedSession) {
-                let u = JSON.parse(savedSession);
-                document.getElementById('loginOverlay').classList.remove('active'); 
-                // Call login success silently
-                window.kodularLoginSuccess(u.email, u.displayName, u.photoURL, true);
-            } else {
-                // Keep login screen active if no session
+            try {
+                let savedSession = localStorage.getItem('nexart_session');
+                if (savedSession) {
+                    let u = JSON.parse(savedSession);
+                    document.getElementById('loginOverlay').classList.remove('active'); 
+                    window.kodularLoginSuccess(u.email, u.displayName, u.photoURL, true);
+                } else {
+                    // Agar session nahi hai, toh turant login screen dikhao!
+                    document.getElementById('loginOverlay').classList.add('active');
+                }
+            } catch(e) {
+                // Agar memory corrupt ho gayi ho toh login screen dikhao
+                localStorage.removeItem('nexart_session');
+                document.getElementById('loginOverlay').classList.add('active');
             }
         });
 
@@ -363,11 +368,10 @@
             }
         }
 
-        // --- UPDATED LOGIN SUCCESS (FIXED NAME & ADDED SAVE SESSION) ---
+        // --- KODULAR SUCCESS HANDLER ---
         window.kodularLoginSuccess = function(email, name, photoUrl, isAutoLogin = false) {
             let safeUid = email.replace(/[\.\#\$\[\]]/g, '_'); 
             
-            // MAGIC TRICK: Email se naam nikalna agar Name 'User' ya khali aaye
             if (!name || name === 'User' || name === 'null') {
                 let extractedName = email.split('@')[0];
                 name = extractedName.charAt(0).toUpperCase() + extractedName.slice(1);
@@ -375,7 +379,6 @@
             
             currentUser = { uid: safeUid, displayName: name, photoURL: photoUrl, email: email };
             
-            // SAVE TO MEMORY SO USER DOES NOT LOG OUT ON CLOSE
             localStorage.setItem('nexart_session', JSON.stringify(currentUser));
             
             document.getElementById('loginOverlay').classList.remove('active'); 
@@ -397,7 +400,7 @@
             if(!isAutoLogin) showToast("Login Successful!", "success");
         };
 
-        // Standard Web Login (For PC/Chrome testing)
+        // Standard Web Login
         auth.onAuthStateChanged(u => {
             if (u && !window.AppInventor && !localStorage.getItem('nexart_session')) { 
                 currentUser = u;
@@ -406,16 +409,19 @@
                 document.getElementById('profilePic').src = pic; document.getElementById('profileName').innerText = u.displayName || "User";
                 db.ref(`users/${u.uid}/coins`).on('value', s => { let coins = s.exists() ? s.val() : 50; if (!s.exists()) db.ref(`users/${currentUser.uid}/coins`).set(50); document.getElementById('coinCount').innerText = coins; userCoinBalance = coins; });
                 filterGallery('All', document.querySelector('.tab-pill') || document.querySelector('.k-tab')); loadVault();
+            } else if (!u && !localStorage.getItem('nexart_session')) {
+                document.getElementById('loginOverlay').classList.add('active');
+                document.getElementById('mainApp').style.display = 'none';
             }
         });
         
         function signInWithGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => { if(e.code === 'auth/popup-blocked') auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); else showToast(e.message, "error"); }); }
         
-        // --- UPDATED LOGOUT (CLEARS SAVED SESSION) ---
+        // --- LOGOUT LOGIC ---
         function logout() { 
             if(confirm("Are you sure you want to log out?")) {
                 currentUser = null;
-                localStorage.removeItem('nexart_session'); // Forget the memory
+                localStorage.removeItem('nexart_session'); 
                 
                 if(window.AppInventor) {
                     window.AppInventor.setWebViewString("LOGOUT");
@@ -624,3 +630,4 @@
     </script>
 </body>
 </html>
+
