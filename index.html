@@ -68,19 +68,19 @@
         /* --- AI CHAT INTERFACE --- */
         .chat-container { display: flex; flex-direction: column; height: calc(100vh - 180px); }
         .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding-bottom: 20px; }
-        .msg { display: flex; gap: 12px; max-width: 85%; }
+        .msg { display: flex; gap: 12px; max-width: 90%; }
         .msg.ai { align-self: flex-start; }
         .msg.user { align-self: flex-end; flex-direction: row-reverse; }
-        .msg-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; }
+        .msg-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; flex-shrink: 0; }
         .msg.ai .msg-avatar { background: var(--kling-gradient); color: white; }
         .msg.user .msg-avatar { background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.1); }
-        .msg-bubble { padding: 14px 18px; border-radius: 20px; font-size: 15px; line-height: 1.5; }
+        .msg-bubble { padding: 14px 18px; border-radius: 20px; font-size: 15px; line-height: 1.5; word-wrap: break-word; }
         .msg.ai .msg-bubble { background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.05); border-top-left-radius: 4px; }
         .msg.user .msg-bubble { background: var(--neon-secondary); color: white; border-top-right-radius: 4px; }
         .chat-input-area { padding: 10px 0; display: flex; gap: 10px; align-items: center; }
         .chat-input { flex: 1; background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 16px 20px; border-radius: 100px; font-size: 15px; transition: var(--transition); }
         .chat-input:focus { border-color: var(--neon-secondary); }
-        .chat-send-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--kling-gradient); color: white; display: flex; justify-content: center; align-items: center; font-size: 18px; box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4); }
+        .chat-send-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--kling-gradient); color: white; display: flex; justify-content: center; align-items: center; font-size: 18px; box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4); flex-shrink: 0; }
 
         /* --- CREATION BOTTOM SHEET --- */
         .bottom-sheet { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 3000; display: none; flex-direction: column; justify-content: flex-end; opacity: 0; transition: opacity 0.3s ease; }
@@ -102,7 +102,7 @@
         .remove-media { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; background: rgba(0,0,0,0.7); color: white; border-radius: 50%; display: none; justify-content: center; align-items: center; z-index: 3; }
         .gen-btn-huge { width: 100%; background: var(--kling-gradient); color: white; padding: 20px; border-radius: 100px; font-size: 18px; font-weight: 800; display: flex; justify-content: center; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(217, 70, 239, 0.4); border: none; }
 
-        /* --- STORE MODAL UI (NEW) --- */
+        /* --- STORE MODAL UI --- */
         .pack-grid { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
         .pack-card { background: var(--bg-elevated); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; transition: var(--transition); cursor: pointer; }
         .pack-card:active { transform: scale(0.96); }
@@ -201,11 +201,11 @@
                     <div class="chat-messages" id="chatHistory">
                         <div class="msg ai">
                             <div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div>
-                            <div class="msg-bubble">Hi Shriyansh! I am NexArt AI. I can write prompts for your videos, generate ideas, or chat with you. How can I help today?</div>
+                            <div class="msg-bubble">Hi Shriyansh! I am NexArt AI, powered by Groq. I can write prompts, answer questions, or chat with you at lightning speed. How can I help today?</div>
                         </div>
                     </div>
                     <div class="chat-input-area">
-                        <input type="text" id="chatInput" class="chat-input" placeholder="Message NexArt AI...">
+                        <input type="text" id="chatInput" class="chat-input" placeholder="Message NexArt AI..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
                         <button class="chat-send-btn" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
                     </div>
                 </div>
@@ -278,8 +278,8 @@
                 <img id="upAreaImg">
                 <div class="remove-media" id="rmMediaBtn" onclick="event.stopPropagation(); removeCreatePhoto()"><i class="fa-solid fa-xmark" style="font-size: 14px; margin:0;"></i></div>
             </div>
+            <button class="gen-btn-huge" onclick="startGenerationEngine()">Generate (2 <i class="fa-solid fa-bolt"></i>)</button>
             <input type="file" id="hiddenCreateUpload" accept="image/*" style="display:none;" onchange="handleCreateUpload(event)">
-            <button class="gen-btn-huge" onclick="startGenerationEngine()">Generate <i class="fa-solid fa-wand-magic-sparkles"></i></button>
         </div>
     </div>
 
@@ -292,25 +292,16 @@
             </div>
             <div class="pack-grid">
                 <div class="pack-card" onclick="processPayment(100, 49)">
-                    <div class="pack-info">
-                        <h3><i class="fa-solid fa-bolt"></i> 100</h3>
-                        <p>Starter Pack</p>
-                    </div>
+                    <div class="pack-info"><h3><i class="fa-solid fa-bolt"></i> 100</h3><p>Starter Pack</p></div>
                     <div class="pack-price">₹49</div>
                 </div>
                 <div class="pack-card popular" onclick="processPayment(500, 149)">
                     <div class="popular-badge">MOST POPULAR</div>
-                    <div class="pack-info">
-                        <h3><i class="fa-solid fa-bolt"></i> 500</h3>
-                        <p>Creator Pack</p>
-                    </div>
+                    <div class="pack-info"><h3><i class="fa-solid fa-bolt"></i> 500</h3><p>Creator Pack</p></div>
                     <div class="pack-price">₹149</div>
                 </div>
                 <div class="pack-card" onclick="processPayment(2000, 499)">
-                    <div class="pack-info">
-                        <h3><i class="fa-solid fa-bolt"></i> 2000</h3>
-                        <p>Studio Pack</p>
-                    </div>
+                    <div class="pack-info"><h3><i class="fa-solid fa-bolt"></i> 2000</h3><p>Studio Pack</p></div>
                     <div class="pack-price">₹499</div>
                 </div>
             </div>
@@ -338,7 +329,7 @@
         </div>
         <div class="res-media" id="resultMediaContainer"></div>
         <div class="res-footer">
-            <button class="res-btn save" onclick="downloadResult()"><i class="fa-solid fa-download"></i> Save</button>
+            <button class="res-btn save" onclick="downloadResult()"><i class="fa-solid fa-download"></i> Save to Device</button>
             <button class="res-btn share" onclick="shareResult()"><i class="fa-solid fa-share-nodes"></i> Share</button>
         </div>
     </div>
@@ -355,6 +346,9 @@
         const UPLOAD_PRESET = "shri_mitra_preset";
         const REMOVE_BG_API_KEY = "WPREb6KfsRrmaBb99FoBFonv";
 
+        // 🔥 YAHAN APNI GROQ API KEY PASTE KAREIN 🔥
+        const GROQ_API_KEY = "PASTE_YOUR_GROQ_API_KEY_HERE"; 
+
         const discoverData = [
             { type: 'image', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=500', title: 'Cyberpunk Portrait', tag: 'Image' },
             { type: 'image', url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=500', title: 'Royal Wedding AI', tag: 'Image' },
@@ -363,6 +357,9 @@
             { type: 'image', url: 'https://images.unsplash.com/photo-1616781296068-07e155bc221f?q=80&w=500', title: '4K Upscaled', tag: 'Tools' }
         ];
 
+        const loaderMessages = ["Allocating AI resources...", "Processing image layers...", "Refining details and edges...", "Applying final touches...", "Almost ready..."];
+
+        // Firebase Init
         const firebaseConfig = { apiKey: "AIzaSyD1ALXTuFnD9CuZWJmqW8VN3IFwl5KKuDM", authDomain: "login-416ce.firebaseapp.com", databaseURL: "https://login-416ce-default-rtdb.firebaseio.com", projectId: "login-416ce", storageBucket: "login-416ce.firebasestorage.app", messagingSenderId: "668988371049", appId: "1:668988371049:web:8e62a795b8392cb52fb2f8" };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); const db = firebase.database();
@@ -399,18 +396,14 @@
             else { signInWithGoogle(); }
         }
 
-        // --- FETCH COINS LOGIC (WITH FALLBACK) ---
         function fetchUserCoins(safeUid) {
-            // Hum direct try karte hain padhne ka. Agar rule error aaya toh catch chalega
             try {
                 db.ref(`users/${safeUid}/coins`).on('value', s => { 
                     let coins = s.exists() ? s.val() : 50; 
-                    if (!s.exists()) db.ref(`users/${safeUid}/coins`).set(50).catch(e => console.log("DB Write blocked:", e)); 
+                    if (!s.exists()) db.ref(`users/${safeUid}/coins`).set(50).catch(e => {}); 
                     document.getElementById('coinCount').innerText = coins; 
                     userCoinBalance = coins; 
                 }, (error) => {
-                    // Ye Fallback hai. Agar Bypass login me DB mana karta hai toh local balance dikhayega
-                    console.log("Firebase Rule Blocked, using Local Balance.");
                     if(userCoinBalance === 0) userCoinBalance = 50;
                     document.getElementById('coinCount').innerText = userCoinBalance;
                 });
@@ -421,26 +414,20 @@
 
         window.kodularLoginSuccess = function(email, name, photoUrl, isAutoLogin = false) {
             let safeUid = email.replace(/[\.\#\$\[\]]/g, '_'); 
-            
             if (!name || name === 'User' || name === 'null') {
                 let extractedName = email.split('@')[0];
                 name = extractedName.charAt(0).toUpperCase() + extractedName.slice(1);
             }
-            
             currentUser = { uid: safeUid, displayName: name, photoURL: photoUrl, email: email };
             localStorage.setItem('nexart_session', JSON.stringify(currentUser));
             
             document.getElementById('loginOverlay').classList.remove('active'); 
             document.getElementById('mainApp').style.display = 'block';
-            
             let pic = photoUrl && photoUrl !== 'null' ? photoUrl : "https://cdn-icons-png.flaticon.com/512/149/149071.png"; 
             document.getElementById('profilePic').src = pic; document.getElementById('profileName').innerText = name;
             
-            // Call safe fetch coins function
             fetchUserCoins(safeUid);
-            
-            filterGallery('All', document.querySelector('.tab-pill')); 
-            loadVault();
+            filterGallery('All', document.querySelector('.tab-pill')); loadVault();
             if(!isAutoLogin) showToast("Login Successful!", "success");
         };
 
@@ -483,48 +470,72 @@
             });
         }
 
+        // --- INTELLIGENT GROQ AI CHAT ENGINE ---
         async function sendChatMessage() {
-            let input = document.getElementById('chatInput'); let text = input.value.trim(); if(!text) return;
+            let input = document.getElementById('chatInput'); 
+            let text = input.value.trim(); 
+            if(!text) return;
+            
             let hist = document.getElementById('chatHistory');
             hist.innerHTML += `<div class="msg user"><div class="msg-avatar"><i class="fa-solid fa-user"></i></div><div class="msg-bubble">${text}</div></div>`;
-            input.value = ''; hist.scrollTop = hist.scrollHeight;
-            let typingId = 'typing' + Date.now();
-            hist.innerHTML += `<div class="msg ai" id="${typingId}"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble">Thinking...</div></div>`;
+            input.value = ''; 
             hist.scrollTop = hist.scrollHeight;
-            setTimeout(() => { document.getElementById(typingId).remove(); let reply = "I am NexArt AI. Hit the '+' button to create magic!"; hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble">${reply}</div></div>`; hist.scrollTop = hist.scrollHeight; }, 1500);
+            
+            let typingId = 'typing' + Date.now();
+            hist.innerHTML += `<div class="msg ai" id="${typingId}"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble">Thinking... <i class="fa-solid fa-circle-notch fa-spin" style="margin-left:5px; font-size:12px;"></i></div></div>`;
+            hist.scrollTop = hist.scrollHeight;
+
+            try {
+                if(GROQ_API_KEY === "PASTE_YOUR_GROQ_API_KEY_HERE" || !GROQ_API_KEY) {
+                    throw new Error("Groq API Key is missing. Please add it to the code.");
+                }
+
+                let response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${GROQ_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "llama3-8b-8192", // Groq's super fast model
+                        messages: [
+                            { role: "system", content: "You are NexArt AI, a highly intelligent, creative, and friendly AI assistant created by Shriyansh. Keep your answers clear, helpful, and human-like. Keep answers relatively concise." },
+                            { role: "user", content: text }
+                        ]
+                    })
+                });
+
+                let data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+                
+                let reply = data.choices[0].message.content;
+                
+                document.getElementById(typingId).remove();
+                let formattedReply = reply.replace(/\n/g, '<br>');
+                
+                hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble">${formattedReply}</div></div>`;
+                hist.scrollTop = hist.scrollHeight;
+            } catch (err) {
+                document.getElementById(typingId).remove(); 
+                hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble" style="color: #ef4444;">Oops! ${err.message}</div></div>`; 
+                hist.scrollTop = hist.scrollHeight; 
+            }
         }
 
         // --- STORE MODAL LOGIC ---
-        function openStore() {
-            document.getElementById('storeModal').style.display = 'flex';
-            setTimeout(() => { document.getElementById('storeModal').classList.add('active'); }, 10);
-        }
-        function closeStore() {
-            document.getElementById('storeModal').classList.remove('active');
-            setTimeout(() => { document.getElementById('storeModal').style.display = 'none'; }, 300);
-        }
+        function openStore() { document.getElementById('storeModal').style.display = 'flex'; setTimeout(() => { document.getElementById('storeModal').classList.add('active'); }, 10); }
+        function closeStore() { document.getElementById('storeModal').classList.remove('active'); setTimeout(() => { document.getElementById('storeModal').style.display = 'none'; }, 300); }
 
         function processPayment(credits, price) {
             showToast("Processing request for ₹" + price + "...", "info");
-            
-            // Ye message Kodular ko bheja jayega UPI/Payment chalu karne ke liye
-            if (window.AppInventor) {
-                window.AppInventor.setWebViewString("PAY_" + credits + "_" + price);
-            } else {
-                setTimeout(() => {
-                    showToast("Payment Gateway not found in Web mode.", "error");
-                }, 1500);
-            }
+            if (window.AppInventor) { window.AppInventor.setWebViewString("PAY_" + credits + "_" + price); } 
+            else { setTimeout(() => { showToast("Payment Gateway not found in Web mode.", "error"); }, 1500); }
             closeStore();
         }
 
-        // Ye function Kodular call karega payment successful hone ke baad (Optional)
         window.addPurchasedCredits = function(amount) {
-            userCoinBalance += parseInt(amount);
-            document.getElementById('coinCount').innerText = userCoinBalance;
-            if (currentUser && currentUser.uid) {
-                db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance);
-            }
+            userCoinBalance += parseInt(amount); document.getElementById('coinCount').innerText = userCoinBalance;
+            if (currentUser && currentUser.uid) { db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance); }
             showToast("Successfully added " + amount + " Credits! ⚡", "success");
         };
 
@@ -559,7 +570,12 @@
             let promptText = document.getElementById('createPrompt').value.trim();
             if(currentCreationType === 'image' && !promptText && !uploadedFile) return showToast("Enter prompt or upload image!", "error");
             if((currentCreationType === 'video' || currentCreationType === 'bgrm') && !uploadedFile) return showToast("Image is required!", "error");
-            if(userCoinBalance <= 0) return showToast("Not enough credits! Please buy more.", "error");
+            
+            // 🔥 REQUIRE 2 CREDITS TO GENERATE 🔥
+            if(userCoinBalance < 2) {
+                openStore();
+                return showToast("Need 2 credits to generate. Please buy more!", "error");
+            }
 
             closeCreateSheet(); document.getElementById('loaderOverlay').style.display = 'flex';
             let percent = 1; let circle = document.getElementById('loaderCircle'); let text = document.getElementById('loaderPercent'); let msg = document.getElementById('loaderMsg');
@@ -580,7 +596,8 @@
                     finalResultBlob = await response.blob(); finalResultType = 'image'; finalResultUrl = URL.createObjectURL(finalResultBlob); 
                     finishLoader(); showResultView(finalResultUrl, finalResultType);
                     
-                    userCoinBalance -= 1; document.getElementById('coinCount').innerText = userCoinBalance;
+                    // 🔥 DEDUCT 2 CREDITS 🔥
+                    userCoinBalance -= 2; document.getElementById('coinCount').innerText = userCoinBalance;
                     if(currentUser) db.ref(`users/${currentUser.uid}/coins`).set(Math.max(0, userCoinBalance)).catch(e=>{});
                     uploadToVault(finalResultBlob); return; 
                 }
@@ -624,7 +641,8 @@
                 finalResultUrl = outputUrl; 
                 finishLoader(); showResultView(finalResultUrl, finalResultType);
                 
-                userCoinBalance -= 1; document.getElementById('coinCount').innerText = userCoinBalance;
+                // 🔥 DEDUCT 2 CREDITS 🔥
+                userCoinBalance -= 2; document.getElementById('coinCount').innerText = userCoinBalance;
                 if(currentUser) {
                     db.ref(`users/${currentUser.uid}/coins`).set(Math.max(0, userCoinBalance)).catch(e=>{});
                     db.ref(`users/${currentUser.uid}/gallery`).push({ url: finalResultUrl, type: finalResultType, timestamp: firebase.database.ServerValue.TIMESTAMP }).catch(e=>{});
@@ -676,7 +694,6 @@
 
         function loadVault() {
             if(!currentUser) return;
-            // Hum try catch use kar rahe hain incase DB permission deny kare bypass login me
             try {
                 db.ref(`users/${currentUser.uid}/gallery`).on('value', sn => {
                     let g = document.getElementById('myVaultGrid'); g.innerHTML = '';
@@ -700,4 +717,3 @@
     </script>
 </body>
 </html>
-
