@@ -7,41 +7,20 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script>
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                var splash = document.getElementById('splashScreen');
-                if (splash) {
-                    splash.style.opacity = '0';
-                    setTimeout(function() { splash.style.display = 'none'; }, 400);
-                }
-            }, 1200);
-        });
-    </script>
 
     <style>
         /* --- KLING AI STYLE PREMIUM THEME --- */
         :root {
-            --bg-black: #000000;
-            --bg-surface: #111111;
-            --bg-elevated: #1a1a1a;
-            
-            --neon-primary: #d946ef; 
-            --neon-secondary: #8b5cf6; 
+            --bg-black: #000000; --bg-surface: #111111; --bg-elevated: #1a1a1a;
+            --neon-primary: #d946ef; --neon-secondary: #8b5cf6; 
             --kling-gradient: linear-gradient(135deg, #d946ef, #8b5cf6);
-            
-            --text-main: #ffffff;
-            --text-dim: #a1a1aa;
-            
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --text-main: #ffffff; --text-dim: #a1a1aa;
+            --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
         ::-webkit-scrollbar { display: none; }
-
         body { background-color: var(--bg-black); color: var(--text-main); min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; }
         button { cursor: pointer; transition: var(--transition); background: none; border: none; }
         button:active { transform: scale(0.95); }
@@ -163,7 +142,7 @@
         .nav-item.active { color: white; }
         
         .create-fab-container { position: relative; top: -20px; width: 20%; display: flex; justify-content: center; }
-        .create-fab { width: 60px; height: 60px; border-radius: 50%; background: var(--brand-gradient); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 10px 25px rgba(217, 70, 239, 0.5); border: 4px solid var(--bg-black); cursor: pointer; transition: transform 0.3s; }
+        .create-fab { width: 60px; height: 60px; border-radius: 50%; background: var(--kling-gradient); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 10px 25px rgba(217, 70, 239, 0.5); border: 4px solid var(--bg-black); cursor: pointer; transition: transform 0.3s; }
         .create-fab:active { transform: scale(0.9); }
 
         /* Toast */
@@ -176,12 +155,12 @@
     <div id="toastContainer"></div>
     
     <div id="splashScreen">
-        <div class="kling-logo-large">NexArt AI</div>
+        <div class="splash-logo">NexArt AI</div>
     </div>
 
     <div id="loginOverlay">
         <div class="login-box">
-            <h1 class="kling-logo-large" style="font-size: 2.8rem; margin-bottom: 5px;">NexArt AI</h1>
+            <h1 class="splash-logo" style="font-size: 2.8rem; margin-bottom: 5px;">NexArt AI</h1>
             <p style="color:var(--text-dim);font-size:14px;margin-bottom:30px;">Premium AI Video & Image Studio</p>
             
             <button class="google-btn" onclick="handleLoginClick()">
@@ -352,31 +331,59 @@
             c.appendChild(t); setTimeout(() => { t.style.animation = 'toastIn 0.3s reverse forwards'; setTimeout(() => t.remove(), 300); }, 3000); 
         }
 
+        // --- CHECK SAVED SESSION ON APP LOAD ---
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var splash = document.getElementById('splashScreen');
+                if (splash) {
+                    splash.style.opacity = '0';
+                    setTimeout(function() { splash.style.display = 'none'; }, 400);
+                }
+            }, 1200);
+
+            // AUTO-LOGIN LOGIC
+            let savedSession = localStorage.getItem('nexart_session');
+            if (savedSession) {
+                let u = JSON.parse(savedSession);
+                document.getElementById('loginOverlay').classList.remove('active'); 
+                // Call login success silently
+                window.kodularLoginSuccess(u.email, u.displayName, u.photoURL, true);
+            } else {
+                // Keep login screen active if no session
+            }
+        });
+
         // --- THE KODULAR LOGIN BRIDGE ---
         function handleLoginClick() {
-            // Check if app is running inside Kodular WebViewer
             if (window.AppInventor) {
                 showToast("Requesting Native Login...", "info");
                 window.AppInventor.setWebViewString("GOOGLE_LOGIN");
             } else {
-                // Normal Web Browser Logic
                 signInWithGoogle();
             }
         }
 
-        // Kodular will call this function using "Evaluate JavaScript" block after login
-        window.kodularLoginSuccess = function(email, name, photoUrl) {
-            // Firebase real-time database paths cannot have '.' or '#'
+        // --- UPDATED LOGIN SUCCESS (FIXED NAME & ADDED SAVE SESSION) ---
+        window.kodularLoginSuccess = function(email, name, photoUrl, isAutoLogin = false) {
             let safeUid = email.replace(/[\.\#\$\[\]]/g, '_'); 
             
+            // MAGIC TRICK: Email se naam nikalna agar Name 'User' ya khali aaye
+            if (!name || name === 'User' || name === 'null') {
+                let extractedName = email.split('@')[0];
+                name = extractedName.charAt(0).toUpperCase() + extractedName.slice(1);
+            }
+            
             currentUser = { uid: safeUid, displayName: name, photoURL: photoUrl, email: email };
+            
+            // SAVE TO MEMORY SO USER DOES NOT LOG OUT ON CLOSE
+            localStorage.setItem('nexart_session', JSON.stringify(currentUser));
             
             document.getElementById('loginOverlay').classList.remove('active'); 
             document.getElementById('mainApp').style.display = 'block';
             
-            let pic = photoUrl || "https://cdn-icons-png.flaticon.com/512/149/149071.png"; 
+            let pic = photoUrl && photoUrl !== 'null' ? photoUrl : "https://cdn-icons-png.flaticon.com/512/149/149071.png"; 
             document.getElementById('profilePic').src = pic; 
-            document.getElementById('profileName').innerText = name || "User";
+            document.getElementById('profileName').innerText = name;
             
             db.ref(`users/${safeUid}/coins`).on('value', s => { 
                 let coins = s.exists() ? s.val() : 50; 
@@ -385,35 +392,39 @@
                 userCoinBalance = coins; 
             });
             
-            filterGallery('All', document.querySelector('.tab-pill')); 
+            filterGallery('All', document.querySelector('.tab-pill') || document.querySelector('.k-tab')); 
             loadVault();
-            showToast("Login Successful!", "success");
+            if(!isAutoLogin) showToast("Login Successful!", "success");
         };
 
-        // Standard Web Login
+        // Standard Web Login (For PC/Chrome testing)
         auth.onAuthStateChanged(u => {
-            if (u && !window.AppInventor) { // Only run if NOT in Kodular
+            if (u && !window.AppInventor && !localStorage.getItem('nexart_session')) { 
                 currentUser = u;
                 document.getElementById('loginOverlay').classList.remove('active'); document.getElementById('mainApp').style.display = 'block';
                 let pic = u.photoURL || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
                 document.getElementById('profilePic').src = pic; document.getElementById('profileName').innerText = u.displayName || "User";
                 db.ref(`users/${u.uid}/coins`).on('value', s => { let coins = s.exists() ? s.val() : 50; if (!s.exists()) db.ref(`users/${currentUser.uid}/coins`).set(50); document.getElementById('coinCount').innerText = coins; userCoinBalance = coins; });
-                filterGallery('All', document.querySelector('.tab-pill')); loadVault();
-            } else if (!u && !currentUser) { 
-                document.getElementById('loginOverlay').classList.add('active'); document.getElementById('mainApp').style.display = 'none'; 
+                filterGallery('All', document.querySelector('.tab-pill') || document.querySelector('.k-tab')); loadVault();
             }
         });
         
         function signInWithGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => { if(e.code === 'auth/popup-blocked') auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); else showToast(e.message, "error"); }); }
         
+        // --- UPDATED LOGOUT (CLEARS SAVED SESSION) ---
         function logout() { 
-            if(confirm("Log out?")) {
+            if(confirm("Are you sure you want to log out?")) {
                 currentUser = null;
+                localStorage.removeItem('nexart_session'); // Forget the memory
+                
                 if(window.AppInventor) {
                     window.AppInventor.setWebViewString("LOGOUT");
-                    document.getElementById('loginOverlay').classList.add('active'); document.getElementById('mainApp').style.display = 'none';
+                    document.getElementById('loginOverlay').classList.add('active'); 
+                    document.getElementById('mainApp').style.display = 'none';
                 } else {
                     auth.signOut();
+                    document.getElementById('loginOverlay').classList.add('active'); 
+                    document.getElementById('mainApp').style.display = 'none';
                 }
             } 
         }
@@ -422,7 +433,9 @@
         function switchMainTab(t, el) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
 
         function filterGallery(cat, el) { 
-            document.querySelectorAll('.tab-pill').forEach(i => i.classList.remove('active')); el.classList.add('active'); 
+            if(el) {
+                document.querySelectorAll('.tab-pill, .k-tab').forEach(i => i.classList.remove('active')); el.classList.add('active'); 
+            }
             const grid = document.getElementById('discoverGrid'); grid.innerHTML = '';
             discoverData.forEach(d => {
                 if(cat === 'All' || d.tag === cat) {
@@ -479,16 +492,15 @@
 
             closeCreateSheet(); document.getElementById('loaderOverlay').style.display = 'flex';
             let percent = 1; let circle = document.getElementById('loaderCircle'); let text = document.getElementById('loaderPercent'); let msg = document.getElementById('loaderMsg');
-            circle.style.strokeDashoffset = 283; text.innerText = percent;
+            circle.style.strokeDashoffset = 339; text.innerText = percent;
             
             loaderInterval = setInterval(() => {
                 if(percent >= 98) return; percent += (percent > 80 ? 1 : (percent > 40 ? 2 : 4)); if(percent > 98) percent = 98;
-                text.innerText = percent; circle.style.strokeDashoffset = 283 - (percent / 100) * 283;
+                text.innerText = percent; circle.style.strokeDashoffset = 339 - (percent / 100) * 339;
                 if(percent % 20 === 0) msg.innerText = loaderMessages[Math.floor(Math.random() * loaderMessages.length)];
             }, 500);
 
             try {
-                // 🔥 Remove.bg Direct Integration
                 if (currentCreationType === 'bgrm') {
                     msg.innerText = "Removing Background via Remove.bg...";
                     let formData = new FormData(); formData.append('image_file', uploadedFile); formData.append('size', 'auto');
@@ -499,7 +511,6 @@
                     db.ref(`users/${currentUser.uid}/coins`).set(Math.max(0, userCoinBalance - 1)); uploadToVault(finalResultBlob); return; 
                 }
 
-                // AI Models (Image & Video via Replicate)
                 let targetUrl = ""; let payload = {}; let safeImageUrl = null; finalResultBlob = null; 
 
                 if(uploadedFile) {
@@ -536,7 +547,6 @@
                     }, 2000);
                 });
 
-                // DIRECT URL FIX FOR BLACK SCREEN
                 finalResultUrl = outputUrl; 
                 finishLoader(); showResultView(finalResultUrl, finalResultType);
                 
@@ -594,6 +604,7 @@
         }
 
         function loadVault() {
+            if(!currentUser) return;
             db.ref(`users/${currentUser.uid}/gallery`).on('value', sn => {
                 let g = document.getElementById('myVaultGrid'); g.innerHTML = '';
                 if (sn.exists()) {
@@ -613,4 +624,3 @@
     </script>
 </body>
 </html>
-
