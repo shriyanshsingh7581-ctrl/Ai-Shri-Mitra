@@ -3,343 +3,1800 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NexArt AI Studio</title>
+    <meta name="theme-color" content="#060608">
+    <title>NexArt AI Studio - Ultra Premium</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- KLING AI STYLE PREMIUM THEME --- */
+        /* --- ULTRA-PREMIUM DESIGN TOKENS --- */
         :root {
-            --bg-black: #000000; --bg-surface: #111111; --bg-elevated: #1a1a1a;
-            --neon-primary: #d946ef; --neon-secondary: #8b5cf6; 
-            --kling-gradient: linear-gradient(135deg, #d946ef, #8b5cf6);
-            --text-main: #ffffff; --text-dim: #a1a1aa;
-            --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px);
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --bg-base: #060608;
+            --bg-surface: #121019;
+            --bg-gradient: radial-gradient(circle at 50% -20%, #2a1b47 0%, #060608 70%);
+            
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.12);
+            
+            --neon-primary: #a855f7; 
+            --neon-secondary: #06b6d4; 
+            --brand-gradient: linear-gradient(135deg, #b066f8 0%, #06b6d4 100%);
+            --brand-glow: 0 8px 30px rgba(168, 85, 247, 0.4);
+            --gold-gradient: linear-gradient(135deg, #facc15 0%, #f59e0b 100%);
+            
+            --text-main: #ffffff; 
+            --text-dim: #a1a1aa;
+            --text-muted: #71717a;
+            
+            --safe-top: env(safe-area-inset-top, 0px); 
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-fast: all 0.2s ease-out;
+            
+            --radius-lg: 32px;
+            --radius-md: 24px;
+            --radius-sm: 16px;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; outline: none; }
-        ::-webkit-scrollbar { display: none; }
-        body { background-color: var(--bg-black); color: var(--text-main); min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; }
-        button { cursor: pointer; transition: var(--transition); background: none; border: none; }
-        button:active { transform: scale(0.95); }
+        /* --- CSS RESET & BASE --- */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Outfit', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            outline: none; 
+        }
 
-        /* --- SPLASH & LOGIN --- */
-        #splashScreen { position: fixed; inset: 0; background-color: var(--bg-black); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.4s ease; }
-        .splash-logo { font-size: 3.5rem; font-weight: 800; background: var(--kling-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulse 2s infinite; letter-spacing: -1px; }
-        @keyframes pulse { 0%, 100% { transform: scale(0.95); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
+        ::-webkit-scrollbar { 
+            display: none; 
+        }
+        
+        body { 
+            background-color: var(--bg-base); 
+            background-image: var(--bg-gradient); 
+            background-attachment: fixed; 
+            color: var(--text-main); 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            overscroll-behavior-y: none;
+        }
+        
+        button { 
+            cursor: pointer; 
+            transition: var(--transition-fast); 
+            background: none; 
+            border: none; 
+        }
 
-        #loginOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; transition: var(--transition); opacity: 0; visibility: hidden; }
-        #loginOverlay.active { opacity: 1; visibility: visible; }
-        .login-box { background: var(--bg-surface); padding: 40px 30px; border-radius: 32px; width: 100%; max-width: 360px; text-align: center; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .google-btn { background: white; color: black; padding: 18px; border-radius: 100px; font-size: 16px; font-weight: 700; width: 100%; display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 30px; margin-bottom: 20px;}
-        .dev-badge { font-size: 12px; color: var(--text-dim); font-weight: 500; letter-spacing: 0.5px; opacity: 0.6; }
+        button:active { 
+            transform: scale(0.95); 
+        }
 
-        /* --- TOP HEADER --- */
-        .header { position: sticky; top: 0; z-index: 100; background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); padding: calc(15px + var(--safe-top)) 20px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .logo-text { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-        .logo-text i { font-size: 1.2rem; background: var(--kling-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .coin-pill { background: var(--bg-elevated); padding: 8px 16px; border-radius: 100px; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .coin-pill i { color: #f59e0b; }
-        .coin-pill:active { transform: scale(0.95); }
+        .glass-panel { 
+            background: rgba(18, 16, 25, 0.6); 
+            backdrop-filter: blur(30px) saturate(150%); 
+            -webkit-backdrop-filter: blur(30px) saturate(150%); 
+            border: 1px solid var(--glass-border); 
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6); 
+        }
 
-        /* --- TABS SCROLL --- */
-        .tab-scroll { display: flex; overflow-x: auto; gap: 15px; padding: 15px 20px; background: var(--bg-black); position: sticky; top: calc(65px + var(--safe-top)); z-index: 99; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .tab-pill { padding: 10px 20px; border-radius: 100px; color: var(--text-dim); font-size: 14px; font-weight: 600; white-space: nowrap; transition: var(--transition); cursor: pointer; border: 1px solid transparent; }
-        .tab-pill.active { background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2); }
+        /* --- SPLASH SCREEN --- */
+        #splashScreen { 
+            position: fixed; 
+            inset: 0; 
+            background: var(--bg-base); 
+            z-index: 99999; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            transition: opacity 0.6s ease, transform 0.6s ease; 
+        }
+
+        .splash-logo { 
+            font-size: 4.5rem; 
+            font-weight: 800; 
+            background: var(--brand-gradient); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            animation: breathe 3s infinite ease-in-out; 
+            letter-spacing: -2px; 
+        }
+
+        @keyframes breathe { 
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.5)); } 
+            50% { transform: scale(1.03); filter: drop-shadow(0 0 40px rgba(6, 182, 212, 0.6)); } 
+        }
+
+        /* --- LOGIN OVERLAY --- */
+        #loginOverlay { 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(6, 6, 8, 0.95); 
+            backdrop-filter: blur(40px); 
+            z-index: 2000; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 24px; 
+            transition: var(--transition-smooth); 
+            opacity: 0; 
+            visibility: hidden; 
+        }
+
+        #loginOverlay.active { 
+            opacity: 1; 
+            visibility: visible; 
+        }
+
+        .login-box { 
+            padding: 45px 30px; 
+            border-radius: 40px; 
+            width: 100%; 
+            max-width: 380px; 
+            text-align: center; 
+            position: relative; 
+            overflow: hidden; 
+        }
+
+        .login-box::before { 
+            content: ''; 
+            position: absolute; 
+            top: -50%; 
+            left: -50%; 
+            width: 200%; 
+            height: 200%; 
+            background: radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 60%); 
+            z-index: -1; 
+            pointer-events: none;
+        }
+
+        .google-btn { 
+            background: #ffffff; 
+            color: #000; 
+            padding: 18px; 
+            border-radius: 100px; 
+            font-size: 16px; 
+            font-weight: 700; 
+            width: 100%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 12px; 
+            margin-top: 35px; 
+            margin-bottom: 15px; 
+            transition: var(--transition-fast); 
+        }
+
+        .google-btn:hover { 
+            box-shadow: 0 10px 25px rgba(255,255,255,0.2); 
+            transform: translateY(-2px); 
+        }
+
+        /* --- HEADER --- */
+        .header { 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            padding: calc(20px + var(--safe-top)) 24px 15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            background: linear-gradient(to bottom, rgba(6,6,8,0.95) 0%, rgba(6,6,8,0.6) 80%, transparent 100%); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+        }
+
+        .logo-text { 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text i { 
+            font-size: 1.3rem; 
+            background: var(--brand-gradient); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        
+        .coin-pill { 
+            background: var(--glass-bg); 
+            padding: 8px 18px; 
+            border-radius: 100px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 15px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            border: 1px solid var(--glass-border); 
+            transition: var(--transition-fast); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+        }
+
+        .coin-pill:active { 
+            background: var(--glass-highlight); 
+        }
+
+        .coin-pill i { 
+            color: #facc15; 
+            filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.8)); 
+            font-size: 16px; 
+        }
 
         /* --- MAIN SECTIONS --- */
-        .app-main { flex: 1; padding-bottom: calc(100px + var(--safe-bottom)); }
-        .section { display: none; animation: fadeIn 0.4s ease; padding: 20px; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .app-main { 
+            flex: 1; 
+            padding-bottom: calc(120px + var(--safe-bottom)); 
+        }
 
-        /* --- MASONRY GRID --- */
-        .masonry-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .grid-item { position: relative; border-radius: 20px; overflow: hidden; background: var(--bg-surface); aspect-ratio: 3/4; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
-        .grid-item.video { aspect-ratio: 9/16; }
-        .grid-item img, .grid-item video { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-        .grid-item:active img { transform: scale(1.05); }
-        .item-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 40%); display: flex; flex-direction: column; justify-content: flex-end; padding: 15px; }
-        .item-title { color: white; font-size: 14px; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .badge-type { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); color: white; font-size: 10px; font-weight: 700; padding: 6px 10px; border-radius: 100px; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.2); }
+        .section { 
+            display: none; 
+            padding: 20px; 
+            animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+            opacity: 0; 
+            transform: translateY(20px); 
+        }
+
+        .section.active { 
+            display: block; 
+        }
+
+        @keyframes slideUpFade { 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* --- HOME DASHBOARD UI --- */
+        .welcome-card { 
+            padding: 35px 25px; 
+            background: var(--brand-gradient); 
+            border-radius: var(--radius-lg); 
+            margin-bottom: 25px; 
+            text-align: left; 
+            box-shadow: var(--brand-glow); 
+            position: relative; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-end; 
+            min-height: 180px; 
+        }
+
+        .welcome-card::after { 
+            content: ''; 
+            position: absolute; 
+            top: -20px; 
+            right: -20px; 
+            width: 180px; 
+            height: 180px; 
+            background: url('https://cdn3d.iconscout.com/3d/premium/thumb/artificial-intelligence-7798363-6258079.png') no-repeat center; 
+            background-size: contain; 
+            opacity: 0.9; 
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); 
+            transition: transform 0.8s ease; 
+        }
+
+        .welcome-card:hover::after { 
+            transform: scale(1.05) translateY(-5px); 
+        }
+        
+        .daily-reward-btn { 
+            background: rgba(0,0,0,0.4); 
+            backdrop-filter: blur(10px); 
+            color: #facc15; 
+            font-size: 13px; 
+            font-weight: 800; 
+            padding: 10px 18px; 
+            border-radius: 100px; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            align-self: flex-start; 
+            margin-bottom: 12px; 
+            z-index: 2; 
+            border: 1px solid rgba(250,204,21,0.3); 
+            transition: var(--transition-fast); 
+        }
+
+        .daily-reward-btn:hover, .daily-reward-btn:active { 
+            background: rgba(250,204,21,0.25); 
+            transform: translateY(-2px); 
+        }
+
+        .section-title { 
+            font-size: 1.25rem; 
+            font-weight: 800; 
+            margin: 30px 0 16px; 
+            letter-spacing: 0.5px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        
+        .bento-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 14px; 
+            margin-bottom: 35px; 
+        }
+
+        .bento-item { 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            border-radius: var(--radius-md); 
+            padding: 22px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: flex-start; 
+            gap: 14px; 
+            cursor: pointer; 
+            transition: transform 0.2s ease, background 0.3s, box-shadow 0.3s; 
+            position: relative; 
+            overflow: hidden; 
+            backdrop-filter: blur(15px); 
+            min-height: 140px; 
+        }
+
+        .bento-item:active { 
+            transform: scale(0.97); 
+            background: var(--glass-highlight); 
+        }
+
+        .bento-item.large { 
+            grid-column: span 2; 
+            flex-direction: row; 
+            align-items: center; 
+            justify-content: space-between; 
+            background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(6,182,212,0.15)); 
+            border: 1px solid rgba(168,85,247,0.4); 
+            box-shadow: 0 10px 30px rgba(168,85,247,0.15); 
+            min-height: 120px;
+        }
+
+        .bento-item i { 
+            font-size: 32px; 
+            background: var(--brand-gradient); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+
+        .bento-item span { 
+            font-size: 16px; 
+            font-weight: 700; 
+            color: var(--text-main); 
+            display: block; 
+        }
+
+        .bento-item p { 
+            font-size: 13px; 
+            color: var(--text-dim); 
+            margin-top: 6px; 
+            line-height: 1.3;
+        }
+
+        /* Hero Slider */
+        .hero-slider { 
+            display: flex; 
+            overflow-x: auto; 
+            gap: 16px; 
+            padding-bottom: 20px; 
+            scroll-snap-type: x mandatory; 
+            margin-left: -20px; 
+            padding-left: 20px; 
+            padding-right: 20px; 
+        }
+        
+        /* MASONRY GRID */
+        .masonry-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 16px; 
+        }
+
+        .grid-item { 
+            position: relative; 
+            border-radius: var(--radius-md); 
+            overflow: hidden; 
+            aspect-ratio: 3/4; 
+            cursor: pointer; 
+            background: var(--bg-surface); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
+        }
+
+        .grid-item.video { 
+            aspect-ratio: 9/16; 
+        }
+
+        .hero-slider .grid-item { 
+            min-width: 260px; 
+            scroll-snap-align: start; 
+            flex-shrink: 0; 
+        }
+
+        .grid-item img, .grid-item video { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); 
+        }
+
+        .grid-item:active img, .grid-item:active video { 
+            transform: scale(1.05); 
+        }
+
+        .item-overlay { 
+            position: absolute; 
+            inset: 0; 
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 50%); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-end; 
+            padding: 20px; 
+            pointer-events: none;
+        }
+
+        .item-title { 
+            color: white; 
+            font-size: 15px; 
+            font-weight: 700; 
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8); 
+        }
+
+        .badge-type { 
+            position: absolute; 
+            top: 12px; 
+            right: 12px; 
+            background: rgba(0,0,0,0.5); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255,255,255,0.15); 
+            color: white; 
+            font-size: 10px; 
+            font-weight: 800; 
+            padding: 6px 12px; 
+            border-radius: 100px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+        }
 
         /* --- AI CHAT INTERFACE --- */
-        .chat-container { display: flex; flex-direction: column; height: calc(100vh - 180px); }
-        .chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding-bottom: 20px; }
-        .msg { display: flex; gap: 12px; max-width: 90%; }
+        #chatTab { padding: 0; height: 100%; }
+        .chat-container { 
+            display: flex; 
+            flex-direction: column; 
+            height: calc(100vh - 180px); 
+        }
+
+        .chat-header-actions { 
+            display: flex; 
+            justify-content: flex-end; 
+            padding: 10px 24px; 
+            background: rgba(6,6,8,0.8); 
+            backdrop-filter: blur(10px); 
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .chat-tts-btn { 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            color: white; 
+            padding: 8px 16px; 
+            border-radius: 100px; 
+            font-size: 12px; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            transition: var(--transition-fast); 
+        }
+
+        .chat-tts-btn.active { 
+            background: rgba(168, 85, 247, 0.2); 
+            border-color: var(--neon-primary); 
+            color: var(--neon-primary); 
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.2); 
+        }
+
+        .chat-messages { 
+            flex: 1; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 24px; 
+            padding: 20px 24px; 
+            scroll-behavior: smooth; 
+        }
+
+        .msg { 
+            display: flex; 
+            gap: 12px; 
+            max-width: 90%; 
+            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+        }
+
         .msg.ai { align-self: flex-start; }
         .msg.user { align-self: flex-end; flex-direction: row-reverse; }
-        .msg-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 18px; flex-shrink: 0; }
-        .msg.ai .msg-avatar { background: var(--kling-gradient); color: white; }
-        .msg.user .msg-avatar { background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.1); }
-        .msg-bubble { padding: 14px 18px; border-radius: 20px; font-size: 15px; line-height: 1.5; word-wrap: break-word; }
-        .msg.ai .msg-bubble { background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.05); border-top-left-radius: 4px; }
-        .msg.user .msg-bubble { background: var(--neon-secondary); color: white; border-top-right-radius: 4px; }
-        .chat-input-area { padding: 10px 0; display: flex; gap: 10px; align-items: center; }
-        .chat-input { flex: 1; background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 16px 20px; border-radius: 100px; font-size: 15px; transition: var(--transition); }
-        .chat-input:focus { border-color: var(--neon-secondary); }
-        .chat-send-btn { width: 50px; height: 50px; border-radius: 50%; background: var(--kling-gradient); color: white; display: flex; justify-content: center; align-items: center; font-size: 18px; box-shadow: 0 4px 15px rgba(217, 70, 239, 0.4); flex-shrink: 0; }
 
-        /* --- CREATION BOTTOM SHEET --- */
-        .bottom-sheet { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 3000; display: none; flex-direction: column; justify-content: flex-end; opacity: 0; transition: opacity 0.3s ease; }
-        .bottom-sheet.active { opacity: 1; }
-        .sheet-content { background: var(--bg-surface); border-top-left-radius: 32px; border-top-right-radius: 32px; padding: 30px 20px calc(20px + var(--safe-bottom)); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); border-top: 1px solid rgba(255,255,255,0.1); max-height: 85vh; overflow-y: auto; }
-        .bottom-sheet.active .sheet-content { transform: translateY(0); }
-        .sheet-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .sheet-title { font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
-        .sheet-close { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-elevated); display: flex; justify-content: center; align-items: center; color: white; cursor: pointer; }
+        .msg-avatar { 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 14px; 
+            flex-shrink: 0; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4); 
+            border: 1px solid var(--glass-border); 
+        }
 
-        .type-selector { display: flex; background: var(--bg-elevated); border-radius: 100px; padding: 5px; margin-bottom: 25px; }
-        .type-btn { flex: 1; text-align: center; padding: 12px; font-size: 14px; font-weight: 600; border-radius: 100px; color: var(--text-dim); transition: var(--transition); }
-        .type-btn.active { background: var(--bg-surface); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .creation-prompt { width: 100%; background: var(--bg-elevated); border: 1px solid rgba(255,255,255,0.05); color: white; font-size: 16px; padding: 20px; border-radius: 20px; min-height: 120px; resize: none; margin-bottom: 20px; }
-        .creation-prompt:focus { border-color: var(--neon-secondary); }
-        .media-upload-area { width: 100%; height: 100px; border: 2px dashed rgba(255,255,255,0.2); border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 15px; color: var(--text-dim); cursor: pointer; margin-bottom: 25px; position: relative; overflow: hidden; background: var(--bg-elevated); }
-        .media-upload-area i { font-size: 24px; color: var(--neon-secondary); }
-        .media-upload-area img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; z-index: 2; }
-        .remove-media { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; background: rgba(0,0,0,0.7); color: white; border-radius: 50%; display: none; justify-content: center; align-items: center; z-index: 3; }
-        .gen-btn-huge { width: 100%; background: var(--kling-gradient); color: white; padding: 20px; border-radius: 100px; font-size: 18px; font-weight: 800; display: flex; justify-content: center; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(217, 70, 239, 0.4); border: none; }
+        .msg.ai .msg-avatar { background: var(--brand-gradient); color: white; border: none; }
+        .msg.user .msg-avatar { background: var(--glass-highlight); color: var(--text-main); }
+
+        .msg-bubble { 
+            padding: 14px 18px; 
+            border-radius: 20px; 
+            font-size: 15px; 
+            line-height: 1.5; 
+            word-wrap: break-word; 
+            font-weight: 400; 
+            backdrop-filter: blur(15px); 
+        }
+
+        .msg.ai .msg-bubble { 
+            background: rgba(30, 25, 45, 0.8); 
+            border: 1px solid var(--glass-border); 
+            border-top-left-radius: 4px; 
+            color: #f4f4f5; 
+        }
+
+        .msg.user .msg-bubble { 
+            background: var(--text-main); 
+            color: #000; 
+            border-top-right-radius: 4px; 
+            font-weight: 500; 
+        }
+        
+        .chat-input-area { 
+            padding: 15px 24px calc(20px + var(--safe-bottom)); 
+            display: flex; 
+            gap: 12px; 
+            align-items: center; 
+            background: rgba(10,8,16,0.9); 
+            backdrop-filter: blur(20px); 
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .chat-input { 
+            flex: 1; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            color: white; 
+            padding: 16px 24px; 
+            border-radius: 100px; 
+            font-size: 15px; 
+            transition: var(--transition-fast); 
+        }
+
+        .chat-input:focus { 
+            border-color: var(--neon-primary); 
+            background: rgba(255,255,255,0.06); 
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15); 
+        }
+
+        .chat-send-btn { 
+            width: 52px; 
+            height: 52px; 
+            border-radius: 50%; 
+            background: var(--brand-gradient); 
+            color: #fff; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 18px; 
+            box-shadow: var(--brand-glow); 
+            flex-shrink: 0; 
+            border: none; 
+        }
+
+        /* Typing Indicator */
+        .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+        .typing-indicator span { width: 6px; height: 6px; background: var(--text-dim); border-radius: 50%; animation: typeBounce 1.4s infinite both; }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typeBounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        /* --- FLOATING BOTTOM NAVIGATION --- */
+        .dock-container { 
+            position: fixed; 
+            bottom: calc(20px + var(--safe-bottom)); 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 90%; 
+            max-width: 400px; 
+            z-index: 500; 
+            display: flex; 
+            justify-content: center; 
+        }
+
+        .bottom-nav { 
+            background: rgba(18, 16, 25, 0.85); 
+            backdrop-filter: blur(35px); 
+            -webkit-backdrop-filter: blur(35px); 
+            border: 1px solid var(--glass-border); 
+            border-radius: 100px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 8px 12px; 
+            width: 100%; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1); 
+        }
+
+        .nav-item { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            color: var(--text-muted); 
+            width: 50px; 
+            height: 50px; 
+            cursor: pointer; 
+            border-radius: 50%; 
+            transition: var(--transition-fast); 
+            position: relative; 
+            font-size: 20px;
+        }
+
+        .nav-item.active { 
+            color: var(--text-main); 
+        }
+
+        .nav-item.active i { 
+            transform: translateY(-2px); 
+            text-shadow: 0 0 15px rgba(255,255,255,0.5); 
+        }
+
+        .nav-item.active::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: 6px; 
+            width: 4px; 
+            height: 4px; 
+            background: var(--text-main); 
+            border-radius: 50%; 
+            box-shadow: 0 0 8px var(--text-main); 
+        }
+        
+        .create-fab { 
+            width: 54px; 
+            height: 54px; 
+            border-radius: 50%; 
+            background: var(--brand-gradient); 
+            color: #fff; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 20px; 
+            box-shadow: var(--brand-glow); 
+            cursor: pointer; 
+            transition: transform 0.3s; 
+            margin: 0 5px; 
+            border: 2px solid rgba(255,255,255,0.1); 
+        }
+
+        .create-fab:active { 
+            transform: scale(0.9) rotate(90deg); 
+        }
+
+        /* --- PROFESSIONAL PROFILE --- */
+        .profile-header { 
+            position: relative; 
+            overflow: hidden; 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+            padding: 30px 25px; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            border-radius: var(--radius-lg); 
+            margin-bottom: 25px; 
+            backdrop-filter: blur(20px); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+        }
+
+        .profile-bg-glow { 
+            position: absolute; 
+            top: -50px; 
+            right: -50px; 
+            width: 180px; 
+            height: 180px; 
+            background: var(--neon-primary); 
+            filter: blur(80px); 
+            opacity: 0.25; 
+            z-index: -1; 
+        }
+
+        .profile-header img { 
+            width: 80px; 
+            height: 80px; 
+            border-radius: 50%; 
+            border: 2px solid rgba(255,255,255,0.2); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5); 
+            object-fit: cover; 
+        }
+
+        .profile-stats { 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 25px; 
+        }
+
+        .stat-box { 
+            flex: 1; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            border-radius: var(--radius-md); 
+            padding: 20px 10px; 
+            text-align: center; 
+            backdrop-filter: blur(10px); 
+        }
+
+        .stat-num { 
+            font-size: 28px; 
+            font-weight: 800; 
+            color: white; 
+            margin-bottom: 4px; 
+        }
+
+        .stat-label { 
+            font-size: 11px; 
+            color: var(--text-dim); 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            font-weight: 600; 
+        }
+        
+        .pro-banner { 
+            background: var(--brand-gradient); 
+            border-radius: var(--radius-md); 
+            padding: 25px; 
+            margin-bottom: 25px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: var(--brand-glow); 
+            cursor: pointer; 
+            transition: transform 0.2s; 
+        }
+
+        .pro-banner:active { 
+            transform: scale(0.97); 
+        }
+        
+        .menu-group { 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            border-radius: var(--radius-md); 
+            padding: 5px 20px; 
+            margin-bottom: 20px; 
+            backdrop-filter: blur(10px); 
+        }
+
+        .menu-item { 
+            padding: 20px 0; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer; 
+            transition: var(--transition-fast); 
+        }
+
+        .menu-item:last-child { 
+            border-bottom: none; 
+        }
+
+        .menu-item-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+        }
+
+        .menu-icon-box { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 12px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 16px; 
+            color: white; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            background: rgba(255,255,255,0.05); 
+        }
+
+        .menu-text { 
+            font-size: 16px; 
+            font-weight: 500; 
+            color: white; 
+        }
+
+        /* --- PHOTO EDITOR UI --- */
+        #photoEditorModal { 
+            position: fixed; 
+            inset: 0; 
+            background: var(--bg-base); 
+            z-index: 6000; 
+            display: none; 
+            flex-direction: column; 
+            opacity: 0; 
+            transition: opacity 0.3s; 
+        }
+
+        #photoEditorModal.active { 
+            opacity: 1; 
+            display: flex; 
+        }
+
+        .editor-header { 
+            padding: calc(20px + var(--safe-top)) 24px 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: rgba(6,6,8,0.95); 
+            border-bottom: 1px solid var(--glass-border); 
+            backdrop-filter: blur(20px); 
+        }
+
+        .editor-workspace { 
+            flex: 1; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            overflow: hidden; 
+            padding: 20px; 
+            position: relative; 
+            background: radial-gradient(circle, #1a1625 0%, #060608 100%); 
+        }
+
+        .editor-workspace img { 
+            max-width: 100%; 
+            max-height: 100%; 
+            object-fit: contain; 
+            transition: filter 0.1s; 
+            border-radius: 16px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8); 
+        }
+        
+        .editor-controls { 
+            background: rgba(18,16,25,0.95); 
+            padding: 30px 24px calc(30px + var(--safe-bottom)); 
+            border-top: 1px solid var(--glass-border); 
+            border-top-left-radius: var(--radius-lg); 
+            border-top-right-radius: var(--radius-lg); 
+            backdrop-filter: blur(25px); 
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+        }
+
+        .slider-group { 
+            margin-bottom: 24px; 
+        }
+
+        .slider-label { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 12px; 
+            font-weight: 700; 
+            color: var(--text-dim); 
+            margin-bottom: 12px; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px; 
+        }
+        
+        /* Modern Pro Sliders */
+        input[type=range] { 
+            -webkit-appearance: none; 
+            width: 100%; 
+            background: transparent; 
+            height: 32px; 
+            border-radius: 16px; 
+            outline: none; 
+            margin: 0; 
+            position: relative; 
+        }
+
+        input[type=range]::before { 
+            content: ''; 
+            position: absolute; 
+            top: 50%; 
+            left: 0; 
+            right: 0; 
+            height: 6px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 10px; 
+            transform: translateY(-50%); 
+            z-index: -1; 
+            pointer-events: none;
+        }
+
+        input[type=range]::-webkit-slider-runnable-track { 
+            width: 100%; 
+            height: 32px; 
+            background: transparent; 
+        }
+
+        input[type=range]::-webkit-slider-thumb { 
+            -webkit-appearance: none; 
+            height: 28px; 
+            width: 28px; 
+            border-radius: 50%; 
+            background: var(--text-main); 
+            cursor: pointer; 
+            border: 4px solid var(--bg-surface); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5); 
+            margin-top: 2px;
+        }
+
+        input[type=range]:active::-webkit-slider-thumb { 
+            transform: scale(1.1); 
+        }
+        
+        .editor-upload-prompt { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 15px; 
+            color: var(--text-dim); 
+            padding: 40px; 
+            border: 2px dashed rgba(255,255,255,0.15); 
+            border-radius: var(--radius-lg); 
+            cursor: pointer; 
+            transition: var(--transition-fast); 
+            background: rgba(255,255,255,0.02);
+        }
+
+        .editor-upload-prompt:active { 
+            background: rgba(255,255,255,0.05); 
+        }
+
+        /* --- CREATION BOTTOM SHEET 🔥 --- */
+        .bottom-sheet { 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.7); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px); 
+            z-index: 3000; 
+            display: none; 
+            flex-direction: column; 
+            justify-content: flex-end; 
+            opacity: 0; 
+            transition: opacity 0.4s ease; 
+        }
+
+        .bottom-sheet.active { 
+            opacity: 1; 
+        }
+
+        .sheet-content { 
+            background: var(--bg-base); 
+            border-top-left-radius: 36px; 
+            border-top-right-radius: 36px; 
+            padding: 25px 25px calc(25px + var(--safe-bottom)); 
+            transform: translateY(100%); 
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); 
+            border-top: 1px solid var(--glass-border); 
+            box-shadow: 0 -15px 50px rgba(0,0,0,0.8); 
+            max-height: 92vh; 
+            overflow-y: auto; 
+            position: relative; 
+            touch-action: none;
+        }
+
+        .sheet-content::before { 
+            content:''; 
+            position:absolute; 
+            top:0; 
+            left:0; 
+            right:0; 
+            height:150px; 
+            background: radial-gradient(ellipse at top, rgba(168, 85, 247, 0.15) 0%, transparent 70%); 
+            pointer-events: none;
+        }
+
+        .bottom-sheet.active .sheet-content { 
+            transform: translateY(0); 
+        }
+        
+        .drag-handle { 
+            width: 48px; 
+            height: 5px; 
+            background: rgba(255,255,255,0.2); 
+            border-radius: 10px; 
+            margin: 0 auto 20px auto; 
+            cursor: grab; 
+        }
+
+        .drag-handle:active { 
+            cursor: grabbing; 
+            background: rgba(255,255,255,0.4); 
+        }
+        
+        .sheet-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 25px; 
+        }
+
+        .sheet-title { 
+            font-size: 1.4rem; 
+            font-weight: 800; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+
+        .sheet-close { 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            color: white; 
+            cursor: pointer; 
+        }
+        
+        .type-selector { 
+            display: flex; 
+            background: rgba(0,0,0,0.4); 
+            border-radius: 100px; 
+            padding: 6px; 
+            margin-bottom: 24px; 
+            border: 1px solid var(--glass-border); 
+        }
+
+        .type-btn { 
+            flex: 1; 
+            text-align: center; 
+            padding: 12px; 
+            font-size: 13px; 
+            font-weight: 700; 
+            border-radius: 100px; 
+            color: var(--text-muted); 
+            transition: var(--transition-smooth); 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            cursor: pointer;
+        }
+
+        .type-btn.active { 
+            background: var(--text-main); 
+            color: #000; 
+            box-shadow: 0 4px 15px rgba(255,255,255,0.2); 
+        }
+        
+        /* Art Styles Row */
+        .style-scroll-wrapper { 
+            display: flex; 
+            overflow-x: auto; 
+            gap: 10px; 
+            margin-bottom: 24px; 
+            padding-bottom: 5px; 
+            scroll-snap-type: x mandatory; 
+            margin-left: -5px; 
+            padding-left: 5px;
+        }
+
+        .style-scroll-wrapper::-webkit-scrollbar { 
+            display: none; 
+        }
+
+        .style-pill { 
+            padding: 10px 20px; 
+            border-radius: 100px; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            font-size: 13px; 
+            font-weight: 600; 
+            color: var(--text-dim); 
+            white-space: nowrap; 
+            cursor: pointer; 
+            transition: var(--transition-fast); 
+            scroll-snap-align: start;
+        }
+
+        .style-pill.active { 
+            background: rgba(168, 85, 247, 0.2); 
+            color: var(--text-main); 
+            border-color: var(--neon-primary); 
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.2); 
+        }
+
+        .prompt-container { 
+            position: relative; 
+            margin-bottom: 24px; 
+        }
+
+        .creation-prompt { 
+            width: 100%; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            color: white; 
+            font-size: 16px; 
+            padding: 20px; 
+            padding-right: 60px; 
+            border-radius: var(--radius-md); 
+            min-height: 120px; 
+            resize: none; 
+            backdrop-filter: blur(10px); 
+            transition: var(--transition-fast);
+        }
+
+        .creation-prompt:focus { 
+            border-color: var(--neon-primary); 
+            background: rgba(255,255,255,0.06); 
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1); 
+        }
+
+        .magic-enhance-btn { 
+            position: absolute; 
+            bottom: 15px; 
+            right: 15px; 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 12px; 
+            background: var(--brand-gradient); 
+            color: white; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            border: none; 
+            box-shadow: var(--brand-glow); 
+            cursor: pointer; 
+            z-index: 5; 
+            font-size: 16px; 
+            transition: transform 0.2s;
+        }
+
+        .magic-enhance-btn:active { 
+            transform: scale(0.9); 
+        }
+        
+        .media-upload-area { 
+            width: 100%; 
+            height: 120px; 
+            border: 2px dashed rgba(255,255,255,0.15); 
+            border-radius: var(--radius-md); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+            color: var(--text-dim); 
+            cursor: pointer; 
+            margin-bottom: 25px; 
+            position: relative; 
+            overflow: hidden; 
+            background: rgba(255,255,255,0.02); 
+            transition: var(--transition-fast); 
+        }
+
+        .media-upload-area:active { 
+            background: rgba(255,255,255,0.05); 
+        }
+
+        .media-upload-area img { 
+            position: absolute; 
+            inset: 0; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            display: none; 
+            z-index: 2; 
+        }
+
+        .remove-media { 
+            position: absolute; 
+            top: 12px; 
+            right: 12px; 
+            width: 32px; 
+            height: 32px; 
+            background: rgba(0,0,0,0.7); 
+            backdrop-filter: blur(8px); 
+            border: 1px solid rgba(255,255,255,0.2); 
+            color: white; 
+            border-radius: 50%; 
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 3; 
+            cursor: pointer; 
+        }
+        
+        .gen-btn-huge { 
+            width: 100%; 
+            background: var(--text-main); 
+            color: #000; 
+            padding: 20px; 
+            border-radius: 100px; 
+            font-size: 16px; 
+            font-weight: 800; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 10px; 
+            box-shadow: 0 10px 25px rgba(255,255,255,0.2); 
+            border: none; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            transition: transform 0.2s;
+        }
+
+        .gen-btn-huge i { 
+            color: #facc15; 
+            font-size: 18px; 
+            filter: drop-shadow(0 0 5px rgba(250,204,21,0.5));
+        }
 
         /* --- STORE MODAL UI --- */
-        .pack-grid { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
-        .pack-card { background: var(--bg-elevated); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; transition: var(--transition); cursor: pointer; }
-        .pack-card:active { transform: scale(0.96); }
-        .pack-card.popular { border: 1px solid var(--neon-secondary); background: linear-gradient(to right, rgba(139, 92, 246, 0.1), transparent); position: relative; overflow: hidden; }
-        .popular-badge { position: absolute; top: 0; right: 0; background: var(--neon-secondary); color: white; font-size: 10px; font-weight: 800; padding: 4px 10px; border-bottom-left-radius: 10px; }
-        .pack-info h3 { font-size: 20px; font-weight: 800; color: white; display: flex; align-items: center; gap: 8px; margin-bottom: 4px;}
-        .pack-info h3 i { color: #f59e0b; }
-        .pack-info p { font-size: 13px; color: var(--text-dim); }
-        .pack-price { font-size: 18px; font-weight: 800; color: white; background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 100px; }
-        .pack-card.popular .pack-price { background: var(--kling-gradient); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }
+        .pack-grid { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+            margin-bottom: 20px; 
+        }
+
+        .pack-card { 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            padding: 24px; 
+            border-radius: var(--radius-md); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer; 
+            transition: var(--transition-fast); 
+        }
+
+        .pack-card:active { 
+            transform: scale(0.97); 
+            background: var(--glass-highlight); 
+        }
+
+        .pack-card.popular { 
+            border: 1px solid rgba(168, 85, 247, 0.5); 
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(6, 182, 212, 0.05) 100%); 
+            position: relative; 
+            overflow: hidden; 
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.15);
+        }
+
+        .popular-badge { 
+            position: absolute; 
+            top: 0; 
+            right: 0; 
+            background: var(--brand-gradient); 
+            color: white; 
+            font-size: 10px; 
+            font-weight: 800; 
+            padding: 6px 14px; 
+            border-bottom-left-radius: 14px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+
+        .pack-info h3 { 
+            font-size: 24px; 
+            font-weight: 800; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            margin-bottom: 4px;
+        }
+
+        .pack-info h3 i { 
+            color: #facc15; 
+        }
+
+        .pack-price { 
+            font-size: 16px; 
+            font-weight: 800; 
+            color: #000; 
+            background: #fff; 
+            padding: 10px 20px; 
+            border-radius: 100px; 
+        }
 
         /* --- LOADER --- */
-        #loaderOverlay { position: fixed; inset: 0; background: var(--bg-black); z-index: 4000; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        .loader-ring { width: 120px; height: 120px; position: relative; margin-bottom: 40px; }
-        .loader-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-        .loader-ring circle { fill: none; stroke-width: 3; stroke-linecap: round; }
-        .loader-ring .bg { stroke: #1a1a1a; }
-        .loader-ring .progress { stroke: url(#gradient); stroke-dasharray: 339; stroke-dashoffset: 339; transition: stroke-dashoffset 0.3s ease; }
-        .loader-pct { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: 800; background: var(--kling-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .loader-text { font-size: 16px; color: var(--text-dim); font-weight: 500; text-align: center; max-width: 80%; }
-        .pulse-glow { position: absolute; width: 150px; height: 150px; background: var(--neon-secondary); filter: blur(60px); opacity: 0.3; z-index: -1; animation: breathe 2s infinite alternate; }
+        #loaderOverlay { 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(6,6,8,0.95); 
+            backdrop-filter: blur(25px); 
+            z-index: 4000; 
+            display: none; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            opacity: 0; 
+            transition: opacity 0.3s; 
+        }
+
+        #loaderOverlay.active { 
+            opacity: 1; 
+        }
+
+        .loader-ring { 
+            width: 140px; 
+            height: 140px; 
+            position: relative; 
+            margin-bottom: 40px; 
+        }
+
+        .loader-ring svg { 
+            width: 100%; 
+            height: 100%; 
+            transform: rotate(-90deg); 
+            filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.6)); 
+        }
+
+        .loader-ring circle { 
+            fill: none; 
+            stroke-width: 6; 
+            stroke-linecap: round; 
+        }
+
+        .loader-ring .bg { 
+            stroke: rgba(255,255,255,0.05); 
+        }
+
+        .loader-ring .progress { 
+            stroke: url(#gradient); 
+            stroke-dasharray: 408; 
+            stroke-dashoffset: 408; 
+            transition: stroke-dashoffset 0.4s ease; 
+        }
+
+        .loader-pct { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            font-size: 32px; 
+            font-weight: 800; 
+            color: white; 
+        }
+
+        .loader-text { 
+            font-size: 15px; 
+            font-weight: 600; 
+            color: var(--text-dim); 
+            letter-spacing: 0.5px; 
+            animation: pulse 2s infinite; 
+        }
+
+        @keyframes pulse { 
+            0%, 100% { opacity: 0.7; } 
+            50% { opacity: 1; } 
+        }
 
         /* --- RESULT VIEW --- */
-        #resultView { position: fixed; inset: 0; background: var(--bg-black); z-index: 3500; display: none; flex-direction: column; }
-        .res-header { padding: calc(15px + var(--safe-top)) 20px 15px; display: flex; align-items: center; gap: 20px; background: rgba(0,0,0,0.5); position: absolute; top: 0; width: 100%; z-index: 10; }
-        .res-header i { font-size: 20px; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-        .res-media { flex: 1; display: flex; justify-content: center; align-items: center; background: #000; position: relative; }
-        .res-media img, .res-media video { max-width: 100%; max-height: 100vh; object-fit: contain; z-index: 2; position: relative; }
-        .checkerboard-bg { background-image: linear-gradient(45deg, #111 25%, transparent 25%), linear-gradient(-45deg, #111 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #111 75%), linear-gradient(-45deg, transparent 75%, #111 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px; }
-        .loading-hint { position: absolute; color: var(--text-dim); font-size: 14px; font-weight: 500; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .loading-hint i { font-size: 24px; color: var(--brand-primary); animation: spin 1s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .res-footer { position: absolute; bottom: 0; width: 100%; padding: 20px 20px calc(20px + var(--safe-bottom)); background: linear-gradient(transparent, rgba(0,0,0,0.9)); display: flex; gap: 15px; z-index: 10; }
-        .res-btn { flex: 1; padding: 18px; border-radius: 100px; font-size: 15px; font-weight: 700; display: flex; justify-content: center; align-items: center; gap: 10px; backdrop-filter: blur(10px); }
-        .res-btn.save { background: white; color: black; }
-        .res-btn.share { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.1); }
+        #resultView { 
+            position: fixed; 
+            inset: 0; 
+            background: var(--bg-base); 
+            z-index: 3500; 
+            display: none; 
+            flex-direction: column; 
+            opacity: 0; 
+            transition: opacity 0.4s; 
+        }
 
-        /* --- BOTTOM NAVIGATION --- */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; padding-bottom: var(--safe-bottom); height: calc(75px + var(--safe-bottom)); z-index: 500; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text-dim); width: 20%; cursor: pointer; }
-        .nav-item i { font-size: 22px; transition: var(--transition); }
-        .nav-item span { font-size: 11px; font-weight: 500; }
-        .nav-item.active { color: white; }
-        .create-fab-container { position: relative; top: -20px; width: 20%; display: flex; justify-content: center; }
-        .create-fab { width: 60px; height: 60px; border-radius: 50%; background: var(--kling-gradient); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 10px 25px rgba(217, 70, 239, 0.5); border: 4px solid var(--bg-black); cursor: pointer; transition: transform 0.3s; }
-        .create-fab:active { transform: scale(0.9); }
+        #resultView.active { 
+            opacity: 1; 
+        }
+
+        .res-header { 
+            padding: calc(20px + var(--safe-top)) 24px 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+            background: linear-gradient(rgba(0,0,0,0.9), transparent); 
+            position: absolute; 
+            top: 0; 
+            width: 100%; 
+            z-index: 10; 
+        }
+
+        .res-close { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            background: rgba(255,255,255,0.15); 
+            backdrop-filter: blur(10px); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            cursor: pointer; 
+            color: white; 
+            transition: var(--transition-fast); 
+        }
+
+        .res-close:active { 
+            transform: scale(0.9); 
+        }
+
+        .res-media { 
+            flex: 1; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            position: relative; 
+            background: #000; 
+            overflow: hidden; 
+        }
+
+        .res-media img, .res-media video { 
+            max-width: 100%; 
+            max-height: 100vh; 
+            object-fit: contain; 
+            z-index: 2; 
+            position: relative; 
+        }
+
+        .res-footer { 
+            position: absolute; 
+            bottom: 0; 
+            width: 100%; 
+            padding: 40px 24px calc(24px + var(--safe-bottom)); 
+            background: linear-gradient(transparent, rgba(0,0,0,0.95)); 
+            display: flex; 
+            gap: 15px; 
+            z-index: 10; 
+        }
+
+        .res-btn { 
+            flex: 1; 
+            padding: 20px; 
+            border-radius: 100px; 
+            font-size: 15px; 
+            font-weight: 700; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 10px; 
+            text-transform: uppercase; 
+            transition: var(--transition-fast); 
+            border: none; 
+            letter-spacing: 0.5px;
+        }
+
+        .res-btn.save { 
+            background: white; 
+            color: black; 
+            box-shadow: 0 10px 20px rgba(255,255,255,0.2); 
+        }
+
+        .res-btn.share { 
+            background: rgba(255,255,255,0.1); 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.2); 
+            backdrop-filter: blur(15px); 
+        }
 
         /* Toast */
-        #toastContainer { position: fixed; top: calc(80px + var(--safe-top)); left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 350px; pointer-events: none; }
-        .toast { background: var(--bg-elevated); color: white; padding: 16px 20px; border-radius: 16px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); animation: toastIn 0.3s ease forwards; border: 1px solid rgba(255,255,255,0.1); }
-        @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        #toastContainer { 
+            position: fixed; 
+            top: calc(80px + var(--safe-top)); 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: 9999; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            width: 90%; 
+            max-width: 380px; 
+            pointer-events: none; 
+        }
+
+        .toast { 
+            background: rgba(20,18,28,0.95); 
+            backdrop-filter: blur(20px); 
+            color: white; 
+            padding: 18px 24px; 
+            border-radius: 100px; 
+            font-size: 14px; 
+            font-weight: 600; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 12px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5); 
+            animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+            border: 1px solid var(--glass-border); 
+        }
+
+        @keyframes toastIn { 
+            from { opacity: 0; transform: translateY(-20px) scale(0.9); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
     </style>
 </head>
 <body>
     <div id="toastContainer"></div>
     
+    <!-- Splash Screen -->
     <div id="splashScreen">
-        <div class="splash-logo">NexArt AI</div>
+        <div class="splash-logo">NexArt</div>
     </div>
 
+    <!-- Login Overlay -->
     <div id="loginOverlay">
-        <div class="login-box">
-            <h1 class="splash-logo" style="font-size: 2.8rem; margin-bottom: 5px;">NexArt AI</h1>
-            <p style="color:var(--text-dim);font-size:14px;margin-bottom:30px;">Premium AI Video & Image Studio</p>
-            
+        <div class="login-box glass-panel">
+            <h1 class="splash-logo" style="font-size: 3rem; margin-bottom: 8px;">NexArt</h1>
+            <p style="color:var(--text-dim);font-size:15px; margin-bottom:10px; font-weight: 500;">Premium AI Creative Studio</p>
             <button class="google-btn" onclick="handleLoginClick()">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" style="width:20px;" alt="G"> Continue with Google
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" style="width:22px;" alt="G"> Continue with Google
             </button>
-            <div class="dev-badge">Developed by Shriyansh</div>
+            <div style="font-size: 11px; color: var(--text-dim); font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 10px;">By Shriyansh</div>
         </div>
     </div>
 
+    <!-- Main Application -->
     <div class="app-container" id="mainApp" style="display:none;">
         <header class="header">
-            <div class="logo-text"><i class="fa-solid fa-shapes"></i> NexArt AI</div>
+            <div class="logo-text"><i class="fa-solid fa-shapes"></i> NexArt</div>
             <div class="coin-pill" onclick="openStore()">
-                <i class="fa-solid fa-bolt"></i> <span id="coinCount">...</span> <i class="fa-solid fa-plus" style="font-size: 10px; margin-left: 2px;"></i>
+                <span id="coinCount">...</span> <i class="fa-solid fa-bolt"></i>
             </div>
         </header>
 
         <main class="app-main">
+            <!-- HOME TAB -->
             <div id="homeTab" class="section active" style="padding: 0;">
-                <div class="tab-scroll" id="catScroll">
-                    <div class="tab-pill active" onclick="filterGallery('All', this)">Featured</div>
-                    <div class="tab-pill" onclick="filterGallery('Video', this)">AI Video</div>
-                    <div class="tab-pill" onclick="filterGallery('Image', this)">AI Images</div>
-                    <div class="tab-pill" onclick="filterGallery('Tools', this)">Pro Tools</div>
+                <div style="padding: 20px;">
+                    <div class="welcome-card">
+                        <button class="daily-reward-btn" onclick="claimDailyReward()">
+                            <i class="fa-solid fa-gift"></i> Claim Daily 10⚡
+                        </button>
+                        <p style="color: rgba(255,255,255,0.8); font-size: 15px; font-weight: 600;">Welcome Back 👋</p>
+                        <h1 style="font-size: 32px; margin-top: 2px; font-weight: 800; letter-spacing: -0.5px; z-index: 2; line-height: 1.1;">Design The<br>Impossible</h1>
+                    </div>
+
+                    <div class="section-title">Studio Features</div>
+                    <div class="bento-grid" id="bentoContainer">
+                        <div class="bento-item large" onclick="openCreateSheet('image')">
+                            <div><span>AI Generator</span><p>Text to masterpiece</p></div>
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div class="bento-item" onclick="openCreateSheet('video')">
+                            <i class="fa-solid fa-film"></i>
+                            <div><span>Animate</span><p>Prompt to Video</p></div>
+                        </div>
+                        <div class="bento-item" onclick="openPhotoEditor()">
+                            <i class="fa-solid fa-sliders"></i>
+                            <div><span>Pro Editor</span><p>Color grading</p></div>
+                        </div>
+                        <div class="bento-item large" style="min-height: 90px;" onclick="openCreateSheet('bgrm')">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <i class="fa-solid fa-eraser" style="font-size: 24px;"></i>
+                                <div><span>Background Remover</span><p style="margin-top:2px;">Clean cuts in seconds</p></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div style="padding: 15px;">
-                    <div class="masonry-grid" id="discoverGrid"></div>
-                </div>
+
+                <div class="section-title" style="padding: 0 24px;">Discover Inspiration</div>
+                <div class="hero-slider" id="discoverGrid"></div>
             </div>
 
+            <!-- CHAT TAB -->
             <div id="chatTab" class="section">
                 <div class="chat-container">
+                    <div class="chat-header-actions">
+                        <button id="ttsToggleBtn" class="chat-tts-btn" onclick="toggleVoiceOutput()">
+                            <i class="fa-solid fa-volume-xmark"></i> Voice Off
+                        </button>
+                    </div>
+
                     <div class="chat-messages" id="chatHistory">
                         <div class="msg ai">
                             <div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div>
-                            <div class="msg-bubble">Hi Shriyansh! I am NexArt AI, powered by Groq. I can write prompts, answer questions, or chat with you at lightning speed. How can I help today?</div>
+                            <div class="msg-bubble">Hi! I am NexArt AI, your creative assistant. Need ideas for your next masterpiece?</div>
                         </div>
                     </div>
                     <div class="chat-input-area">
-                        <input type="text" id="chatInput" class="chat-input" placeholder="Message NexArt AI..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
-                        <button class="chat-send-btn" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                        <input type="text" id="chatInput" class="chat-input" placeholder="Message NexArt AI..." onkeypress="if(event.key === 'Enter') sendChatMessage()" autocomplete="off">
+                        <button class="chat-send-btn" onclick="sendChatMessage()"><i class="fa-solid fa-arrow-up"></i></button>
                     </div>
                 </div>
             </div>
 
+            <!-- VAULT TAB -->
             <div id="vaultTab" class="section">
-                <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 20px;">My Creations</h2>
-                <div class="masonry-grid" id="myVaultGrid">
-                    <div style="grid-column:span 2;text-align:center;color:gray;padding-top:40px;">No creations yet. Hit create!</div>
-                </div>
+                <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 24px; padding-left: 5px;">My Vault</h2>
+                <div class="masonry-grid" id="myVaultGrid"></div>
             </div>
             
+            <!-- PROFILE TAB -->
             <div id="profileTab" class="section">
-                <div style="display:flex; align-items:center; gap:20px; padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
-                    <img id="profilePic" src="" style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--neon-primary);">
+                <div class="profile-header">
+                    <div class="profile-bg-glow"></div>
+                    <img id="profilePic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile">
+                    <div style="z-index: 2;">
+                        <h2 id="profileName" style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">User</h2>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span style="background: var(--gold-gradient); padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 800; color: #000; text-transform: uppercase;">Pro Member</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat-box"><div class="stat-num" id="statCoins">...</div><div class="stat-label">Credits Left</div></div>
+                    <div class="stat-box"><div class="stat-num" id="statCreations">0</div><div class="stat-label">Total Arts</div></div>
+                </div>
+                <div class="pro-banner" onclick="openStore()">
                     <div>
-                        <h2 id="profileName" style="font-size: 22px; margin-bottom: 5px;">User</h2>
-                        <span style="background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; color: var(--neon-secondary);">PRO MEMBER</span>
+                        <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 4px; color: white;">NexArt <span style="color: #facc15;">Pro</span></h3>
+                        <p style="font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 500;">Faster Gen & Premium Models</p>
+                    </div>
+                    <button style="background: white; color: black; padding: 12px 24px; border-radius: 100px; font-weight: 800; font-size: 13px; border: none; box-shadow: 0 4px 15px rgba(255,255,255,0.3);">Upgrade</button>
+                </div>
+                <div class="menu-group">
+                    <div class="menu-item" onclick="logout()">
+                        <div class="menu-item-left"><div class="menu-icon-box" style="background: rgba(255,71,87,0.1); color: #ff4757;"><i class="fa-solid fa-arrow-right-from-bracket"></i></div><span class="menu-text" style="color: #ff4757;">Log Out</span></div>
                     </div>
                 </div>
-
-                <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), transparent); border-radius: 20px; padding: 20px; border: 1px solid var(--neon-secondary); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;" onclick="openStore()">
-                    <div>
-                        <h3 style="font-size: 16px; margin-bottom: 4px;">Get More Credits</h3>
-                        <p style="font-size: 12px; color: var(--text-dim);">Unlock premium AI models</p>
-                    </div>
-                    <button style="background: var(--kling-gradient); color: white; padding: 10px 20px; border-radius: 100px; font-weight: 700; font-size: 13px;">Buy Now</button>
-                </div>
-
-                <div style="background: var(--bg-surface); border-radius: 20px; padding: 5px 20px; border: 1px solid rgba(255,255,255,0.05);">
-                    <div style="padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;" onclick="showToast('Settings opened', 'info')">
-                        <span style="font-size: 16px;"><i class="fa-solid fa-gear" style="color:var(--text-dim); margin-right: 15px; width: 20px;"></i> Settings</span>
-                        <i class="fa-solid fa-chevron-right" style="color:var(--text-dim); font-size: 12px;"></i>
-                    </div>
-                    <div style="padding: 20px 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="logout()">
-                        <span style="font-size: 16px; color: #ef4444;"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 15px; width: 20px;"></i> Log Out</span>
-                    </div>
-                </div>
-                
-                <div style="text-align:center; color:var(--text-dim); font-size:13px; margin-top:30px; font-weight: 600; letter-spacing: 0.5px;">
-                    <i class="fa-solid fa-code"></i> Developed by Shriyansh
+                <div style="text-align:center; color:var(--text-muted); font-size:12px; margin-top:40px; font-weight: 500;">
+                    <p>NexArt AI Studio v3.0 Premium</p><p style="margin-top: 8px;">Built with <i class="fa-solid fa-bolt" style="color: #facc15; font-size: 11px;"></i> by <span style="font-weight: 700; color: var(--text-dim);">Shriyansh</span></p>
                 </div>
             </div>
         </main>
 
-        <nav class="bottom-nav">
-            <div class="nav-item active" onclick="switchMainTab('homeTab', this)"><i class="fa-solid fa-house"></i><span>Home</span></div>
-            <div class="nav-item" onclick="switchMainTab('chatTab', this)"><i class="fa-solid fa-message"></i><span>AI Chat</span></div>
-            <div class="create-fab-container"><div class="create-fab" onclick="openCreateSheet()"><i class="fa-solid fa-plus"></i></div></div>
-            <div class="nav-item" onclick="switchMainTab('vaultTab', this)"><i class="fa-solid fa-folder-open"></i><span>My Vault</span></div>
-            <div class="nav-item" onclick="switchMainTab('profileTab', this)"><i class="fa-solid fa-user"></i><span>Profile</span></div>
-        </nav>
+        <!-- FLOATING BOTTOM NAV -->
+        <div class="dock-container">
+            <nav class="bottom-nav">
+                <div class="nav-item active" onclick="switchMainTab('homeTab', this)"><i class="fa-solid fa-compass"></i></div>
+                <div class="nav-item" onclick="switchMainTab('chatTab', this)"><i class="fa-solid fa-message"></i></div>
+                <div class="create-fab" onclick="openCreateSheet('image')"><i class="fa-solid fa-plus"></i></div>
+                <div class="nav-item" onclick="switchMainTab('vaultTab', this)"><i class="fa-solid fa-layer-group"></i></div>
+                <div class="nav-item" onclick="switchMainTab('profileTab', this)"><i class="fa-solid fa-user"></i></div>
+            </nav>
+        </div>
     </div>
 
+    <!-- PHOTO EDITOR MODAL -->
+    <div id="photoEditorModal">
+        <div class="editor-header">
+            <button class="res-close" style="background:transparent; border:none; box-shadow:none; font-size:20px;" onclick="closePhotoEditor()"><i class="fa-solid fa-xmark"></i></button>
+            <span style="font-weight: 800; letter-spacing: 1px; font-size: 14px;">PRO EDITOR</span>
+            <button style="background: var(--text-main); color: black; padding: 10px 20px; border-radius: 100px; font-weight: 800; font-size: 12px; box-shadow: 0 4px 10px rgba(255,255,255,0.2);" onclick="downloadEditedPhoto()">SAVE</button>
+        </div>
+        <div class="editor-workspace">
+            <div class="editor-upload-prompt" id="editorUploadPrompt" onclick="document.getElementById('editorInputFile').click()">
+                <i class="fa-solid fa-image" style="font-size: 32px;"></i>
+                <span style="font-weight: 600; font-size: 16px;">Tap to Upload Photo</span>
+            </div>
+            <img id="editorImagePreview">
+            <input type="file" id="editorInputFile" accept="image/*" style="display:none;" onchange="loadEditorImage(event)">
+        </div>
+        <div class="editor-controls">
+            <div class="slider-group"><div class="slider-label"><span>Brightness</span> <span id="valBr">100%</span></div><input type="range" id="filterBr" min="0" max="200" value="100" oninput="applyEditFilters()"></div>
+            <div class="slider-group"><div class="slider-label"><span>Contrast</span> <span id="valCt">100%</span></div><input type="range" id="filterCt" min="0" max="200" value="100" oninput="applyEditFilters()"></div>
+            <div class="slider-group"><div class="slider-label"><span>Saturation</span> <span id="valSt">100%</span></div><input type="range" id="filterSt" min="0" max="200" value="100" oninput="applyEditFilters()"></div>
+            <div class="slider-group" style="margin-bottom:0;"><div class="slider-label"><span>Cinematic Blur</span> <span id="valBl">0px</span></div><input type="range" id="filterBl" min="0" max="10" value="0" step="0.5" oninput="applyEditFilters()"></div>
+        </div>
+    </div>
+
+    <!-- CREATION SHEET -->
     <div id="createSheet" class="bottom-sheet">
         <div style="flex:1;" onclick="closeCreateSheet()"></div>
-        <div class="sheet-content">
+        <div class="sheet-content" id="createSheetContent">
+            <div class="drag-handle" id="createSheetHandle"></div>
             <div class="sheet-header">
-                <div class="sheet-title">Create Masterpiece</div>
+                <div class="sheet-title">Create AI Art</div>
                 <div class="sheet-close" onclick="closeCreateSheet()"><i class="fa-solid fa-xmark"></i></div>
             </div>
             <div class="type-selector">
-                <div class="type-btn active" onclick="setCreationType('image', this)">AI Image</div>
-                <div class="type-btn" onclick="setCreationType('video', this)">AI Video</div>
-                <div class="type-btn" onclick="setCreationType('bgrm', this)">BG Remove</div>
+                <div class="type-btn active" id="btn-type-image" onclick="setCreationType('image', this)">Image</div>
+                <div class="type-btn" id="btn-type-video" onclick="setCreationType('video', this)">Video</div>
+                <div class="type-btn" id="btn-type-bgrm" onclick="setCreationType('bgrm', this)">BG Cut</div>
             </div>
-            <textarea id="createPrompt" class="creation-prompt" placeholder="Describe the image you want to generate in detail..."></textarea>
+            
+            <div class="style-scroll-wrapper" id="artStylesRow">
+                <div class="style-pill active" onclick="selectStyle(this, '')">None</div>
+                <div class="style-pill" onclick="selectStyle(this, ', Masterpiece, 8k resolution, cinematic lighting, highly detailed')">Cinematic</div>
+                <div class="style-pill" onclick="selectStyle(this, ', Anime style, Makoto Shinkai, Studio Ghibli, masterpiece, vibrant')">Anime</div>
+                <div class="style-pill" onclick="selectStyle(this, ', Cyberpunk style, neon lights, futuristic, highly detailed, sci-fi')">Cyberpunk</div>
+                <div class="style-pill" onclick="selectStyle(this, ', 3D render, Unreal Engine 5, octane render, smooth, realistic')">3D Render</div>
+                <div class="style-pill" onclick="selectStyle(this, ', pencil sketch, highly detailed illustration, artistic drawing')">Sketch</div>
+            </div>
+
+            <div class="prompt-container" id="promptAreaWrap">
+                <textarea id="createPrompt" class="creation-prompt" placeholder="Describe your vision..."></textarea>
+                <button class="magic-enhance-btn" onclick="enhancePrompt()" title="AI Magic Enhancer"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+            </div>
+            
             <div class="media-upload-area" id="upArea" onclick="document.getElementById('hiddenCreateUpload').click()">
-                <i class="fa-solid fa-image"></i><span id="upAreaText">Reference Image (Optional)</span>
+                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 24px;"></i>
+                <span id="upAreaText" style="font-weight: 600; font-size: 14px;">Add Reference Image</span>
                 <img id="upAreaImg">
-                <div class="remove-media" id="rmMediaBtn" onclick="event.stopPropagation(); removeCreatePhoto()"><i class="fa-solid fa-xmark" style="font-size: 14px; margin:0;"></i></div>
+                <div class="remove-media" id="rmMediaBtn" onclick="event.stopPropagation(); removeCreatePhoto()"><i class="fa-solid fa-xmark"></i></div>
             </div>
             <button class="gen-btn-huge" onclick="startGenerationEngine()">Generate (2 <i class="fa-solid fa-bolt"></i>)</button>
             <input type="file" id="hiddenCreateUpload" accept="image/*" style="display:none;" onchange="handleCreateUpload(event)">
         </div>
     </div>
 
+    <!-- STORE MODAL -->
     <div id="storeModal" class="bottom-sheet">
         <div style="flex:1;" onclick="closeStore()"></div>
-        <div class="sheet-content">
+        <div class="sheet-content" id="storeSheetContent">
+            <div class="drag-handle" id="storeSheetHandle"></div>
             <div class="sheet-header">
-                <div class="sheet-title">Get Pro Credits <i class="fa-solid fa-crown" style="color: #f59e0b;"></i></div>
+                <div class="sheet-title">Pro Credits <i class="fa-solid fa-crown" style="color: #facc15;"></i></div>
                 <div class="sheet-close" onclick="closeStore()"><i class="fa-solid fa-xmark"></i></div>
             </div>
             <div class="pack-grid">
-                <div class="pack-card" onclick="processPayment(100, 49)">
-                    <div class="pack-info"><h3><i class="fa-solid fa-bolt"></i> 100</h3><p>Starter Pack</p></div>
-                    <div class="pack-price">₹49</div>
-                </div>
-                <div class="pack-card popular" onclick="processPayment(500, 149)">
-                    <div class="popular-badge">MOST POPULAR</div>
-                    <div class="pack-info"><h3><i class="fa-solid fa-bolt"></i> 500</h3><p>Creator Pack</p></div>
-                    <div class="pack-price">₹149</div>
-                </div>
-                <div class="pack-card" onclick="processPayment(2000, 499)">
-                    <div class="pack-info"><h3><i class="fa-solid fa-bolt"></i> 2000</h3><p>Studio Pack</p></div>
-                    <div class="pack-price">₹499</div>
-                </div>
+                <div class="pack-card" onclick="processPayment(100, 49)"><div class="pack-info"><h3><i class="fa-solid fa-bolt"></i> 100</h3><p style="color:var(--text-dim); font-size:14px;">Starter Pack</p></div><div class="pack-price">₹49</div></div>
+                <div class="pack-card popular" onclick="processPayment(500, 149)"><div class="popular-badge">MOST POPULAR</div><div class="pack-info"><h3><i class="fa-solid fa-bolt"></i> 500</h3><p style="color:var(--text-dim); font-size:14px;">Creator Pack</p></div><div class="pack-price">₹149</div></div>
+                <div class="pack-card" onclick="processPayment(2000, 499)"><div class="pack-info"><h3><i class="fa-solid fa-bolt"></i> 2000</h3><p style="color:var(--text-dim); font-size:14px;">Studio Pack</p></div><div class="pack-price">₹499</div></div>
             </div>
-            <p style="text-align:center; color:var(--text-dim); font-size:12px; margin-top:10px;">Secure payment powered by UPI & Cards.</p>
         </div>
     </div>
 
+    <!-- LOADER & RESULTS -->
     <div id="loaderOverlay">
-        <div class="pulse-glow"></div>
         <div class="loader-ring">
-            <svg viewBox="0 0 120 120">
-                <defs><linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#d946ef" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient></defs>
-                <circle class="bg" cx="60" cy="60" r="54"></circle>
-                <circle class="progress" id="loaderCircle" cx="60" cy="60" r="54"></circle>
-            </svg>
-            <div class="loader-pct"><span id="loaderPercent">0</span>%</div>
+            <svg viewBox="0 0 140 140"><defs><linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs><circle class="bg" cx="70" cy="70" r="65"></circle><circle class="progress" id="loaderCircle" cx="70" cy="70" r="65"></circle></svg>
+            <div class="loader-pct"><span id="loaderPercent">0</span><span style="font-size:16px;">%</span></div>
         </div>
-        <div class="loader-text" id="loaderMsg">Initializing AI Models...</div>
+        <div class="loader-text" id="loaderMsg">Initializing Next-Gen Models...</div>
     </div>
 
     <div id="resultView">
         <div class="res-header">
-            <i class="fa-solid fa-arrow-left" onclick="closeResultView()"></i>
-            <span style="font-size: 16px; font-weight: 600;">Result</span>
+            <div class="res-close" onclick="closeResultView()"><i class="fa-solid fa-arrow-left"></i></div>
+            <span style="font-size: 14px; font-weight: 800; letter-spacing: 1px; color: white;">YOUR MASTERPIECE</span>
         </div>
         <div class="res-media" id="resultMediaContainer"></div>
         <div class="res-footer">
-            <button class="res-btn save" onclick="downloadResult()"><i class="fa-solid fa-download"></i> Save to Device</button>
+            <button class="res-btn save" onclick="downloadResult()"><i class="fa-solid fa-download"></i> Save HD</button>
             <button class="res-btn share" onclick="shareResult()"><i class="fa-solid fa-share-nodes"></i> Share</button>
         </div>
     </div>
 
+    <!-- FIREBASE SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        let currentUser = null; let currentCreationType = 'image'; let uploadedFile = null; let finalResultUrl = null; let finalResultBlob = null; let finalResultType = 'image'; let userCoinBalance = 0;
+        // --- GLOBAL VARIABLES & APIS ---
+        let currentUser = null; 
+        let currentCreationType = 'image'; 
+        let uploadedFile = null; 
+        let finalResultUrl = null; 
+        let finalResultBlob = null; 
+        let finalResultType = 'image'; 
+        let userCoinBalance = 0;
+        let selectedArtStyle = ''; 
+        let voiceEnabled = false;
+        let isGenerating = false;
         
         const BACKEND_URL = "https://shri-mitra-backend.onrender.com";
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dxeuzdwkz/image/upload";
@@ -347,364 +1804,825 @@
         const REMOVE_BG_API_KEY = "WPREb6KfsRrmaBb99FoBFonv";
 
         const discoverData = [
-            { type: 'image', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=500', title: 'Cyberpunk Portrait', tag: 'Image' },
-            { type: 'image', url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=500', title: 'Royal Wedding AI', tag: 'Image' },
-            { type: 'image', url: 'https://images.unsplash.com/photo-1601814933824-fd0b574dd592?q=80&w=500', title: '3D Pixar Style', tag: 'Image' },
-            { type: 'video', url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=500', title: 'Sci-Fi Animation', tag: 'Video' },
-            { type: 'image', url: 'https://images.unsplash.com/photo-1616781296068-07e155bc221f?q=80&w=500', title: '4K Upscaled', tag: 'Tools' }
+            { type: 'image', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=500', title: 'Neon Cyberpunk', tag: 'Image' },
+            { type: 'image', url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=500', title: 'Royal Portraits', tag: 'Image' },
+            { type: 'image', url: 'https://images.unsplash.com/photo-1601814933824-fd0b574dd592?q=80&w=500', title: 'Pixar 3D Style', tag: 'Image' },
+            { type: 'video', url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=500', title: 'Sci-Fi Animation', tag: 'Video' }
+        ];
+        
+        const loaderMessages = [
+            "Allocating GPUs...", 
+            "Applying cinematic effects...", 
+            "Refining intricate details...", 
+            "Running diffusion models...", 
+            "Perfecting the composition...",
+            "Almost ready..."
         ];
 
-        const loaderMessages = ["Allocating AI resources...", "Processing image layers...", "Refining details and edges...", "Applying final touches...", "Almost ready..."];
+        // --- FIREBASE INIT ---
+        const firebaseConfig = { 
+            apiKey: "AIzaSyD1ALXTuFnD9CuZWJmqW8VN3IFwl5KKuDM", 
+            authDomain: "login-416ce.firebaseapp.com", 
+            databaseURL: "https://login-416ce-default-rtdb.firebaseio.com", 
+            projectId: "login-416ce", 
+            storageBucket: "login-416ce.firebasestorage.app", 
+            messagingSenderId: "668988371049", 
+            appId: "1:668988371049:web:8e62a795b8392cb52fb2f8" 
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth(); 
+        const db = firebase.database();
 
-        // Firebase Init
-        const firebaseConfig = { apiKey: "AIzaSyD1ALXTuFnD9CuZWJmqW8VN3IFwl5KKuDM", authDomain: "login-416ce.firebaseapp.com", databaseURL: "https://login-416ce-default-rtdb.firebaseio.com", projectId: "login-416ce", storageBucket: "login-416ce.firebasestorage.app", messagingSenderId: "668988371049", appId: "1:668988371049:web:8e62a795b8392cb52fb2f8" };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(); const db = firebase.database();
-
+        // --- CORE UI FUNCTIONS ---
         function showToast(msg, type = 'success') {
-            let c = document.getElementById('toastContainer'); let t = document.createElement('div'); 
-            t.className = `toast`; t.innerHTML = `<i class="fa-solid ${type==='error'?'fa-circle-exclamation':'fa-circle-check'}" style="color:${type==='error'?'#ef4444':'#A855F7'};"></i> <span>${msg}</span>`;
-            c.appendChild(t); setTimeout(() => { t.style.animation = 'toastIn 0.3s reverse forwards'; setTimeout(() => t.remove(), 300); }, 3000); 
+            let c = document.getElementById('toastContainer'); 
+            let t = document.createElement('div'); 
+            t.className = `toast`; 
+            let icon = type === 'error' ? 'fa-circle-exclamation' : (type === 'magic' ? 'fa-wand-magic-sparkles' : 'fa-circle-check');
+            let color = type === 'error' ? '#ff4757' : (type === 'magic' ? '#facc15' : '#06b6d4');
+            t.innerHTML = `<i class="fa-solid ${icon}" style="color:${color}; font-size:16px;"></i> <span>${msg}</span>`;
+            c.appendChild(t); 
+            setTimeout(() => { 
+                t.style.animation = 'toastIn 0.4s reverse forwards'; 
+                setTimeout(() => t.remove(), 400); 
+            }, 3000); 
         }
 
-        // --- CHECK SAVED SESSION ---
         window.addEventListener('load', function() {
-            setTimeout(function() {
-                var splash = document.getElementById('splashScreen');
-                if (splash) { splash.style.opacity = '0'; setTimeout(function() { splash.style.display = 'none'; }, 400); }
+            init3DTiltEffect(); 
+            initSwipeGestures();
+            
+            setTimeout(() => { 
+                let splash = document.getElementById('splashScreen'); 
+                if (splash) { 
+                    splash.style.opacity = '0'; 
+                    splash.style.transform = 'scale(1.05)'; 
+                    setTimeout(() => splash.style.display = 'none', 600); 
+                } 
             }, 1200);
 
-            try {
-                let savedSession = localStorage.getItem('nexart_session');
-                if (savedSession) {
-                    let u = JSON.parse(savedSession);
+            try { 
+                let s = localStorage.getItem('nexart_session'); 
+                if (s) { 
+                    let u = JSON.parse(s); 
                     document.getElementById('loginOverlay').classList.remove('active'); 
-                    window.kodularLoginSuccess(u.email, u.displayName, u.photoURL, true);
+                    window.kodularLoginSuccess(u.email, u.displayName, u.photoURL, true); 
                 } else {
-                    document.getElementById('loginOverlay').classList.add('active');
+                    document.getElementById('loginOverlay').classList.add('active'); 
                 }
-            } catch(e) {
-                localStorage.removeItem('nexart_session'); document.getElementById('loginOverlay').classList.add('active');
+            } catch(e) { 
+                document.getElementById('loginOverlay').classList.add('active'); 
             }
         });
 
-        function handleLoginClick() {
-            if (window.AppInventor) { showToast("Requesting Native Login...", "info"); window.AppInventor.setWebViewString("GOOGLE_LOGIN"); } 
-            else { signInWithGoogle(); }
+        function init3DTiltEffect() {
+            if (window.matchMedia("(pointer: coarse)").matches) return; 
+            
+            document.querySelectorAll('.bento-item').forEach(item => {
+                item.addEventListener('mousemove', e => {
+                    const rect = item.getBoundingClientRect();
+                    const x = e.clientX - rect.left; 
+                    const y = e.clientY - rect.top;
+                    const xc = rect.width/2; 
+                    const yc = rect.height/2;
+                    const dx = x - xc; 
+                    const dy = y - yc;
+                    item.style.transform = `perspective(1000px) rotateY(${dx/20}deg) rotateX(${-dy/20}deg) scale3d(1.02,1.02,1.02)`;
+                });
+                item.addEventListener('mouseleave', () => { 
+                    item.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale3d(1,1,1)'; 
+                });
+            });
         }
 
-        function fetchUserCoins(safeUid) {
-            try {
-                db.ref(`users/${safeUid}/coins`).on('value', s => { 
-                    let coins = s.exists() ? s.val() : 50; 
-                    if (!s.exists()) db.ref(`users/${safeUid}/coins`).set(50).catch(e => {}); 
-                    document.getElementById('coinCount').innerText = coins; 
-                    userCoinBalance = coins; 
-                }, (error) => {
-                    if(userCoinBalance === 0) userCoinBalance = 50;
-                    document.getElementById('coinCount').innerText = userCoinBalance;
+        function initSwipeGestures() {
+            const setupSwipe = (handleId, contentId, closeFunc) => {
+                const handle = document.getElementById(handleId);
+                const content = document.getElementById(contentId);
+                if(!handle || !content) return;
+                
+                let startY = 0;
+                let currentY = 0;
+                let isDragging = false;
+                
+                handle.addEventListener('touchstart', e => {
+                    startY = e.touches[0].clientY;
+                    isDragging = true;
+                    content.style.transition = 'none';
+                }, {passive: true});
+                
+                handle.addEventListener('touchmove', e => {
+                    if(!isDragging) return;
+                    currentY = e.touches[0].clientY - startY;
+                    if(currentY > 0) {
+                        content.style.transform = `translateY(${currentY}px)`;
+                    }
+                }, {passive: true});
+                
+                handle.addEventListener('touchend', e => {
+                    isDragging = false;
+                    content.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+                    if(currentY > 100) {
+                        closeFunc();
+                    } else {
+                        content.style.transform = 'translateY(0)';
+                    }
+                    currentY = 0;
                 });
-            } catch(e) {
-                document.getElementById('coinCount').innerText = "50";
-            }
+            };
+            
+            setupSwipe('createSheetHandle', 'createSheetContent', closeCreateSheet);
+            setupSwipe('storeSheetHandle', 'storeSheetContent', closeStore);
+        }
+
+        // --- AUTH LOGIC ---
+        function handleLoginClick() { 
+            if (window.AppInventor) { 
+                showToast("Requesting Native Login...", "info"); 
+                window.AppInventor.setWebViewString("GOOGLE_LOGIN"); 
+            } else { 
+                signInWithGoogle(); 
+            } 
+        }
+        
+        function signInWithGoogle() { 
+            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => { 
+                if(e.code === 'auth/popup-blocked') {
+                    auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); 
+                } else {
+                    showToast(e.message, "error"); 
+                }
+            }); 
         }
 
         window.kodularLoginSuccess = function(email, name, photoUrl, isAutoLogin = false) {
             let safeUid = email.replace(/[\.\#\$\[\]]/g, '_'); 
-            if (!name || name === 'User' || name === 'null') {
-                let extractedName = email.split('@')[0];
-                name = extractedName.charAt(0).toUpperCase() + extractedName.slice(1);
-            }
+            if (!name || name === 'null') name = email.split('@')[0];
+            
             currentUser = { uid: safeUid, displayName: name, photoURL: photoUrl, email: email };
-            localStorage.setItem('nexart_session', JSON.stringify(currentUser));
+            
+            try { localStorage.setItem('nexart_session', JSON.stringify(currentUser)); } catch(e){}
             
             document.getElementById('loginOverlay').classList.remove('active'); 
             document.getElementById('mainApp').style.display = 'block';
-            let pic = photoUrl && photoUrl !== 'null' ? photoUrl : "https://cdn-icons-png.flaticon.com/512/149/149071.png"; 
-            document.getElementById('profilePic').src = pic; document.getElementById('profileName').innerText = name;
             
-            fetchUserCoins(safeUid);
-            filterGallery('All', document.querySelector('.tab-pill')); loadVault();
-            if(!isAutoLogin) showToast("Login Successful!", "success");
+            document.getElementById('profilePic').src = (photoUrl && photoUrl !== 'null') ? photoUrl : "https://cdn-icons-png.flaticon.com/512/149/149071.png"; 
+            document.getElementById('profileName').innerText = name;
+            
+            fetchUserCoins(safeUid); 
+            loadDiscover(); 
+            loadVault();
+            
+            if(!isAutoLogin) showToast("Login Successful! Welcome to Studio.", "success");
         };
 
         auth.onAuthStateChanged(u => {
-            if (u && !window.AppInventor && !localStorage.getItem('nexart_session')) { 
-                currentUser = u;
-                document.getElementById('loginOverlay').classList.remove('active'); document.getElementById('mainApp').style.display = 'block';
-                let pic = u.photoURL || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-                document.getElementById('profilePic').src = pic; document.getElementById('profileName').innerText = u.displayName || "User";
-                fetchUserCoins(u.uid);
-                filterGallery('All', document.querySelector('.tab-pill')); loadVault();
-            } else if (!u && !localStorage.getItem('nexart_session')) {
-                document.getElementById('loginOverlay').classList.add('active'); document.getElementById('mainApp').style.display = 'none';
+            let localSession = null;
+            try { localSession = localStorage.getItem('nexart_session'); } catch(e){}
+            
+            if (u && !window.AppInventor && !localSession) { 
+                window.kodularLoginSuccess(u.email, u.displayName, u.photoURL, false); 
+            } else if (!u && !localSession) { 
+                document.getElementById('loginOverlay').classList.add('active'); 
+                document.getElementById('mainApp').style.display = 'none'; 
             }
         });
         
-        function signInWithGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => { if(e.code === 'auth/popup-blocked') auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); else showToast(e.message, "error"); }); }
-        
         function logout() { 
-            if(confirm("Are you sure you want to log out?")) {
-                currentUser = null; localStorage.removeItem('nexart_session'); 
-                if(window.AppInventor) { window.AppInventor.setWebViewString("LOGOUT"); document.getElementById('loginOverlay').classList.add('active'); document.getElementById('mainApp').style.display = 'none'; } 
-                else { auth.signOut(); document.getElementById('loginOverlay').classList.add('active'); document.getElementById('mainApp').style.display = 'none'; }
+            if(confirm("Are you sure you want to log out?")) { 
+                currentUser = null; 
+                try { localStorage.removeItem('nexart_session'); } catch(e){}
+                
+                if(window.AppInventor) window.AppInventor.setWebViewString("LOGOUT"); 
+                else auth.signOut(); 
+                
+                location.reload(); 
             } 
         }
+        
+        function switchMainTab(tabId, el) { 
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
+            document.getElementById(tabId).classList.add('active'); 
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); 
+            el.classList.add('active'); 
+        }
 
-        function switchMainTab(t, el) { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); document.getElementById(t).classList.add('active'); document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
-
-        function filterGallery(cat, el) { 
-            if(el) { document.querySelectorAll('.tab-pill').forEach(i => i.classList.remove('active')); el.classList.add('active'); }
-            const grid = document.getElementById('discoverGrid'); grid.innerHTML = '';
-            discoverData.forEach(d => {
-                if(cat === 'All' || d.tag === cat) {
-                    let isVid = d.type === 'video';
-                    grid.innerHTML += `<div class="grid-item ${isVid?'video':''}" onclick="showToast('Use Create button to make your own.', 'info')">
-                        ${isVid ? `<video src="${d.url}" loop muted autoplay playsinline></video><i class="fa-solid fa-play" style="position:absolute;top:10px;left:10px;color:white;"></i>` : `<img src="${d.url}" loading="lazy">`}
-                        <div class="item-overlay"><div class="badge-type">${d.tag}</div><div class="item-title">${d.title}</div></div>
-                    </div>`;
-                }
+        // --- COIN / REWARD SYSTEM ---
+        function fetchUserCoins(safeUid) {
+            db.ref(`users/${safeUid}/coins`).on('value', s => { 
+                userCoinBalance = s.exists() ? s.val() : 50; 
+                if (!s.exists()) db.ref(`users/${safeUid}/coins`).set(50);
+                
+                document.getElementById('coinCount').innerText = userCoinBalance; 
+                if(document.getElementById('statCoins')) document.getElementById('statCoins').innerText = userCoinBalance;
             });
         }
 
-        // --- INTELLIGENT GROQ AI CHAT ENGINE (PROXY CONNECTED) ---
-        async function sendChatMessage() {
-            let input = document.getElementById('chatInput'); 
-            let text = input.value.trim(); 
-            if(!text) return;
-            
-            let hist = document.getElementById('chatHistory');
-            hist.innerHTML += `<div class="msg user"><div class="msg-avatar"><i class="fa-solid fa-user"></i></div><div class="msg-bubble">${text}</div></div>`;
-            input.value = ''; 
-            hist.scrollTop = hist.scrollHeight;
-            
-            let typingId = 'typing' + Date.now();
-            hist.innerHTML += `<div class="msg ai" id="${typingId}"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble">Thinking... <i class="fa-solid fa-circle-notch fa-spin" style="margin-left:5px; font-size:12px;"></i></div></div>`;
-            hist.scrollTop = hist.scrollHeight;
-
-            try {
-                let targetUrl = "https://api.groq.com/openai/v1/chat/completions";
-                let payload = {
-                    model: "llama3-8b-8192", 
-                    messages: [
-                        { role: "system", content: "You are NexArt AI, a highly intelligent, creative, and friendly AI assistant created by Shriyansh. Keep your answers clear, helpful, and human-like." },
-                        { role: "user", content: text }
-                    ]
-                };
-
-                // Groq API ko aapke Render backend proxy se pass kar rahe hain
-                let data = await fetchFromMyBackend(targetUrl, "POST", payload);
-                
-                if (data.error) throw new Error(data.error.message || data.error);
-                if (!data.choices || !data.choices[0]) throw new Error("Invalid response from server");
-
-                let reply = data.choices[0].message.content;
-                
-                document.getElementById(typingId).remove();
-                let formattedReply = reply.replace(/\n/g, '<br>');
-                
-                hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble">${formattedReply}</div></div>`;
-                hist.scrollTop = hist.scrollHeight;
-            } catch (err) {
-                document.getElementById(typingId).remove(); 
-                hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble" style="color: #ef4444;">Oops! ${err.message}</div></div>`; 
-                hist.scrollTop = hist.scrollHeight; 
-            }
-        }
-
-        // --- STORE MODAL LOGIC ---
-        function openStore() { document.getElementById('storeModal').style.display = 'flex'; setTimeout(() => { document.getElementById('storeModal').classList.add('active'); }, 10); }
-        function closeStore() { document.getElementById('storeModal').classList.remove('active'); setTimeout(() => { document.getElementById('storeModal').style.display = 'none'; }, 300); }
-
-        function processPayment(credits, price) {
-            showToast("Processing request for ₹" + price + "...", "info");
-            if (window.AppInventor) { window.AppInventor.setWebViewString("PAY_" + credits + "_" + price); } 
-            else { setTimeout(() => { showToast("Payment Gateway not found in Web mode.", "error"); }, 1500); }
-            closeStore();
-        }
-
         window.addPurchasedCredits = function(amount) {
-            userCoinBalance += parseInt(amount); document.getElementById('coinCount').innerText = userCoinBalance;
-            if (currentUser && currentUser.uid) { db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance); }
-            showToast("Successfully added " + amount + " Credits! ⚡", "success");
+            if(!currentUser) return showToast("User not found", "error");
+            userCoinBalance += parseInt(amount); 
+            
+            document.getElementById('coinCount').innerText = userCoinBalance;
+            if(document.getElementById('statCoins')) document.getElementById('statCoins').innerText = userCoinBalance;
+            
+            db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance);
+            showToast(`Successfully added ${amount} Credits! ⚡`, "success");
         };
 
-        // --- CREATION MODAL LOGIC ---
-        function openCreateSheet() { document.getElementById('createSheet').style.display = 'flex'; setTimeout(() => { document.getElementById('createSheet').classList.add('active'); }, 10); setCreationType('image', document.querySelectorAll('.type-btn')[0]); }
-        function closeCreateSheet() { document.getElementById('createSheet').classList.remove('active'); setTimeout(() => { document.getElementById('createSheet').style.display = 'none'; }, 300); }
-
-        function setCreationType(type, el) {
-            currentCreationType = type; document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active')); el.classList.add('active');
-            let promptArea = document.getElementById('createPrompt'); let upText = document.getElementById('upAreaText');
-            if(type === 'image') { promptArea.style.display = 'block'; promptArea.placeholder = "Describe the image..."; upText.innerText = "Reference Image (Optional)"; } 
-            else if (type === 'video') { promptArea.style.display = 'none'; upText.innerText = "Upload Image to Animate (Required)"; } 
-            else if (type === 'bgrm') { promptArea.style.display = 'none'; upText.innerText = "Upload Photo to Remove BG (Required)"; }
-        }
-
-        function handleCreateUpload(e) { if(!e.target.files[0]) return; uploadedFile = e.target.files[0]; document.getElementById('upAreaImg').src = URL.createObjectURL(uploadedFile); document.getElementById('upAreaImg').style.display = 'block'; document.getElementById('rmMediaBtn').style.display = 'flex'; }
-        function removeCreatePhoto() { uploadedFile = null; document.getElementById('hiddenCreateUpload').value = ''; document.getElementById('upAreaImg').src = ''; document.getElementById('upAreaImg').style.display = 'none'; document.getElementById('rmMediaBtn').style.display = 'none'; }
-
-        async function fetchFromMyBackend(targetUrl, method, data = null) {
-            if (data && targetUrl.includes("replicate.com") && method === "POST" && !data.input) data = { input: data };
-            try {
-                let res = await fetch(`${BACKEND_URL}/api/proxy`, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ targetUrl: targetUrl, method: method, data: data }) });
-                let result = await res.json();
-                if (!res.ok) throw new Error(result.error || result.detail || `Server Status: ${res.status}`);
-                if (result.error) throw new Error(result.error);
-                return result;
-            } catch(e) { throw new Error("Render Backend Down ya API Key Error."); }
-        }
-
-        let loaderInterval;
-        async function startGenerationEngine() {
-            let promptText = document.getElementById('createPrompt').value.trim();
-            if(currentCreationType === 'image' && !promptText && !uploadedFile) return showToast("Enter prompt or upload image!", "error");
-            if((currentCreationType === 'video' || currentCreationType === 'bgrm') && !uploadedFile) return showToast("Image is required!", "error");
+        function claimDailyReward() {
+            if(!currentUser) return showToast("Please login first", "error");
             
-            // 🔥 REQUIRE 2 CREDITS TO GENERATE 🔥
-            if(userCoinBalance < 2) {
-                openStore();
-                return showToast("Need 2 credits to generate. Please buy more!", "error");
-            }
-
-            closeCreateSheet(); document.getElementById('loaderOverlay').style.display = 'flex';
-            let percent = 1; let circle = document.getElementById('loaderCircle'); let text = document.getElementById('loaderPercent'); let msg = document.getElementById('loaderMsg');
-            circle.style.strokeDashoffset = 339; text.innerText = percent;
+            let lastClaim = null;
+            try { lastClaim = localStorage.getItem('nexart_daily_' + currentUser.uid); } catch(e){}
             
-            loaderInterval = setInterval(() => {
-                if(percent >= 98) return; percent += (percent > 80 ? 1 : (percent > 40 ? 2 : 4)); if(percent > 98) percent = 98;
-                text.innerText = percent; circle.style.strokeDashoffset = 339 - (percent / 100) * 339;
-                if(percent % 20 === 0) msg.innerText = loaderMessages[Math.floor(Math.random() * loaderMessages.length)];
-            }, 500);
-
-            try {
-                if (currentCreationType === 'bgrm') {
-                    msg.innerText = "Removing Background via Remove.bg...";
-                    let formData = new FormData(); formData.append('image_file', uploadedFile); formData.append('size', 'auto');
-                    let response = await fetch('https://api.remove.bg/v1.0/removebg', { method: 'POST', headers: { 'X-Api-Key': REMOVE_BG_API_KEY }, body: formData });
-                    if (!response.ok) throw new Error(`Remove.bg Error`);
-                    finalResultBlob = await response.blob(); finalResultType = 'image'; finalResultUrl = URL.createObjectURL(finalResultBlob); 
-                    finishLoader(); showResultView(finalResultUrl, finalResultType);
-                    
-                    // 🔥 DEDUCT 2 CREDITS 🔥
-                    userCoinBalance -= 2; document.getElementById('coinCount').innerText = userCoinBalance;
-                    if(currentUser) db.ref(`users/${currentUser.uid}/coins`).set(Math.max(0, userCoinBalance)).catch(e=>{});
-                    uploadToVault(finalResultBlob); return; 
-                }
-
-                let targetUrl = ""; let payload = {}; let safeImageUrl = null; finalResultBlob = null; 
-
-                if(uploadedFile) {
-                    msg.innerText = "Encrypting and uploading media...";
-                    let fd = new FormData(); fd.append('file', uploadedFile); fd.append('upload_preset', UPLOAD_PRESET);
-                    let uploadRes = await fetch(CLOUDINARY_URL, {method: 'POST', body: fd}); let uploadData = await uploadRes.json();
-                    if(uploadData.error) throw new Error("Cloudinary Upload Error.");
-                    safeImageUrl = uploadData.secure_url.replace('/upload/', '/upload/c_limit,w_1024,h_1024/');
-                }
-
-                if (currentCreationType === 'image') {
-                    targetUrl = "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions";
-                    payload = { input: { prompt: promptText || "A masterpiece artwork, high definition", num_outputs: 1, aspect_ratio: "1:1", output_format: "jpg", output_quality: 90 } };
-                    finalResultType = 'image';
-                } 
-                else if (currentCreationType === 'video') {
-                    targetUrl = "https://api.replicate.com/v1/models/stability-ai/stable-video-diffusion/predictions";
-                    payload = { input: { image: safeImageUrl, motion_bucket_id: 127 } };
-                    finalResultType = 'video';
-                }
-
-                msg.innerText = "Executing AI Pipeline...";
-                let outputUrl = null;
-                let cr = await fetchFromMyBackend(targetUrl, "POST", payload);
-
-                let rc = 0;
-                await new Promise((resolve, reject) => {
-                    let chk = setInterval(async() => {
-                        try {
-                            let pd = await fetchFromMyBackend(cr.urls.get, "GET");
-                            if (pd.status === "succeeded") { clearInterval(chk); outputUrl = Array.isArray(pd.output) ? pd.output[0] : pd.output; resolve(); } 
-                            else if (pd.status === "failed" || pd.status === "canceled") { clearInterval(chk); reject(new Error("AI Model Failed on Replicate")); }
-                        } catch(e) { rc++; if (rc > 60) { clearInterval(chk); reject(new Error("Timeout! API too slow.")); } }
-                    }, 2000);
-                });
-
-                finalResultUrl = outputUrl; 
-                finishLoader(); showResultView(finalResultUrl, finalResultType);
-                
-                // 🔥 DEDUCT 2 CREDITS 🔥
-                userCoinBalance -= 2; document.getElementById('coinCount').innerText = userCoinBalance;
-                if(currentUser) {
-                    db.ref(`users/${currentUser.uid}/coins`).set(Math.max(0, userCoinBalance)).catch(e=>{});
-                    db.ref(`users/${currentUser.uid}/gallery`).push({ url: finalResultUrl, type: finalResultType, timestamp: firebase.database.ServerValue.TIMESTAMP }).catch(e=>{});
-                }
-
-            } catch(e) {
-                clearInterval(loaderInterval); document.getElementById('loaderOverlay').style.display = 'none'; 
-                showToast(String(e.message), "error");
+            const now = new Date().getTime();
+            
+            if(lastClaim && (now - parseInt(lastClaim)) < 86400000) {
+                let timeLeft = 86400000 - (now - parseInt(lastClaim));
+                let hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+                let minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                return showToast(`Reward available in ${hoursLeft}h ${minutesLeft}m`, "error");
             }
+            
+            userCoinBalance += 10;
+            db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance);
+            try { localStorage.setItem('nexart_daily_' + currentUser.uid, now.toString()); } catch(e){}
+            showToast("🎁 Claimed 10 Free Credits!", "success");
         }
 
-        function finishLoader() { clearInterval(loaderInterval); document.getElementById('loaderPercent').innerText = "100"; document.getElementById('loaderCircle').style.strokeDashoffset = 0; setTimeout(() => { document.getElementById('loaderOverlay').style.display = 'none'; }, 500); }
-        
-        function showResultView(srcUrl, type) { 
-            let container = document.getElementById('resultMediaContainer'); 
-            container.innerHTML = `<div class="loading-hint"><i class="fa-solid fa-spinner"></i><span>Loading result...</span></div>`;
-            if(type === 'video') { container.innerHTML += `<video src="${srcUrl}" autoplay loop controls playsinline style="position:relative; z-index:2;"></video>`; } 
-            else { container.innerHTML += `<img src="${srcUrl}" style="position:relative; z-index:2;" class="${currentCreationType === 'bgrm' ? 'checkerboard-bg' : ''}" onload="this.previousSibling.style.display='none'">`; } 
-            document.getElementById('resultView').style.display = 'flex'; 
-        }
-        
-        function closeResultView() { document.getElementById('resultView').style.display = 'none'; document.getElementById('resultMediaContainer').innerHTML = ''; }
-
-        async function downloadResult() { 
-            if (!finalResultBlob && !finalResultUrl) return; showToast("Downloading securely...", "info"); 
-            try { 
-                let blob = finalResultBlob;
-                if (!blob) { let res = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(finalResultUrl)); blob = await res.blob(); }
-                const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `NexArt_${Date.now()}.${finalResultType==='video'?'mp4':'jpg'}`; 
-                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showToast("Saved to Device! 📥", "success"); 
-            } catch(e) { window.open(finalResultUrl, '_blank'); } 
-        }
-        
-        async function shareResult() { 
-            if (!finalResultBlob && !finalResultUrl) return; 
-            if (navigator.share) { 
-                try { 
-                    let blob = finalResultBlob;
-                    if(!blob) { let res = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(finalResultUrl)); blob = await res.blob(); }
-                    const file = new File([blob], `NexArt_Creation.${finalResultType==='video'?'mp4':'jpg'}`, { type: blob.type }); await navigator.share({ files: [file], title: 'Created with NexArt AI' }); 
-                } catch (e) { downloadResult(); } 
-            } else { downloadResult(); showToast("Share not supported. Downloaded instead.", "info"); } 
-        }
-
-        async function uploadToVault(blob) {
-            let fd = new FormData(); fd.append('file', blob, `file.png`); fd.append('upload_preset', UPLOAD_PRESET);
-            try { let r = await fetch(CLOUDINARY_URL, {method: 'POST', body: fd}); let d = await r.json(); if(d.secure_url && currentUser) await db.ref(`users/${currentUser.uid}/gallery`).push({ url: d.secure_url, type: 'image', timestamp: firebase.database.ServerValue.TIMESTAMP }); } catch(e) {}
+        // --- CONTENT LOADING ---
+        function loadDiscover() {
+            const grid = document.getElementById('discoverGrid'); 
+            grid.innerHTML = '';
+            discoverData.forEach(d => {
+                let isVid = d.type === 'video';
+                grid.innerHTML += `
+                    <div class="grid-item ${isVid?'video':''}" onclick="openCreateSheet('${d.type}')">
+                        ${isVid ? `<video src="${d.url}" loop muted autoplay playsinline></video><i class="fa-solid fa-play" style="position:absolute;top:15px;left:15px;color:white;font-size:18px; filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></i>` : `<img src="${d.url}" loading="lazy">`}
+                        <div class="item-overlay"><div class="badge-type">${d.tag}</div><div class="item-title">${d.title}</div></div>
+                    </div>`;
+            });
         }
 
         function loadVault() {
             if(!currentUser) return;
-            try {
-                db.ref(`users/${currentUser.uid}/gallery`).on('value', sn => {
-                    let g = document.getElementById('myVaultGrid'); g.innerHTML = '';
-                    if (sn.exists()) {
-                        let arr = []; sn.forEach(c => arr.push(c.val()));
-                        arr.reverse().forEach(d => {
-                            if (!d.url) return;
-                            let div = document.createElement('div'); div.className = 'grid-item'; div.classList.add(d.type === 'video' ? 'video' : 'image');
-                            if (d.type === 'video' || d.url.endsWith('.mp4')) div.innerHTML = `<video src="${d.url}" autoplay loop muted playsinline></video><i class="fa-solid fa-play" style="position:absolute;top:10px;left:10px;color:white;"></i>`; else div.innerHTML = `<img src="${d.url}" loading="lazy" class="${d.url.endsWith('.png') ? 'checkerboard-bg' : ''}">`;
-                            div.onclick = () => window.open(d.url, '_blank'); g.appendChild(div);
-                        });
-                    } else { g.innerHTML = `<div style="grid-column:span 2;text-align:center;color:gray;padding-top:40px;">No projects yet.</div>`; }
-                }, (error) => {
-                    document.getElementById('myVaultGrid').innerHTML = `<div style="grid-column:span 2;text-align:center;color:gray;padding-top:40px;">Projects are private in Web Mode.</div>`;
-                });
-            } catch(e) {}
+            db.ref(`users/${currentUser.uid}/gallery`).on('value', sn => {
+                let g = document.getElementById('myVaultGrid'); g.innerHTML = '';
+                if (sn.exists()) {
+                    let arr = []; 
+                    sn.forEach(c => arr.push(c.val())); 
+                    document.getElementById('statCreations').innerText = arr.length;
+                    
+                    arr.reverse().forEach(d => {
+                        let div = document.createElement('div'); 
+                        div.className = 'grid-item'; 
+                        if(d.type==='video') div.classList.add('video');
+                        
+                        div.innerHTML = (d.type === 'video' || d.url.endsWith('.mp4')) 
+                            ? `<video src="${d.url}" autoplay loop muted playsinline></video><i class="fa-solid fa-play" style="position:absolute;top:15px;left:15px;color:white; filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></i>` 
+                            : `<img src="${d.url}" loading="lazy">`;
+                            
+                        div.onclick = () => window.open(d.url, '_blank'); 
+                        g.appendChild(div);
+                    });
+                } else {
+                    g.innerHTML = `<div style="grid-column:span 2;text-align:center;color:var(--text-dim);padding-top:60px; font-weight:500;">No creations yet. Start exploring!</div>`;
+                }
+            });
+        }
+
+        // --- PRO PHOTO EDITOR ---
+        let currentEditImage = null;
+        function openPhotoEditor() { 
+            let modal = document.getElementById('photoEditorModal');
+            modal.style.display = 'flex'; 
+            void modal.offsetWidth;
+            modal.classList.add('active');
         }
         
-        const catScroll = document.getElementById('catScroll'); let isDown = false; let startX; let scrollLeft;
-        catScroll.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - catScroll.offsetLeft; scrollLeft = catScroll.scrollLeft; }); catScroll.addEventListener('mouseleave', () => { isDown = false; }); catScroll.addEventListener('mouseup', () => { isDown = false; }); catScroll.addEventListener('mousemove', (e) => { if(!isDown) return; e.preventDefault(); const x = e.pageX - catScroll.offsetLeft; const walk = (x - startX) * 2; catScroll.scrollLeft = scrollLeft - walk; });
+        function closePhotoEditor() { 
+            let modal = document.getElementById('photoEditorModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+        
+        function loadEditorImage(e) { 
+            if(!e.target.files[0]) return; 
+            currentEditImage = URL.createObjectURL(e.target.files[0]); 
+            document.getElementById('editorUploadPrompt').style.display = 'none'; 
+            let img = document.getElementById('editorImagePreview');
+            img.src = currentEditImage; 
+            img.style.display = 'block';
+            
+            document.getElementById('filterBr').value = 100;
+            document.getElementById('filterCt').value = 100;
+            document.getElementById('filterSt').value = 100;
+            document.getElementById('filterBl').value = 0;
+            applyEditFilters();
+        }
+        
+        function applyEditFilters() { 
+            let br = document.getElementById('filterBr').value; 
+            let ct = document.getElementById('filterCt').value; 
+            let st = document.getElementById('filterSt').value; 
+            let bl = document.getElementById('filterBl').value; 
+            
+            document.getElementById('valBr').innerText = br+'%'; 
+            document.getElementById('valCt').innerText = ct+'%'; 
+            document.getElementById('valSt').innerText = st+'%'; 
+            document.getElementById('valBl').innerText = bl+'px'; 
+            
+            document.getElementById('editorImagePreview').style.filter = `brightness(${br}%) contrast(${ct}%) saturate(${st}%) blur(${bl}px)`; 
+        }
+        
+        function downloadEditedPhoto() { 
+            if(!currentEditImage) return showToast('Upload a photo first!', 'error'); 
+            showToast('Processing Image...', 'info'); 
+            
+            let img = document.getElementById('editorImagePreview'); 
+            let canvas = document.createElement('canvas'); 
+            let ctx = canvas.getContext('2d'); 
+            let tempImg = new Image(); 
+            
+            tempImg.onload = function() { 
+                canvas.width = tempImg.width; 
+                canvas.height = tempImg.height; 
+                ctx.filter = img.style.filter; 
+                ctx.drawImage(tempImg, 0, 0, canvas.width, canvas.height); 
+                
+                try {
+                    let a = document.createElement('a'); 
+                    a.href = canvas.toDataURL('image/jpeg', 0.95); 
+                    a.download = `NexArt_Edit_${Date.now()}.jpg`; 
+                    a.click(); 
+                    showToast('Masterpiece Saved! 🎨', 'success'); 
+                } catch(e) {
+                    showToast('Could not save image directly.', 'error');
+                }
+            }; 
+            tempImg.src = currentEditImage; 
+        }
+
+        // --- AI CHAT & TTS ---
+        function toggleVoiceOutput() {
+            if(!('speechSynthesis' in window)) return showToast("Voice not supported on this device", "error");
+            
+            voiceEnabled = !voiceEnabled;
+            let btn = document.getElementById('ttsToggleBtn');
+            
+            if(voiceEnabled) { 
+                btn.classList.add('active'); 
+                btn.innerHTML = `<i class="fa-solid fa-volume-high"></i> Voice On`; 
+                showToast("AI Voice Enabled", "success"); 
+            } else { 
+                btn.classList.remove('active'); 
+                btn.innerHTML = `<i class="fa-solid fa-volume-xmark"></i> Voice Off`; 
+                window.speechSynthesis.cancel(); 
+            }
+        }
+        
+        function speakText(text) {
+            if(!voiceEnabled || !window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            
+            let cleanText = text.replace(/<[^>]*>?/gm, '').replace(/[*_]/g, ''); 
+            let utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.rate = 1.05; 
+            utterance.pitch = 1.1;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        let isChatting = false;
+        async function sendChatMessage() {
+            if(isChatting) return;
+            
+            let input = document.getElementById('chatInput'); 
+            let text = input.value.trim(); 
+            if(!text) return;
+            
+            isChatting = true;
+            let hist = document.getElementById('chatHistory');
+            
+            hist.innerHTML += `<div class="msg user"><div class="msg-avatar"><i class="fa-solid fa-user"></i></div><div class="msg-bubble">${text}</div></div>`; 
+            input.value = ''; 
+            hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' });
+            
+            let typingId = 'typing_' + Date.now(); 
+            hist.innerHTML += `<div class="msg ai" id="${typingId}"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div></div>`; 
+            hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' });
+
+            try {
+                let res = await fetch(`https://text.pollinations.ai/${encodeURIComponent("You are NexArt AI, a highly advanced, concise, and professional creative studio assistant. User: " + text)}`);
+                if(!res.ok) throw new Error();
+                let reply = await res.text();
+                
+                document.getElementById(typingId).remove();
+                speakText(reply);
+
+                let formatted = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
+                hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble">${formatted}</div></div>`; 
+                
+            } catch (err) {
+                document.getElementById(typingId).remove(); 
+                hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-triangle-exclamation" style="color:#ff4757;"></i></div><div class="msg-bubble" style="color: #ff4757; border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.1);">Network error. Please try again.</div></div>`; 
+            } finally {
+                hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' }); 
+                isChatting = false;
+            }
+        }
+
+        // --- CREATION MODAL LOGIC ---
+        function openCreateSheet(defaultType = 'image') { 
+            let sheet = document.getElementById('createSheet');
+            let content = document.getElementById('createSheetContent');
+            sheet.style.display = 'flex'; 
+            content.style.transform = 'translateY(100%)';
+            void sheet.offsetWidth;
+            sheet.classList.add('active'); 
+            content.style.transform = 'translateY(0)';
+            
+            setCreationType(defaultType, document.getElementById('btn-type-' + defaultType)); 
+        }
+        
+        function closeCreateSheet() { 
+            let sheet = document.getElementById('createSheet');
+            let content = document.getElementById('createSheetContent');
+            
+            sheet.classList.remove('active');
+            content.style.transform = 'translateY(100%)';
+            
+            setTimeout(() => {
+                sheet.style.display = 'none';
+                content.style.transform = ''; 
+            }, 400); 
+        }
+
+        function selectStyle(element, styleString) {
+            document.querySelectorAll('.style-pill').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            selectedArtStyle = styleString;
+        }
+
+        function setCreationType(type, el) {
+            currentCreationType = type; 
+            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active')); 
+            if(el) el.classList.add('active');
+            
+            let promptArea = document.getElementById('promptAreaWrap'); 
+            let upText = document.getElementById('upAreaText'); 
+            let styleRow = document.getElementById('artStylesRow');
+            let promptBox = document.getElementById('createPrompt');
+            
+            if(type === 'image') { 
+                promptArea.style.display = 'block'; 
+                styleRow.style.display = 'flex'; 
+                upText.innerText = "Add Reference Image (Optional)"; 
+                promptBox.placeholder = "Describe your vision for the image...";
+            } else if (type === 'video') { 
+                // VIDEO PROMPT IS NOW VISIBLE AND SUPPORTED
+                promptArea.style.display = 'block'; 
+                styleRow.style.display = 'flex'; 
+                upText.innerText = "Upload Initial Frame Image (Optional)"; 
+                promptBox.placeholder = "Describe the video scene or animation...";
+            } else if (type === 'bgrm') { 
+                promptArea.style.display = 'none'; 
+                styleRow.style.display = 'none'; 
+                upText.innerText = "Upload Photo to Remove BG (Required)"; 
+            }
+        }
+
+        function handleCreateUpload(e) { 
+            if(!e.target.files[0]) return; 
+            uploadedFile = e.target.files[0]; 
+            document.getElementById('upAreaImg').src = URL.createObjectURL(uploadedFile); 
+            document.getElementById('upAreaImg').style.display = 'block'; 
+            document.getElementById('rmMediaBtn').style.display = 'flex'; 
+        }
+        
+        function removeCreatePhoto() { 
+            uploadedFile = null; 
+            document.getElementById('hiddenCreateUpload').value = ''; 
+            document.getElementById('upAreaImg').src = ''; 
+            document.getElementById('upAreaImg').style.display = 'none'; 
+            document.getElementById('rmMediaBtn').style.display = 'none'; 
+        }
+
+        let isEnhancing = false;
+        async function enhancePrompt() {
+            if(isEnhancing) return;
+            
+            let input = document.getElementById('createPrompt'); 
+            let text = input.value.trim();
+            if(!text) return showToast("Type a basic idea first!", "error");
+            
+            isEnhancing = true;
+            showToast("Enhancing magically...", "magic");
+            input.value = "Enhancing your idea... ✨"; 
+            input.disabled = true;
+
+            try {
+                let magicPrompt = `Rewrite this short prompt into a highly detailed, professional Midjourney style prompt for AI image generation. Return ONLY the final prompt, no chat. Original: "${text}"`;
+                let res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(magicPrompt)}`);
+                if(!res.ok) throw new Error();
+                input.value = (await res.text()).trim();
+                showToast("Prompt Enhanced!", "success");
+            } catch(e) {
+                input.value = text;
+                showToast("Enhancement failed. Try again.", "error");
+            } finally { 
+                input.disabled = false; 
+                isEnhancing = false;
+            }
+        }
+
+        // --- 🔥 SUPER STABLE AI GENERATION ENGINE 🔥 ---
+        let loaderInterval;
+        async function startGenerationEngine() {
+            if(isGenerating) return;
+            
+            let basePrompt = document.getElementById('createPrompt').value.trim();
+            let finalPrompt = basePrompt + selectedArtStyle;
+
+            if(currentCreationType === 'image' && !basePrompt && !uploadedFile) return showToast("Enter a prompt!", "error");
+            // Video ab prompt aur image dono se banega
+            if(currentCreationType === 'video' && !basePrompt && !uploadedFile) return showToast("Enter a prompt or upload an image!", "error");
+            if(currentCreationType === 'bgrm' && !uploadedFile) return showToast("Image is required for BG removal!", "error");
+            
+            if(userCoinBalance < 2) { 
+                openStore(); 
+                return showToast("Need 2 credits to generate!", "error"); 
+            }
+
+            isGenerating = true;
+            closeCreateSheet(); 
+            
+            let overlay = document.getElementById('loaderOverlay');
+            overlay.style.display = 'flex';
+            setTimeout(() => overlay.classList.add('active'), 10);
+            
+            let percent = 1; 
+            let circle = document.getElementById('loaderCircle'); 
+            let text = document.getElementById('loaderPercent'); 
+            let msg = document.getElementById('loaderMsg');
+            
+            circle.style.strokeDashoffset = 408; 
+            text.innerText = percent;
+            
+            loaderInterval = setInterval(() => {
+                if(percent >= 98) return; 
+                percent += (percent > 85 ? 1 : Math.floor(Math.random() * 4) + 1);
+                text.innerText = percent; 
+                circle.style.strokeDashoffset = 408 - (percent / 100) * 408;
+                if(percent % 15 === 0) msg.innerText = loaderMessages[Math.floor(Math.random() * loaderMessages.length)];
+            }, 600);
+
+            try {
+                // 1. BACKGROUND REMOVE
+                if (currentCreationType === 'bgrm') {
+                    let formData = new FormData(); 
+                    formData.append('image_file', uploadedFile); 
+                    formData.append('size', 'auto');
+                    
+                    let response = await fetch('https://api.remove.bg/v1.0/removebg', { 
+                        method: 'POST', 
+                        headers: { 'X-Api-Key': REMOVE_BG_API_KEY }, 
+                        body: formData 
+                    });
+                    
+                    if (!response.ok) throw new Error(`Background API Error`);
+                    finalResultBlob = await response.blob(); 
+                    finalResultType = 'image'; 
+                    finalResultUrl = URL.createObjectURL(finalResultBlob); 
+                    finishGen(); 
+                    return; 
+                }
+
+                // SECURE CLOUDINARY UPLOAD (For Video & Image Ref)
+                let safeImageUrl = null; 
+                finalResultBlob = null; 
+                
+                if(uploadedFile) {
+                    let fd = new FormData(); 
+                    fd.append('file', uploadedFile); 
+                    fd.append('upload_preset', UPLOAD_PRESET);
+                    
+                    let ur = await fetch(CLOUDINARY_URL, {method: 'POST', body: fd}); 
+                    let ud = await ur.json();
+                    safeImageUrl = ud.secure_url;
+                }
+
+                let targetUrl = "";
+                let payloadData = {};
+
+                // 2. IMAGE GENERATION
+                if (currentCreationType === 'image') {
+                    finalResultType = 'image';
+                    let seed = Math.floor(Math.random()*100000);
+                    finalResultUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt || "A masterpiece")}?width=1024&height=1024&nologo=true&seed=${seed}`;
+                    
+                    await new Promise((resolve, reject) => {
+                        let img = new Image();
+                        img.onload = resolve;
+                        img.onerror = resolve; 
+                        img.src = finalResultUrl;
+                    });
+                } 
+                // 3. VIDEO GENERATION (LUMA RAY - FAST & SUPPORTS PROMPTS)
+                else if (currentCreationType === 'video') {
+                    finalResultType = 'video';
+                    targetUrl = "https://api.replicate.com/v1/models/luma/ray/predictions";
+                    
+                    payloadData = { 
+                        input: { 
+                            prompt: finalPrompt || "Cinematic masterpiece, smooth motion, high quality",
+                            aspect_ratio: "16:9"
+                        } 
+                    };
+                    
+                    if (safeImageUrl) {
+                        payloadData.input.image_url = safeImageUrl;
+                    }
+
+                    let cr = await fetch(`${BACKEND_URL}/api/proxy`, {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({
+                            targetUrl: targetUrl,
+                            method: "POST",
+                            data: payloadData
+                        })
+                    });
+
+                    let cd = await cr.json();
+                    if(cd.error) throw new Error(cd.error);
+
+                    let rc=0;
+                    await new Promise((res, rej) => {
+                        let chk = setInterval(async() => {
+                            try {
+                                let pd = await fetch(`${BACKEND_URL}/api/proxy`, {
+                                    method: "POST",
+                                    headers: {"Content-Type": "application/json"},
+                                    body: JSON.stringify({ targetUrl: cd.urls.get, method: "GET" })
+                                });
+                                let p = await pd.json();
+
+                                if (p.status === "succeeded") {
+                                    clearInterval(chk);
+                                    finalResultUrl = Array.isArray(p.output) ? p.output[0] : p.output;
+                                    res();
+                                } else if (p.status === "failed" || p.status === "canceled") {
+                                    clearInterval(chk);
+                                    rej(new Error("Video model generation failed."));
+                                }
+                            } catch(e) {
+                                rc++;
+                                if(rc>90) { clearInterval(chk); rej(new Error("Timeout! Video took too long.")); }
+                            }
+                        }, 3000);
+                    });
+                }
+
+                finishGen();
+            } catch(e) { 
+                clearInterval(loaderInterval); 
+                isGenerating = false;
+                let overlay = document.getElementById('loaderOverlay');
+                overlay.classList.remove('active');
+                setTimeout(() => overlay.style.display = 'none', 300);
+                showToast("Generation failed. " + e.message, "error"); 
+            }
+        }
+
+        function finishGen() {
+            clearInterval(loaderInterval); 
+            document.getElementById('loaderPercent').innerText = "100"; 
+            document.getElementById('loaderCircle').style.strokeDashoffset = 0; 
+            
+            setTimeout(() => { 
+                let overlay = document.getElementById('loaderOverlay');
+                overlay.classList.remove('active');
+                setTimeout(() => overlay.style.display = 'none', 300);
+                
+                showResultView(finalResultUrl, finalResultType);
+                isGenerating = false;
+                
+                userCoinBalance = Math.max(0, userCoinBalance - 2);
+                document.getElementById('coinCount').innerText = userCoinBalance;
+                if(currentUser) db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance);
+
+                if (finalResultBlob && currentCreationType === 'bgrm') {
+                    let fd = new FormData(); 
+                    fd.append('file', finalResultBlob, `f.png`); 
+                    fd.append('upload_preset', UPLOAD_PRESET); 
+                    fetch(CLOUDINARY_URL, {method: 'POST', body: fd})
+                        .then(r=>r.json())
+                        .then(d=> {
+                            if(currentUser) db.ref(`users/${currentUser.uid}/gallery`).push({url: d.secure_url, type: 'image', timestamp: firebase.database.ServerValue.TIMESTAMP});
+                        });
+                } else if (finalResultUrl && currentUser) {
+                    db.ref(`users/${currentUser.uid}/gallery`).push({ url: finalResultUrl, type: finalResultType, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                }
+            }, 800);
+        }
+        
+        function showResultView(srcUrl, type) { 
+            let c = document.getElementById('resultMediaContainer'); 
+            c.innerHTML = `<div style="color:var(--text-dim); position:absolute; z-index:1;"><i class="fa-solid fa-circle-notch fa-spin"></i> Finalizing HD...</div>`; 
+            
+            c.innerHTML += type==='video'
+                ? `<video src="${srcUrl}" autoplay loop controls playsinline style="z-index:2; border-radius:16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-height:80vh; max-width:90vw;"></video>`
+                : `<img src="${srcUrl}" style="z-index:2; border-radius:16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-height:80vh; max-width:90vw;" onload="this.previousSibling.style.display='none'">`; 
+            
+            let view = document.getElementById('resultView');
+            view.style.display = 'flex'; 
+            setTimeout(() => view.classList.add('active'), 10);
+        }
+        
+        function closeResultView() { 
+            let view = document.getElementById('resultView');
+            view.classList.remove('active');
+            
+            setTimeout(() => {
+                view.style.display = 'none'; 
+                document.getElementById('resultMediaContainer').innerHTML = ''; 
+                removeCreatePhoto(); 
+                document.getElementById('createPrompt').value = '';
+            }, 400);
+        }
+        
+        async function downloadResult() { 
+            if(!finalResultUrl) return; 
+            showToast("Saving securely...", "info"); 
+            try { 
+                let blob = finalResultBlob; 
+                if(!blob){ 
+                    let r = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(finalResultUrl)); 
+                    blob = await r.blob(); 
+                } 
+                let u = URL.createObjectURL(blob); 
+                let a = document.createElement("a"); 
+                a.href = u; 
+                a.download = `NexArt_${Date.now()}.${finalResultType==='video'?'mp4':'jpg'}`; 
+                document.body.appendChild(a); 
+                a.click(); 
+                document.body.removeChild(a); 
+                URL.revokeObjectURL(u);
+                showToast("Masterpiece Saved! 📥", "success"); 
+            } catch(e) { 
+                window.open(finalResultUrl, '_blank'); 
+            } 
+        }
+        
+        async function shareResult() { 
+            if(navigator.share) { 
+                try { 
+                    let blob = finalResultBlob; 
+                    if(!blob){ 
+                        let r = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(finalResultUrl)); 
+                        blob = await r.blob(); 
+                    } 
+                    const f = new File([blob], `NexArt.${finalResultType==='video'?'mp4':'jpg'}`, {type:blob.type}); 
+                    await navigator.share({files:[f], title:'NexArt Studio'}); 
+                } catch(e){ 
+                    if(e.name !== "AbortError") downloadResult(); 
+                } 
+            } else {
+                downloadResult(); 
+            }
+        }
+
+        // --- STORE MODAL ---
+        function openStore() { 
+            let sheet = document.getElementById('storeModal');
+            let content = document.getElementById('storeSheetContent');
+            sheet.style.display = 'flex'; 
+            content.style.transform = 'translateY(100%)';
+            void sheet.offsetWidth;
+            sheet.classList.add('active'); 
+            content.style.transform = 'translateY(0)';
+        }
+        
+        function closeStore() { 
+            let sheet = document.getElementById('storeModal');
+            let content = document.getElementById('storeSheetContent');
+            sheet.classList.remove('active'); 
+            content.style.transform = 'translateY(100%)';
+            setTimeout(() => sheet.style.display = 'none', 400); 
+        }
+        
+        function processPayment(credits, price) { 
+            showToast("Initializing gateway...", "info"); 
+            if (window.AppInventor) {
+                window.AppInventor.setWebViewString("PAY_" + credits + "_" + price); 
+            } else {
+                setTimeout(() => showToast("Payments require the native app.", "error"), 1500); 
+            }
+            closeStore(); 
+        }
     </script>
 </body>
-</html>
-
+    </html>
