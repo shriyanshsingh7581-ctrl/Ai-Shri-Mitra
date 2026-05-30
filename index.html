@@ -1540,12 +1540,10 @@
 <body>
     <div id="toastContainer"></div>
     
-    <!-- Splash Screen -->
     <div id="splashScreen">
         <div class="splash-logo">NexArt</div>
     </div>
 
-    <!-- Login Overlay -->
     <div id="loginOverlay">
         <div class="login-box glass-panel">
             <h1 class="splash-logo" style="font-size: 3rem; margin-bottom: 8px;">NexArt</h1>
@@ -1557,7 +1555,6 @@
         </div>
     </div>
 
-    <!-- Main Application -->
     <div class="app-container" id="mainApp" style="display:none;">
         <header class="header">
             <div class="logo-text"><i class="fa-solid fa-shapes"></i> NexArt</div>
@@ -1567,7 +1564,6 @@
         </header>
 
         <main class="app-main">
-            <!-- HOME TAB -->
             <div id="homeTab" class="section active" style="padding: 0;">
                 <div style="padding: 20px;">
                     <div class="welcome-card">
@@ -1605,7 +1601,6 @@
                 <div class="hero-slider" id="discoverGrid"></div>
             </div>
 
-            <!-- CHAT TAB -->
             <div id="chatTab" class="section">
                 <div class="chat-container">
                     <div class="chat-header-actions">
@@ -1627,13 +1622,11 @@
                 </div>
             </div>
 
-            <!-- VAULT TAB -->
             <div id="vaultTab" class="section">
                 <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 24px; padding-left: 5px;">My Vault</h2>
                 <div class="masonry-grid" id="myVaultGrid"></div>
             </div>
             
-            <!-- PROFILE TAB -->
             <div id="profileTab" class="section">
                 <div class="profile-header">
                     <div class="profile-bg-glow"></div>
@@ -1667,7 +1660,6 @@
             </div>
         </main>
 
-        <!-- FLOATING BOTTOM NAV -->
         <div class="dock-container">
             <nav class="bottom-nav">
                 <div class="nav-item active" onclick="switchMainTab('homeTab', this)"><i class="fa-solid fa-compass"></i></div>
@@ -1679,7 +1671,6 @@
         </div>
     </div>
 
-    <!-- PHOTO EDITOR MODAL -->
     <div id="photoEditorModal">
         <div class="editor-header">
             <button class="res-close" style="background:transparent; border:none; box-shadow:none; font-size:20px;" onclick="closePhotoEditor()"><i class="fa-solid fa-xmark"></i></button>
@@ -1702,7 +1693,6 @@
         </div>
     </div>
 
-    <!-- CREATION SHEET -->
     <div id="createSheet" class="bottom-sheet">
         <div style="flex:1;" onclick="closeCreateSheet()"></div>
         <div class="sheet-content" id="createSheetContent">
@@ -1742,7 +1732,6 @@
         </div>
     </div>
 
-    <!-- STORE MODAL -->
     <div id="storeModal" class="bottom-sheet">
         <div style="flex:1;" onclick="closeStore()"></div>
         <div class="sheet-content" id="storeSheetContent">
@@ -1759,7 +1748,6 @@
         </div>
     </div>
 
-    <!-- LOADER & RESULTS -->
     <div id="loaderOverlay">
         <div class="loader-ring">
             <svg viewBox="0 0 140 140"><defs><linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs><circle class="bg" cx="70" cy="70" r="65"></circle><circle class="progress" id="loaderCircle" cx="70" cy="70" r="65"></circle></svg>
@@ -1780,7 +1768,6 @@
         </div>
     </div>
 
-    <!-- FIREBASE SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -1798,6 +1785,7 @@
         let voiceEnabled = false;
         let isGenerating = false;
         
+        // BACKEND URL
         const BACKEND_URL = "https://shri-mitra-backend.onrender.com";
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dxeuzdwkz/image/upload";
         const UPLOAD_PRESET = "shri_mitra_preset";
@@ -2168,7 +2156,7 @@
 
         // --- AI CHAT & TTS ---
         function toggleVoiceOutput() {
-            if(!('speechSynthesis' in window)) return showToast("Voice not supported on this device", "error");
+            if(!('speechSynthesis' in window)) return showToast("Voice not supported", "error");
             
             voiceEnabled = !voiceEnabled;
             let btn = document.getElementById('ttsToggleBtn');
@@ -2184,15 +2172,28 @@
             }
         }
         
-        function speakText(text) {
-            if(!voiceEnabled || !window.speechSynthesis) return;
+        async function speakText(text) {
+            if(!voiceEnabled) return;
             window.speechSynthesis.cancel();
             
             let cleanText = text.replace(/<[^>]*>?/gm, '').replace(/[*_]/g, ''); 
-            let utterance = new SpeechSynthesisUtterance(cleanText);
-            utterance.rate = 1.05; 
-            utterance.pitch = 1.1;
-            window.speechSynthesis.speak(utterance);
+            
+            try {
+                let res = await fetch(`${BACKEND_URL}/api/tts`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: cleanText })
+                });
+                if(!res.ok) throw new Error("Backend TTS failed");
+                let blob = await res.blob();
+                let audio = new Audio(URL.createObjectURL(blob));
+                audio.play();
+            } catch(e) {
+                let utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.rate = 1.05; 
+                utterance.pitch = 1.1;
+                window.speechSynthesis.speak(utterance);
+            }
         }
 
         let isChatting = false;
@@ -2215,9 +2216,27 @@
             hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' });
 
             try {
-                let res = await fetch(`https://text.pollinations.ai/${encodeURIComponent("You are NexArt AI, a highly advanced, concise, and professional creative studio assistant. User: " + text)}`);
-                if(!res.ok) throw new Error();
-                let reply = await res.text();
+                let res = await fetch(`${BACKEND_URL}/api/fastchat`, {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        systemPrompt: "You are NexArt AI, a highly advanced, concise, and professional creative studio assistant. Keep responses helpful but reasonably short.",
+                        userPrompt: text
+                    })
+                });
+
+                if(!res.ok) {
+                    let errTxt = await res.text();
+                    throw new Error("Chat Server Offline");
+                }
+
+                let responseData = await res.json();
+                
+                if (responseData.error) {
+                    throw new Error(responseData.error.message || "API Error");
+                }
+                
+                let reply = responseData.choices[0].message.content;
                 
                 document.getElementById(typingId).remove();
                 speakText(reply);
@@ -2227,7 +2246,7 @@
                 
             } catch (err) {
                 document.getElementById(typingId).remove(); 
-                hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-triangle-exclamation" style="color:#ff4757;"></i></div><div class="msg-bubble" style="color: #ff4757; border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.1);">Network error. Please try again.</div></div>`; 
+                hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-triangle-exclamation" style="color:#ff4757;"></i></div><div class="msg-bubble" style="color: #ff4757; border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.1);">Connection error: Please ensure the Render backend is fully awake.</div></div>`; 
             } finally {
                 hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' }); 
                 isChatting = false;
@@ -2282,7 +2301,6 @@
                 upText.innerText = "Add Reference Image (Optional)"; 
                 promptBox.placeholder = "Describe your vision for the image...";
             } else if (type === 'video') { 
-                // VIDEO PROMPT IS NOW VISIBLE AND SUPPORTED
                 promptArea.style.display = 'block'; 
                 styleRow.style.display = 'flex'; 
                 upText.innerText = "Upload Initial Frame Image (Optional)"; 
@@ -2324,10 +2342,21 @@
             input.disabled = true;
 
             try {
-                let magicPrompt = `Rewrite this short prompt into a highly detailed, professional Midjourney style prompt for AI image generation. Return ONLY the final prompt, no chat. Original: "${text}"`;
-                let res = await fetch(`https://text.pollinations.ai/${encodeURIComponent(magicPrompt)}`);
-                if(!res.ok) throw new Error();
-                input.value = (await res.text()).trim();
+                let res = await fetch(`${BACKEND_URL}/api/fastchat`, {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        systemPrompt: "You are an AI prompt engineer. Rewrite the user's short prompt into a highly detailed, professional Midjourney style prompt for AI image generation. Return ONLY the final prompt, no extra text.",
+                        userPrompt: text
+                    })
+                });
+                
+                if(!res.ok) throw new Error("Enhancement failed");
+                let data = await res.json();
+                
+                if(data.error) throw new Error(data.error);
+                
+                input.value = data.choices[0].message.content.trim();
                 showToast("Prompt Enhanced!", "success");
             } catch(e) {
                 input.value = text;
@@ -2338,7 +2367,16 @@
             }
         }
 
-        // --- 🔥 SUPER STABLE AI GENERATION ENGINE 🔥 ---
+        function stopGenerationWithError(msg) {
+            clearInterval(loaderInterval); 
+            isGenerating = false;
+            let overlay = document.getElementById('loaderOverlay');
+            overlay.classList.remove('active');
+            setTimeout(() => overlay.style.display = 'none', 300);
+            showToast(msg, "error");
+        }
+
+        // --- 🔥 SUPER STABLE AI GENERATION ENGINE 🔥 (ALL BUGS FIXED) ---
         let loaderInterval;
         async function startGenerationEngine() {
             if(isGenerating) return;
@@ -2347,7 +2385,6 @@
             let finalPrompt = basePrompt + selectedArtStyle;
 
             if(currentCreationType === 'image' && !basePrompt && !uploadedFile) return showToast("Enter a prompt!", "error");
-            // Video ab prompt aur image dono se banega
             if(currentCreationType === 'video' && !basePrompt && !uploadedFile) return showToast("Enter a prompt or upload an image!", "error");
             if(currentCreationType === 'bgrm' && !uploadedFile) return showToast("Image is required for BG removal!", "error");
             
@@ -2392,7 +2429,7 @@
                         body: formData 
                     });
                     
-                    if (!response.ok) throw new Error(`Background API Error`);
+                    if (!response.ok) throw new Error(`Background API Limit Reached or Error`);
                     finalResultBlob = await response.blob(); 
                     finalResultType = 'image'; 
                     finalResultUrl = URL.createObjectURL(finalResultBlob); 
@@ -2400,50 +2437,67 @@
                     return; 
                 }
 
-                // SECURE CLOUDINARY UPLOAD (For Video & Image Ref)
+                // SECURE CLOUDINARY UPLOAD
                 let safeImageUrl = null; 
                 finalResultBlob = null; 
                 
                 if(uploadedFile) {
-                    let fd = new FormData(); 
-                    fd.append('file', uploadedFile); 
-                    fd.append('upload_preset', UPLOAD_PRESET);
-                    
-                    let ur = await fetch(CLOUDINARY_URL, {method: 'POST', body: fd}); 
-                    let ud = await ur.json();
-                    safeImageUrl = ud.secure_url;
+                    try {
+                        let fd = new FormData(); 
+                        fd.append('file', uploadedFile); 
+                        fd.append('upload_preset', UPLOAD_PRESET);
+                        
+                        let ur = await fetch(CLOUDINARY_URL, {method: 'POST', body: fd}); 
+                        if (!ur.ok) throw new Error("Preset invalid or Cloudinary block");
+                        let ud = await ur.json();
+                        safeImageUrl = ud.secure_url;
+                    } catch(err) {
+                        throw new Error("Reference Image upload failed. Check Cloudinary preset.");
+                    }
                 }
 
                 let targetUrl = "";
                 let payloadData = {};
 
-                // 2. IMAGE GENERATION
+                // 2. IMAGE GENERATION (BUG FIXED: Smart Truncation for long prompts)
                 if (currentCreationType === 'image') {
                     finalResultType = 'image';
                     let seed = Math.floor(Math.random()*100000);
-                    finalResultUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt || "A masterpiece")}?width=1024&height=1024&nologo=true&seed=${seed}`;
                     
-                    await new Promise((resolve, reject) => {
-                        let img = new Image();
-                        img.onload = resolve;
-                        img.onerror = resolve; 
-                        img.src = finalResultUrl;
-                    });
+                    // 🟢 TRUNCATING PROMPT to max 800 chars to avoid "URI Too Long" network crash
+                    let safePrompt = (finalPrompt || "A cinematic masterpiece").substring(0, 800);
+                    let fetchUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(safePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
+                    
+                    try {
+                        let imgResponse = await fetch(fetchUrl);
+                        if (!imgResponse.ok) throw new Error("Image API rejected the prompt.");
+                        finalResultBlob = await imgResponse.blob();
+                        finalResultUrl = URL.createObjectURL(finalResultBlob);
+                    } catch (err) {
+                        // Fallback logic
+                        await new Promise((resolve, reject) => {
+                            let img = new Image();
+                            img.onload = () => { finalResultUrl = fetchUrl; resolve(); };
+                            img.onerror = () => reject(new Error("Image Generation Failed. Try a shorter prompt."));
+                            img.src = fetchUrl;
+                        });
+                    }
                 } 
-                // 3. VIDEO GENERATION (LUMA RAY - FAST & SUPPORTS PROMPTS)
+                
+                // 3. VIDEO GENERATION (BUG FIXED: Exact Error revealing & Safe Parameters)
                 else if (currentCreationType === 'video') {
                     finalResultType = 'video';
                     targetUrl = "https://api.replicate.com/v1/models/luma/ray/predictions";
                     
                     payloadData = { 
                         input: { 
-                            prompt: finalPrompt || "Cinematic masterpiece, smooth motion, high quality",
-                            aspect_ratio: "16:9"
+                            // 🟢 TRUNCATING PROMPT to avoid Replicate 422 Errors
+                            prompt: (finalPrompt || "Cinematic masterpiece, smooth motion, high quality").substring(0, 800)
                         } 
                     };
                     
                     if (safeImageUrl) {
-                        payloadData.input.image_url = safeImageUrl;
+                        payloadData.input.image = safeImageUrl; // Safe format for replicate
                     }
 
                     let cr = await fetch(`${BACKEND_URL}/api/proxy`, {
@@ -2457,7 +2511,20 @@
                     });
 
                     let cd = await cr.json();
-                    if(cd.error) throw new Error(cd.error);
+                    
+                    // 🟢 BUG FIXED: Replicate Error Extract - Ab aapko exact reason dikhega!
+                    if (cd.error) {
+                        let exactError = cd.error;
+                        if (cd.details) {
+                            try {
+                                let parsed = JSON.parse(cd.details);
+                                exactError = parsed.detail || parsed.error || cd.details;
+                            } catch(e) { exactError = cd.details; }
+                        }
+                        throw new Error(exactError); // Like "Payment required" or "Invalid input"
+                    }
+
+                    if(!cd.urls || !cd.urls.get) throw new Error("Could not start Video API");
 
                     let rc=0;
                     await new Promise((res, rej) => {
@@ -2476,11 +2543,14 @@
                                     res();
                                 } else if (p.status === "failed" || p.status === "canceled") {
                                     clearInterval(chk);
-                                    rej(new Error("Video model generation failed."));
+                                    rej(new Error(p.error || "Video model failed to render."));
                                 }
                             } catch(e) {
                                 rc++;
-                                if(rc>90) { clearInterval(chk); rej(new Error("Timeout! Video took too long.")); }
+                                if(rc>60) { 
+                                    clearInterval(chk); 
+                                    rej(new Error("Timeout! Video generation taking too long.")); 
+                                }
                             }
                         }, 3000);
                     });
@@ -2488,12 +2558,7 @@
 
                 finishGen();
             } catch(e) { 
-                clearInterval(loaderInterval); 
-                isGenerating = false;
-                let overlay = document.getElementById('loaderOverlay');
-                overlay.classList.remove('active');
-                setTimeout(() => overlay.style.display = 'none', 300);
-                showToast("Generation failed. " + e.message, "error"); 
+                stopGenerationWithError("Generation failed: " + e.message); 
             }
         }
 
@@ -2625,4 +2690,5 @@
         }
     </script>
 </body>
-    </html>
+</html>
+
