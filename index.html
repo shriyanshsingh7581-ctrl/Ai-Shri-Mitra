@@ -94,7 +94,7 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            transition: opacity 0.6s ease, transform 0.6s ease; 
+            transition: opacity 0.5s ease, transform 0.5s ease; 
         }
 
         .splash-logo { 
@@ -864,7 +864,6 @@
             margin-bottom: 6px;
         }
 
-        /* Input forms for new features */
         .app-input {
             width: 100%;
             background: var(--glass-bg);
@@ -1956,8 +1955,7 @@
                         <button onclick="addReminder()" class="med-buy-btn" style="width:100%; background:#10b981; color:white; border:none;"><i class="fa-solid fa-bell"></i> Set Alarm</button>
                     </div>
                     <h3 style="font-size:14px; color:var(--text-dim); margin:20px 0 10px 5px; text-transform:uppercase; letter-spacing:1px;">Active Reminders</h3>
-                    <div id="reminderList">
-                    </div>
+                    <div id="reminderList"></div>
                 </div>
             </div>
 
@@ -1971,7 +1969,7 @@
                     <div class="profile-bg-glow"></div>
                     <img id="profilePic" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile">
                     <div style="z-index: 2;">
-                        <h2 id="profileName" style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">User</h2>
+                        <h2 id="profileName">User</h2>
                         <div style="display: flex; gap: 8px; align-items: center;">
                             <span style="background: var(--gold-gradient); padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 800; color: #000; text-transform: uppercase;">Pro Member</span>
                         </div>
@@ -2026,8 +2024,7 @@
                 <div class="sheet-title"><i class="fa-solid fa-sparkles" style="color: #a855f7;"></i> AI Medicine Info</div>
                 <div class="sheet-close" onclick="closeMedInfoSheet()"><i class="fa-solid fa-xmark"></i></div>
             </div>
-            <div id="medAiResponse" class="med-ai-content">
-            </div>
+            <div id="medAiResponse" class="med-ai-content"></div>
         </div>
     </div>
 
@@ -2175,6 +2172,19 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
+        // --- 🟢 GUARANTEED SPLASH SCREEN REMOVER FOR KODULAR WEBVIEW ---
+        function forceHideSplash() {
+            let splash = document.getElementById('splashScreen'); 
+            if (splash && splash.style.display !== 'none') { 
+                splash.style.opacity = '0'; 
+                splash.style.transform = 'scale(1.05)'; 
+                setTimeout(() => splash.style.display = 'none', 500); 
+            }
+        }
+        
+        // Timeout chalega chahe jo ho jaye
+        setTimeout(forceHideSplash, 1500);
+
         // --- GLOBAL VARIABLES & APIS ---
         let currentUser = null; 
         let currentCreationType = 'image'; 
@@ -2233,26 +2243,17 @@
             let color = type === 'error' ? '#ff4757' : (type === 'magic' ? '#facc15' : '#06b6d4');
             t.innerHTML = `<i class="fa-solid ${icon}" style="color:${color}; font-size:16px;"></i> <span>${msg}</span>`;
             c.appendChild(t); 
-            
             setTimeout(() => { 
                 t.style.animation = 'toastIn 0.4s reverse forwards'; 
                 setTimeout(() => t.remove(), 400); 
             }, 3000); 
         }
 
-        window.addEventListener('load', function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            forceHideSplash();
             init3DTiltEffect(); 
             initSwipeGestures();
             renderReminders();
-            
-            setTimeout(() => { 
-                let splash = document.getElementById('splashScreen'); 
-                if (splash) { 
-                    splash.style.opacity = '0'; 
-                    splash.style.transform = 'scale(1.05)'; 
-                    setTimeout(() => splash.style.display = 'none', 600); 
-                } 
-            }, 1200);
             
             try { 
                 let s = localStorage.getItem('nexart_session'); 
@@ -2270,74 +2271,30 @@
 
         function init3DTiltEffect() {
             if (window.matchMedia("(pointer: coarse)").matches) return; 
-            
             document.querySelectorAll('.bento-item').forEach(item => { 
                 item.addEventListener('mousemove', e => { 
-                    const rect = item.getBoundingClientRect(); 
-                    const x = e.clientX - rect.left; 
-                    const y = e.clientY - rect.top; 
-                    const xc = rect.width/2; 
-                    const yc = rect.height/2; 
-                    const dx = x - xc; 
-                    const dy = y - yc; 
+                    const rect = item.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; const xc = rect.width/2; const yc = rect.height/2; const dx = x - xc; const dy = y - yc; 
                     item.style.transform = `perspective(1000px) rotateY(${dx/20}deg) rotateX(${-dy/20}deg) scale3d(1.02,1.02,1.02)`; 
                 }); 
-                item.addEventListener('mouseleave', () => { 
-                    item.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale3d(1,1,1)'; 
-                }); 
+                item.addEventListener('mouseleave', () => { item.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale3d(1,1,1)'; }); 
             });
         }
 
         function initSwipeGestures() {
             const setupSwipe = (handleId, contentId, closeFunc) => {
-                const handle = document.getElementById(handleId); 
-                const content = document.getElementById(contentId); 
-                if(!handle || !content) return;
-                
-                let startY = 0; 
-                let currentY = 0; 
-                let isDragging = false;
-                
-                handle.addEventListener('touchstart', e => { 
-                    startY = e.touches[0].clientY; 
-                    isDragging = true; 
-                    content.style.transition = 'none'; 
-                }, {passive: true});
-                
-                handle.addEventListener('touchmove', e => { 
-                    if(!isDragging) return; 
-                    currentY = e.touches[0].clientY - startY; 
-                    if(currentY > 0) { 
-                        content.style.transform = `translateY(${currentY}px)`; 
-                    } 
-                }, {passive: true});
-                
-                handle.addEventListener('touchend', e => { 
-                    isDragging = false; 
-                    content.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'; 
-                    if(currentY > 100) { 
-                        closeFunc(); 
-                    } else { 
-                        content.style.transform = 'translateY(0)'; 
-                    } 
-                    currentY = 0; 
-                });
+                const handle = document.getElementById(handleId); const content = document.getElementById(contentId); if(!handle || !content) return;
+                let startY = 0; let currentY = 0; let isDragging = false;
+                handle.addEventListener('touchstart', e => { startY = e.touches[0].clientY; isDragging = true; content.style.transition = 'none'; }, {passive: true});
+                handle.addEventListener('touchmove', e => { if(!isDragging) return; currentY = e.touches[0].clientY - startY; if(currentY > 0) { content.style.transform = `translateY(${currentY}px)`; } }, {passive: true});
+                handle.addEventListener('touchend', e => { isDragging = false; content.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'; if(currentY > 100) { closeFunc(); } else { content.style.transform = 'translateY(0)'; } currentY = 0; });
             };
-            
             setupSwipe('createSheetHandle', 'createSheetContent', closeCreateSheet);
             setupSwipe('storeSheetHandle', 'storeSheetContent', closeStore);
             setupSwipe('medInfoSheetHandle', 'medInfoSheetContent', closeMedInfoSheet);
         }
 
-        function handleLoginClick() { 
-            if (window.AppInventor) { 
-                showToast("Requesting Native Login...", "info"); 
-                window.AppInventor.setWebViewString("GOOGLE_LOGIN"); 
-            } else { 
-                signInWithGoogle(); 
-            } 
-        }
-
+        function handleLoginClick() { if (window.AppInventor) { showToast("Requesting Native Login...", "info"); window.AppInventor.setWebViewString("GOOGLE_LOGIN"); } else { signInWithGoogle(); } }
+        
         function signInWithGoogle() { 
             auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => { 
                 if(e.code === 'auth/popup-blocked') { 
@@ -2348,44 +2305,53 @@
             }); 
         }
 
-        // --- 🟢 FIXED: KODULAR LOGIN SUCCESS HANDLER ---
+        // --- 🟢 FIXED: BULLETPROOF LOGIN & NAME FALLBACK ---
         window.kodularLoginSuccess = function(email, name, photoUrl, isAutoLogin = false) {
             try {
-                if (!email) return;
+                let e = String(email || "").trim();
+                let n = String(name || "").trim();
+                let p = String(photoUrl || "").trim();
 
-                let safeUid = email.replace(/[\.\#\$\[\]]/g, '_'); 
-                
-                // Extremely safe name parsing for Kodular
-                let safeName = name;
-                if (!safeName || safeName === 'null' || safeName === 'undefined' || safeName.trim() === '') {
-                    safeName = email.split('@')[0]; // Extract name from email
+                if (e === "null" || e === "undefined" || e === "") {
+                    e = "guest@nexart.com";
                 }
                 
-                let safePhoto = photoUrl;
-                if (!safePhoto || safePhoto === 'null' || safePhoto === 'undefined' || safePhoto.trim() === '') {
-                    safePhoto = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; // Default Profile
+                if (n === "null" || n === "undefined" || n === "") {
+                    n = e.split('@')[0]; 
+                    n = n.charAt(0).toUpperCase() + n.slice(1); 
+                    n = n.replace(/[0-9]/g, ''); // Clear numbers
+                    if(n === "") n = "User";
                 }
 
-                currentUser = { uid: safeUid, displayName: safeName, photoURL: safePhoto, email: email };
+                if (p === "null" || p === "undefined" || p === "") {
+                    p = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                }
+
+                let safeUid = e.replace(/[\.\#\$\[\]]/g, '_'); 
+                currentUser = { uid: safeUid, displayName: n, photoURL: p, email: e };
                 
+                // Save and overwrite any old corrupt session
                 localStorage.setItem('nexart_session', JSON.stringify(currentUser)); 
                 
                 document.getElementById('loginOverlay').classList.remove('active'); 
                 document.getElementById('mainApp').style.display = 'block';
                 
-                document.getElementById('profilePic').src = safePhoto; 
-                document.getElementById('profileName').innerText = safeName;
+                // Force DOM Update
+                let nameEl = document.getElementById('profileName');
+                if(nameEl) nameEl.textContent = n;
+                
+                let picEl = document.getElementById('profilePic');
+                if(picEl) picEl.src = p;
                 
                 fetchUserCoins(safeUid); 
                 loadDiscover(); 
                 loadVault();
                 
                 if(!isAutoLogin) {
-                    showToast("Login Successful! Welcome to Studio.", "success");
+                    showToast("Welcome " + n + "!", "success");
                 }
-            } catch(e) {
-                console.error("Login Parsing Error:", e);
-                showToast("Login completed with minor UI error", "info");
+            } catch(error) {
+                console.error("Login Parsing Error:", error);
             }
         };
 
@@ -2435,7 +2401,6 @@
             document.getElementById('health-reminders').style.display = (tabName === 'reminders') ? 'block' : 'none';
         }
 
-        // --- 🟢 FIXED: BULLETPROOF COIN FETCHER FOR WEBVIEW ---
         function updateCoinUI() {
             let cc = document.getElementById('coinCount');
             if(cc) cc.innerText = userCoinBalance;
@@ -2444,8 +2409,9 @@
         }
 
         function fetchUserCoins(safeUid) { 
-            // Optimistic UI Load (prevents '...' showing if DB fails)
-            userCoinBalance = parseInt(localStorage.getItem('offline_coins_' + safeUid) || 50);
+            try {
+                userCoinBalance = parseInt(localStorage.getItem('offline_coins_' + safeUid) || 50);
+            } catch(e) { userCoinBalance = 50; }
             updateCoinUI();
 
             try {
@@ -2454,17 +2420,15 @@
                         userCoinBalance = parseInt(s.val());
                     } else {
                         userCoinBalance = 50; 
-                        db.ref(`users/${safeUid}/coins`).set(50).catch(e => console.warn("Firebase Set Error", e)); 
+                        db.ref(`users/${safeUid}/coins`).set(50).catch(e => console.warn(e)); 
                     }
                     updateCoinUI();
-                    localStorage.setItem('offline_coins_' + safeUid, userCoinBalance);
+                    try { localStorage.setItem('offline_coins_' + safeUid, userCoinBalance); } catch(e){}
                 }, error => {
-                    console.warn("Firebase DB Permission Denied (Webview Auth Issue). Using local offline coins.");
-                    // Keep the local coins displayed
+                    console.warn("Firebase Denied in Webview. Local coins shown.");
                     updateCoinUI();
                 }); 
             } catch(e) {
-                console.error("Firebase Database Call Error", e);
                 updateCoinUI();
             }
         }
@@ -2472,69 +2436,39 @@
         window.addPurchasedCredits = function(amount) { 
             if(!currentUser) return showToast("User not found", "error"); 
             userCoinBalance += parseInt(amount); 
-            
             updateCoinUI();
-            localStorage.setItem('offline_coins_' + currentUser.uid, userCoinBalance);
-            
-            try {
-                db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance).catch(e=>console.warn(e)); 
-            } catch(e) {}
-            
+            try { localStorage.setItem('offline_coins_' + currentUser.uid, userCoinBalance); } catch(e){}
+            try { db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance).catch(e=>console.warn(e)); } catch(e) {}
             showToast(`Successfully added ${amount} Credits! ⚡`, "success"); 
         };
 
         function claimDailyReward() {
             if(!currentUser) return showToast("Please login first", "error");
-            
-            let lastClaim = null; 
-            try { 
-                lastClaim = localStorage.getItem('nexart_daily_' + currentUser.uid); 
-            } catch(e) {}
-            
+            let lastClaim = null; try { lastClaim = localStorage.getItem('nexart_daily_' + currentUser.uid); } catch(e) {}
             const now = new Date().getTime();
-            
             if(lastClaim && (now - parseInt(lastClaim)) < 86400000) { 
                 let timeLeft = 86400000 - (now - parseInt(lastClaim)); 
                 let hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60)); 
                 let minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60)); 
                 return showToast(`Reward available in ${hoursLeft}h ${minutesLeft}m`, "error"); 
             }
-            
             userCoinBalance += 10; 
             updateCoinUI();
-            localStorage.setItem('offline_coins_' + currentUser.uid, userCoinBalance);
-            
-            try {
-                db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance).catch(e=>console.warn(e)); 
-            } catch(e) {}
-            
-            try { 
-                localStorage.setItem('nexart_daily_' + currentUser.uid, now.toString()); 
-            } catch(e) {} 
-            
+            try { localStorage.setItem('offline_coins_' + currentUser.uid, userCoinBalance); } catch(e){}
+            try { db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance).catch(e=>console.warn(e)); } catch(e){}
+            try { localStorage.setItem('nexart_daily_' + currentUser.uid, now.toString()); } catch(e) {} 
             showToast("🎁 Claimed 10 Free Credits!", "success");
         }
 
         function loadDiscover() {
-            const grid = document.getElementById('discoverGrid'); 
-            grid.innerHTML = '';
-            
+            const grid = document.getElementById('discoverGrid'); grid.innerHTML = '';
             discoverData.forEach(d => {
                 let isVid = d.type === 'video';
                 let mediaTag = isVid ? `<video src="${d.url}" loop muted autoplay playsinline></video><i class="fa-solid fa-play" style="position:absolute;top:15px;left:15px;color:white;font-size:18px; filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></i>` : `<img src="${d.url}" loading="lazy">`;
-                
-                grid.innerHTML += `
-                    <div class="grid-item ${isVid ? 'video' : ''}" onclick="openCreateSheet('${d.type}')">
-                        ${mediaTag}
-                        <div class="item-overlay">
-                            <div class="badge-type">${d.tag}</div>
-                            <div class="item-title">${d.title}</div>
-                        </div>
-                    </div>`;
+                grid.innerHTML += `<div class="grid-item ${isVid ? 'video' : ''}" onclick="openCreateSheet('${d.type}')">${mediaTag}<div class="item-overlay"><div class="badge-type">${d.tag}</div><div class="item-title">${d.title}</div></div></div>`;
             });
         }
 
-        // --- 🟢 FIXED: BULLETPROOF VAULT LOADER FOR WEBVIEW ---
         function loadVault() {
             if(!currentUser) return;
             let g = document.getElementById('myVaultGrid'); 
@@ -2542,22 +2476,14 @@
             try {
                 db.ref(`users/${currentUser.uid}/gallery`).on('value', sn => {
                     g.innerHTML = '';
-                    
                     if (sn.exists()) {
-                        let arr = []; 
-                        sn.forEach(c => arr.push(c.val())); 
+                        let arr = []; sn.forEach(c => arr.push(c.val())); 
                         if(document.getElementById('statCreations')) document.getElementById('statCreations').innerText = arr.length;
-                        
                         arr.reverse().forEach(d => {
-                            let div = document.createElement('div'); 
-                            div.className = 'grid-item'; 
-                            if(d.type === 'video') div.classList.add('video');
-                            
+                            let div = document.createElement('div'); div.className = 'grid-item'; if(d.type === 'video') div.classList.add('video');
                             let isVid = (d.type === 'video' || d.url.endsWith('.mp4'));
                             div.innerHTML = isVid ? `<video src="${d.url}" autoplay loop muted playsinline></video><i class="fa-solid fa-play" style="position:absolute;top:15px;left:15px;color:white; filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></i>` : `<img src="${d.url}" loading="lazy">`;
-                            
-                            div.onclick = () => window.open(d.url, '_blank'); 
-                            g.appendChild(div);
+                            div.onclick = () => window.open(d.url, '_blank'); g.appendChild(div);
                         });
                     } else { 
                         if(document.getElementById('statCreations')) document.getElementById('statCreations').innerText = "0";
@@ -2573,194 +2499,74 @@
         }
 
         let currentEditImage = null;
-        
-        function openPhotoEditor() { 
-            let modal = document.getElementById('photoEditorModal'); 
-            modal.style.display = 'flex'; 
-            void modal.offsetWidth; 
-            modal.classList.add('active'); 
-        }
-
-        function closePhotoEditor() { 
-            let modal = document.getElementById('photoEditorModal'); 
-            modal.classList.remove('active'); 
-            setTimeout(() => modal.style.display = 'none', 300); 
-        }
-
+        function openPhotoEditor() { let modal = document.getElementById('photoEditorModal'); modal.style.display = 'flex'; void modal.offsetWidth; modal.classList.add('active'); }
+        function closePhotoEditor() { let modal = document.getElementById('photoEditorModal'); modal.classList.remove('active'); setTimeout(() => modal.style.display = 'none', 300); }
         function loadEditorImage(e) { 
             if(!e.target.files[0]) return; 
-            
-            currentEditImage = URL.createObjectURL(e.target.files[0]); 
-            document.getElementById('editorUploadPrompt').style.display = 'none'; 
-            
-            let img = document.getElementById('editorImagePreview'); 
-            img.src = currentEditImage; 
-            img.style.display = 'block'; 
-            
-            document.getElementById('filterBr').value = 100; 
-            document.getElementById('filterCt').value = 100; 
-            document.getElementById('filterSt').value = 100; 
-            document.getElementById('filterBl').value = 0; 
-            
+            currentEditImage = URL.createObjectURL(e.target.files[0]); document.getElementById('editorUploadPrompt').style.display = 'none'; 
+            let img = document.getElementById('editorImagePreview'); img.src = currentEditImage; img.style.display = 'block'; 
+            document.getElementById('filterBr').value = 100; document.getElementById('filterCt').value = 100; document.getElementById('filterSt').value = 100; document.getElementById('filterBl').value = 0; 
             applyEditFilters(); 
         }
-
         function applyEditFilters() { 
-            let br = document.getElementById('filterBr').value; 
-            let ct = document.getElementById('filterCt').value; 
-            let st = document.getElementById('filterSt').value; 
-            let bl = document.getElementById('filterBl').value; 
-            
-            document.getElementById('valBr').innerText = br + '%'; 
-            document.getElementById('valCt').innerText = ct + '%'; 
-            document.getElementById('valSt').innerText = st + '%'; 
-            document.getElementById('valBl').innerText = bl + 'px'; 
-            
+            let br = document.getElementById('filterBr').value; let ct = document.getElementById('filterCt').value; let st = document.getElementById('filterSt').value; let bl = document.getElementById('filterBl').value; 
+            document.getElementById('valBr').innerText = br + '%'; document.getElementById('valCt').innerText = ct + '%'; document.getElementById('valSt').innerText = st + '%'; document.getElementById('valBl').innerText = bl + 'px'; 
             document.getElementById('editorImagePreview').style.filter = `brightness(${br}%) contrast(${ct}%) saturate(${st}%) blur(${bl}px)`; 
         }
-
         function downloadEditedPhoto() { 
-            if(!currentEditImage) return showToast('Upload a photo first!', 'error'); 
-            showToast('Processing Image...', 'info'); 
-            
-            let img = document.getElementById('editorImagePreview'); 
-            let canvas = document.createElement('canvas'); 
-            let ctx = canvas.getContext('2d'); 
-            let tempImg = new Image(); 
-            
+            if(!currentEditImage) return showToast('Upload a photo first!', 'error'); showToast('Processing Image...', 'info'); 
+            let img = document.getElementById('editorImagePreview'); let canvas = document.createElement('canvas'); let ctx = canvas.getContext('2d'); let tempImg = new Image(); 
             tempImg.onload = function() { 
-                canvas.width = tempImg.width; 
-                canvas.height = tempImg.height; 
-                ctx.filter = img.style.filter; 
-                ctx.drawImage(tempImg, 0, 0, canvas.width, canvas.height); 
-                
-                try { 
-                    let a = document.createElement('a'); 
-                    a.href = canvas.toDataURL('image/jpeg', 0.95); 
-                    a.download = `NexArt_Edit_${Date.now()}.jpg`; 
-                    a.click(); 
-                    showToast('Masterpiece Saved! 🎨', 'success'); 
-                } catch(e) { 
-                    showToast('Could not save image directly.', 'error'); 
-                } 
+                canvas.width = tempImg.width; canvas.height = tempImg.height; ctx.filter = img.style.filter; ctx.drawImage(tempImg, 0, 0, canvas.width, canvas.height); 
+                try { let a = document.createElement('a'); a.href = canvas.toDataURL('image/jpeg', 0.95); a.download = `NexArt_Edit_${Date.now()}.jpg`; a.click(); showToast('Masterpiece Saved! 🎨', 'success'); } catch(e) { showToast('Could not save image directly.', 'error'); } 
             }; 
             tempImg.src = currentEditImage; 
         }
 
         function toggleVoiceOutput() {
             if(!('speechSynthesis' in window)) return showToast("Voice not supported", "error");
-            
-            voiceEnabled = !voiceEnabled; 
-            let btn = document.getElementById('ttsToggleBtn');
-            
-            if(voiceEnabled) { 
-                btn.classList.add('active'); 
-                btn.innerHTML = `<i class="fa-solid fa-volume-high"></i> Voice On`; 
-                showToast("AI Voice Enabled", "success"); 
-            } else { 
-                btn.classList.remove('active'); 
-                btn.innerHTML = `<i class="fa-solid fa-volume-xmark"></i> Voice Off`; 
-                window.speechSynthesis.cancel(); 
-            }
+            voiceEnabled = !voiceEnabled; let btn = document.getElementById('ttsToggleBtn');
+            if(voiceEnabled) { btn.classList.add('active'); btn.innerHTML = `<i class="fa-solid fa-volume-high"></i> Voice On`; showToast("AI Voice Enabled", "success"); } 
+            else { btn.classList.remove('active'); btn.innerHTML = `<i class="fa-solid fa-volume-xmark"></i> Voice Off`; window.speechSynthesis.cancel(); }
         }
         
         async function speakText(text) {
             if(!voiceEnabled) return;
             window.speechSynthesis.cancel();
-            
             let cleanText = text.replace(/<[^>]*>?/gm, '').replace(/[*_]/g, ''); 
-            
             try {
-                let res = await fetch(`${BACKEND_URL}/api/tts`, { 
-                    method: "POST", 
-                    headers: { "Content-Type": "application/json" }, 
-                    body: JSON.stringify({ text: cleanText }) 
-                });
-                
+                let res = await fetch(`${BACKEND_URL}/api/tts`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: cleanText }) });
                 if(!res.ok) throw new Error("Backend TTS failed");
-                
-                let blob = await res.blob(); 
-                let audio = new Audio(URL.createObjectURL(blob)); 
-                audio.play();
+                let blob = await res.blob(); let audio = new Audio(URL.createObjectURL(blob)); audio.play();
             } catch(e) {
-                let utterance = new SpeechSynthesisUtterance(cleanText); 
-                utterance.rate = 1.05; 
-                utterance.pitch = 1.1; 
-                window.speechSynthesis.speak(utterance);
+                let utterance = new SpeechSynthesisUtterance(cleanText); utterance.rate = 1.05; utterance.pitch = 1.1; window.speechSynthesis.speak(utterance);
             }
         }
 
         let isChatting = false;
-        
         async function sendChatMessage() {
             if(isChatting) return;
-            
-            let input = document.getElementById('chatInput'); 
-            let text = input.value.trim(); 
-            if(!text) return;
-            
-            isChatting = true; 
-            let hist = document.getElementById('chatHistory');
-            
-            hist.innerHTML += `
-                <div class="msg user">
-                    <div class="msg-avatar"><i class="fa-solid fa-user"></i></div>
-                    <div class="msg-bubble">${text}</div>
-                </div>`; 
-            
-            input.value = ''; 
-            hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' });
-            
+            let input = document.getElementById('chatInput'); let text = input.value.trim(); if(!text) return;
+            isChatting = true; let hist = document.getElementById('chatHistory');
+            hist.innerHTML += `<div class="msg user"><div class="msg-avatar"><i class="fa-solid fa-user"></i></div><div class="msg-bubble">${text}</div></div>`; input.value = ''; hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' });
             let typingId = 'typing_' + Date.now(); 
-            hist.innerHTML += `
-                <div class="msg ai" id="${typingId}">
-                    <div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div>
-                    <div class="msg-bubble">
-                        <div class="typing-indicator"><span></span><span></span><span></span></div>
-                    </div>
-                </div>`; 
+            hist.innerHTML += `<div class="msg ai" id="${typingId}"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div></div>`; 
             hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' });
 
             try {
-                let res = await fetch(`${BACKEND_URL}/api/fastchat`, { 
-                    method: 'POST', 
-                    headers: { "Content-Type": "application/json" }, 
-                    body: JSON.stringify({ 
-                        systemPrompt: "You are NexArt AI, a highly advanced, concise, and professional creative studio assistant. Keep responses helpful but reasonably short.", 
-                        userPrompt: text 
-                    }) 
-                });
-                
+                let res = await fetch(`${BACKEND_URL}/api/fastchat`, { method: 'POST', headers: { "Content-Type": "application/json" }, body: JSON.stringify({ systemPrompt: "You are NexArt AI, a highly advanced, concise, and professional creative studio assistant. Keep responses helpful but reasonably short.", userPrompt: text }) });
                 if(!res.ok) throw new Error("Chat Server Offline");
-                
                 let responseData = await res.json();
                 if (responseData.error) throw new Error(responseData.error.message || "API Error");
-                
                 let reply = responseData.choices[0].message.content;
-                document.getElementById(typingId).remove(); 
-                speakText(reply);
-                
+                document.getElementById(typingId).remove(); speakText(reply);
                 let formatted = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
-                
-                hist.innerHTML += `
-                    <div class="msg ai">
-                        <div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div>
-                        <div class="msg-bubble">${formatted}</div>
-                    </div>`; 
+                hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble">${formatted}</div></div>`; 
             } catch (err) {
-                document.getElementById(typingId).remove(); 
-                hist.innerHTML += `
-                    <div class="msg ai">
-                        <div class="msg-avatar"><i class="fa-solid fa-triangle-exclamation" style="color:#ff4757;"></i></div>
-                        <div class="msg-bubble" style="color: #ff4757; border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.1);">Connection error: Backend sleeping or unreachable.</div>
-                    </div>`; 
-            } finally { 
-                hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' }); 
-                isChatting = false; 
-            }
+                document.getElementById(typingId).remove(); hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-triangle-exclamation" style="color:#ff4757;"></i></div><div class="msg-bubble" style="color: #ff4757; border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.1);">Connection error: Backend sleeping or unreachable.</div></div>`; 
+            } finally { hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' }); isChatting = false; }
         }
 
-        // --- NEXHEALTH PHARMACY LOGIC (WITH FILTER & SORT) ---
         let currentMedResults = []; 
 
         async function handleSymptomSearch() {
@@ -2771,30 +2577,16 @@
             showToast("AI is analyzing symptoms...", "magic");
             let resBox = document.getElementById('medResultsBox');
             document.getElementById('medFilterBar').style.display = 'none';
-            resBox.innerHTML = `
-                <div style="text-align:center; padding:40px; color:var(--text-dim);">
-                    <i class="fa-solid fa-wand-magic-sparkles fa-beat" style="font-size: 30px; margin-bottom:15px; color: #a855f7;"></i>
-                    <p>AI is finding the best medicine for your symptoms...</p>
-                </div>`;
+            resBox.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-dim);"><i class="fa-solid fa-wand-magic-sparkles fa-beat" style="font-size: 30px; margin-bottom:15px; color: #a855f7;"></i><p>AI is finding the best medicine for your symptoms...</p></div>`;
 
             try {
-                let res = await fetch(`${BACKEND_URL}/api/fastchat`, { 
-                    method: 'POST', 
-                    headers: { "Content-Type": "application/json" }, 
-                    body: JSON.stringify({ 
-                        systemPrompt: "You are a medical AI. The user will describe symptoms in Hindi/English. Suggest exactly ONE common generic OTC medicine available in India (like Paracetamol, Cetirizine). Reply ONLY with the medicine name, nothing else.", 
-                        userPrompt: text 
-                    }) 
-                });
-                
+                let res = await fetch(`${BACKEND_URL}/api/fastchat`, { method: 'POST', headers: { "Content-Type": "application/json" }, body: JSON.stringify({ systemPrompt: "You are a medical AI. The user will describe symptoms in Hindi/English. Suggest exactly ONE common generic OTC medicine available in India (like Paracetamol, Cetirizine). Reply ONLY with the medicine name, nothing else.", userPrompt: text }) });
                 if(!res.ok) throw new Error("AI failed"); 
                 let data = await res.json(); 
                 if(data.error) throw new Error(data.error);
-                
                 let medName = data.choices[0].message.content.trim(); 
                 input.value = medName; 
                 showToast(`AI Suggested: ${medName}`, "success");
-                
                 fetchMedicinePrices();
             } catch(e) { 
                 showToast("AI could not analyze. Try searching medicine name directly.", "error"); 
@@ -2805,37 +2597,18 @@
         async function fetchMedicinePrices() {
             let medName = document.getElementById('medSearchInput').value.trim();
             if(!medName) return showToast("Enter a medicine name", "error");
-            
             let resBox = document.getElementById('medResultsBox');
             document.getElementById('medFilterBar').style.display = 'none'; 
-            
-            resBox.innerHTML = `
-                <div style="text-align:center; padding:40px; color:var(--text-dim);">
-                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 30px; margin-bottom:15px; color: #06b6d4;"></i>
-                    <p>Scanning pharmacies across India...</p>
-                </div>`;
+            resBox.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-dim);"><i class="fa-solid fa-spinner fa-spin" style="font-size: 30px; margin-bottom:15px; color: #06b6d4;"></i><p>Scanning pharmacies across India...</p></div>`;
             
             try {
-                let res = await fetch(`${BACKEND_URL}/api/search`, {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({ query: `buy ${medName} medicine online India price` })
-                });
-                
+                let res = await fetch(`${BACKEND_URL}/api/search`, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ query: `buy ${medName} medicine online India price` }) });
                 if(!res.ok) throw new Error("Search failed");
                 let data = await res.json();
                 let organic = data.organic || [];
-                
-                let pharmacies = organic.filter(item => 
-                    item.link.includes('1mg.com') || 
-                    item.link.includes('pharmeasy.in') || 
-                    item.link.includes('apollopharmacy') || 
-                    item.link.includes('netmeds.com') ||
-                    item.link.includes('flipkart')
-                );
+                let pharmacies = organic.filter(item => item.link.includes('1mg.com') || item.link.includes('pharmeasy.in') || item.link.includes('apollopharmacy') || item.link.includes('netmeds.com') || item.link.includes('flipkart'));
 
                 currentMedResults = []; 
-                
                 if(pharmacies.length === 0) {
                     resBox.innerHTML = '<p style="color:var(--text-dim); margin-bottom: 15px; text-align:center;">Exact price not found, but you can check direct stores:</p>';
                     currentMedResults.push({ title: medName, store: "Tata 1mg", priceText: "Check Price", priceNum: Infinity, link: `https://www.1mg.com/search/all?name=${encodeURIComponent(medName)}` });
@@ -2843,148 +2616,54 @@
                 } else {
                     pharmacies.forEach(ph => {
                         let storeName = "Pharmacy";
-                        if(ph.link.includes('1mg')) storeName = "Tata 1mg";
-                        else if(ph.link.includes('pharmeasy')) storeName = "PharmEasy";
-                        else if(ph.link.includes('apollo')) storeName = "Apollo";
-                        else if(ph.link.includes('netmeds')) storeName = "Netmeds";
-                        else if(ph.link.includes('flipkart')) storeName = "Flipkart Health+";
-
+                        if(ph.link.includes('1mg')) storeName = "Tata 1mg"; else if(ph.link.includes('pharmeasy')) storeName = "PharmEasy"; else if(ph.link.includes('apollo')) storeName = "Apollo"; else if(ph.link.includes('netmeds')) storeName = "Netmeds"; else if(ph.link.includes('flipkart')) storeName = "Flipkart Health+";
                         let priceMatch = ph.snippet.match(/(?:Rs\.?|₹|INR)\s*(\d+(?:,\d+)?(?:\.\d+)?)/i);
-                        let priceNum = Infinity; 
-                        let displayPrice = "Check Price";
-
-                        if(priceMatch) {
-                            let cleanNumStr = priceMatch[1].replace(/,/g, ''); 
-                            priceNum = parseFloat(cleanNumStr);
-                            displayPrice = `₹${priceNum}`;
-                        }
-
+                        let priceNum = Infinity; let displayPrice = "Check Price";
+                        if(priceMatch) { let cleanNumStr = priceMatch[1].replace(/,/g, ''); priceNum = parseFloat(cleanNumStr); displayPrice = `₹${priceNum}`; }
                         let shortTitle = ph.title.substring(0, 45) + (ph.title.length > 45 ? '...' : '');
-                        
-                        currentMedResults.push({
-                            title: shortTitle,
-                            store: storeName,
-                            priceText: displayPrice,
-                            priceNum: priceNum,
-                            link: ph.link
-                        });
+                        currentMedResults.push({ title: shortTitle, store: storeName, priceText: displayPrice, priceNum: priceNum, link: ph.link });
                     });
                 }
                 
-                document.getElementById('medFilterBar').style.display = 'flex'; 
-                document.getElementById('medStoreFilter').value = 'All'; 
-                document.getElementById('medSortFilter').value = 'default';
-                
-                renderMedResults(); 
-                showToast("Prices fetched!", "success");
-
-            } catch(e) {
-                resBox.innerHTML = '<div style="color:#ff4757; text-align:center; padding:20px;">Failed to scan prices. Please check your internet connection.</div>';
-            }
+                document.getElementById('medFilterBar').style.display = 'flex'; document.getElementById('medStoreFilter').value = 'All'; document.getElementById('medSortFilter').value = 'default';
+                renderMedResults(); showToast("Prices fetched!", "success");
+            } catch(e) { resBox.innerHTML = '<div style="color:#ff4757; text-align:center; padding:20px;">Failed to scan prices. Please check your internet connection.</div>'; }
         }
 
         function renderMedResults() {
-            let storeFilter = document.getElementById('medStoreFilter').value;
-            let sortFilter = document.getElementById('medSortFilter').value;
-            
+            let storeFilter = document.getElementById('medStoreFilter').value; let sortFilter = document.getElementById('medSortFilter').value;
             let filteredArr = currentMedResults;
-            if(storeFilter !== "All") {
-                filteredArr = filteredArr.filter(item => item.store === storeFilter);
-            }
-            
+            if(storeFilter !== "All") { filteredArr = filteredArr.filter(item => item.store === storeFilter); }
             let sortedArr = [...filteredArr]; 
-            if(sortFilter === "low") {
-                sortedArr.sort((a, b) => a.priceNum - b.priceNum);
-            } else if (sortFilter === "high") {
-                sortedArr.sort((a, b) => {
-                    if(a.priceNum === Infinity) return 1;
-                    if(b.priceNum === Infinity) return -1;
-                    return b.priceNum - a.priceNum;
-                });
-            }
-
-            let resBox = document.getElementById('medResultsBox');
-            resBox.innerHTML = '';
+            if(sortFilter === "low") { sortedArr.sort((a, b) => a.priceNum - b.priceNum); } else if (sortFilter === "high") { sortedArr.sort((a, b) => { if(a.priceNum === Infinity) return 1; if(b.priceNum === Infinity) return -1; return b.priceNum - a.priceNum; }); }
+            let resBox = document.getElementById('medResultsBox'); resBox.innerHTML = '';
             
-            if(sortedArr.length === 0) {
-                resBox.innerHTML = '<p style="color:var(--text-dim); text-align:center; padding:20px;">No medicine found for this specific store.</p>';
-                return;
-            }
-
+            if(sortedArr.length === 0) { resBox.innerHTML = '<p style="color:var(--text-dim); text-align:center; padding:20px;">No medicine found for this specific store.</p>'; return; }
             sortedArr.forEach(item => {
-                let color = item.priceText !== "Check Price" ? "#10b981" : "#06b6d4";
-                let safeTitle = item.title.replace(/'/g, "\\'"); 
-                
-                resBox.innerHTML += `
-                    <div class="med-card">
-                        <div class="med-card-header">
-                            <span class="med-store"><i class="fa-solid fa-store" style="margin-right:5px;"></i> ${item.store}</span>
-                            <button class="med-info-btn" onclick="explainMedicine('${safeTitle}')"><i class="fa-solid fa-sparkles"></i> Ask AI</button>
-                        </div>
-                        <div class="med-title">${item.title}</div>
-                        <div class="med-price-row">
-                            <div class="med-price" style="color: ${color}">${item.priceText}</div>
-                            <button class="med-buy-btn" onclick="window.open('${item.link}', '_blank')">Order Now</button>
-                        </div>
-                    </div>
-                `;
+                let color = item.priceText !== "Check Price" ? "#10b981" : "#06b6d4"; let safeTitle = item.title.replace(/'/g, "\\'");
+                resBox.innerHTML += `<div class="med-card"><div class="med-card-header"><span class="med-store"><i class="fa-solid fa-store" style="margin-right:5px;"></i> ${item.store}</span><button class="med-info-btn" onclick="explainMedicine('${safeTitle}')"><i class="fa-solid fa-sparkles"></i> Ask AI</button></div><div class="med-title">${item.title}</div><div class="med-price-row"><div class="med-price" style="color: ${color}">${item.priceText}</div><button class="med-buy-btn" onclick="window.open('${item.link}', '_blank')">Order Now</button></div></div>`;
             });
         }
 
         async function explainMedicine(medName) {
-            let sheet = document.getElementById('medInfoSheet'); 
-            let content = document.getElementById('medInfoSheetContent'); 
-            let responseBox = document.getElementById('medAiResponse');
-            
-            sheet.style.display = 'flex'; 
-            content.style.transform = 'translateY(100%)'; 
-            void sheet.offsetWidth; 
-            sheet.classList.add('active'); 
-            content.style.transform = 'translateY(0)'; 
-            
-            responseBox.innerHTML = `
-                <div style="text-align:center; padding:20px 0; color:var(--text-dim);">
-                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; margin-bottom:10px; color: #a855f7;"></i>
-                    <p>AI is analyzing <b>${medName}</b>...</p>
-                </div>`;
-
+            let sheet = document.getElementById('medInfoSheet'); let content = document.getElementById('medInfoSheetContent'); let responseBox = document.getElementById('medAiResponse');
+            sheet.style.display = 'flex'; content.style.transform = 'translateY(100%)'; void sheet.offsetWidth; sheet.classList.add('active'); content.style.transform = 'translateY(0)'; 
+            responseBox.innerHTML = `<div style="text-align:center; padding:20px 0; color:var(--text-dim);"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; margin-bottom:10px; color: #a855f7;"></i><p>AI is analyzing <b>${medName}</b>...</p></div>`;
             try {
-                let res = await fetch(`${BACKEND_URL}/api/fastchat`, { 
-                    method: 'POST', 
-                    headers: { "Content-Type": "application/json" }, 
-                    body: JSON.stringify({ 
-                        systemPrompt: "You are a friendly pharmacist AI. Explain the medicine provided by the user in simple Hindi/Hinglish. Format exactly like this: \n\n**Mukhya Upyog (Uses):**\n- point 1\n- point 2\n\n**Kaise Khayein (Dosage):**\n- point 1\n\n**Side Effects:**\n- point 1\n\nKeep it very short and bulleted. Include this disclaimer at the end: '*⚠️ Yeh jankari AI dwara hai, kripya doctor se salah lein.*'", 
-                        userPrompt: "Explain medicine: " + medName 
-                    }) 
-                });
-                
-                if(!res.ok) throw new Error("API Failed");
-                let data = await res.json();
-                
-                let reply = data.choices[0].message.content;
-                let formatted = reply.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--neon-primary);">$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
-                
+                let res = await fetch(`${BACKEND_URL}/api/fastchat`, { method: 'POST', headers: { "Content-Type": "application/json" }, body: JSON.stringify({ systemPrompt: "You are a friendly pharmacist AI. Explain the medicine provided by the user in simple Hindi/Hinglish. Format exactly like this: \n\n**Mukhya Upyog (Uses):**\n- point 1\n- point 2\n\n**Kaise Khayein (Dosage):**\n- point 1\n\n**Side Effects:**\n- point 1\n\nKeep it very short and bulleted. Include this disclaimer at the end: '*⚠️ Yeh jankari AI dwara hai, kripya doctor se salah lein.*'", userPrompt: "Explain medicine: " + medName }) });
+                if(!res.ok) throw new Error("API Failed"); let data = await res.json();
+                let reply = data.choices[0].message.content; let formatted = reply.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--neon-primary);">$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
                 responseBox.innerHTML = formatted;
-            } catch(e) {
-                responseBox.innerHTML = `<p style="color:#ff4757; text-align:center;">Jankari nikalne mein error aaya. Kripya thodi der mein try karein.</p>`;
-            }
+            } catch(e) { responseBox.innerHTML = `<p style="color:#ff4757; text-align:center;">Jankari nikalne mein error aaya. Kripya thodi der mein try karein.</p>`; }
         }
 
-        function closeMedInfoSheet() { 
-            let sheet = document.getElementById('medInfoSheet'); 
-            let content = document.getElementById('medInfoSheetContent'); 
-            sheet.classList.remove('active'); 
-            content.style.transform = 'translateY(100%)'; 
-            setTimeout(() => { sheet.style.display = 'none'; content.style.transform = ''; }, 400); 
-        }
+        function closeMedInfoSheet() { let sheet = document.getElementById('medInfoSheet'); let content = document.getElementById('medInfoSheetContent'); sheet.classList.remove('active'); content.style.transform = 'translateY(100%)'; setTimeout(() => { sheet.style.display = 'none'; content.style.transform = ''; }, 400); }
 
-        // --- AI FOOD SCANNER LOGIC ---
         let base64FoodImage = null;
 
         function previewFoodImage(event) {
             if(!event.target.files[0]) return;
             let file = event.target.files[0];
-            
             let url = URL.createObjectURL(file);
             document.getElementById('foodPreviewImg').src = url;
             document.getElementById('foodPreviewBox').style.display = 'block';
@@ -3076,7 +2755,6 @@
             }
         }
 
-        // --- REMINDERS LOGIC ---
         let savedReminders = [];
 
         function renderReminders() {
@@ -3142,103 +2820,29 @@
             }
         }, 1000);
 
-        // --- CREATION STUDIO LOGIC ---
-        function openCreateSheet(defaultType = 'image') { 
-            let sheet = document.getElementById('createSheet'); 
-            let content = document.getElementById('createSheetContent'); 
-            
-            sheet.style.display = 'flex'; 
-            content.style.transform = 'translateY(100%)'; 
-            void sheet.offsetWidth; 
-            sheet.classList.add('active'); 
-            content.style.transform = 'translateY(0)'; 
-            
-            setCreationType(defaultType, document.getElementById('btn-type-' + defaultType)); 
-        }
-
-        function closeCreateSheet() { 
-            let sheet = document.getElementById('createSheet'); 
-            let content = document.getElementById('createSheetContent'); 
-            
-            sheet.classList.remove('active'); 
-            content.style.transform = 'translateY(100%)'; 
-            
-            setTimeout(() => { 
-                sheet.style.display = 'none'; 
-                content.style.transform = ''; 
-            }, 400); 
-        }
-
-        function selectStyle(element, styleString) { 
-            document.querySelectorAll('.style-pill').forEach(el => el.classList.remove('active')); 
-            element.classList.add('active'); 
-            selectedArtStyle = styleString; 
-        }
+        function openCreateSheet(defaultType = 'image') { let sheet = document.getElementById('createSheet'); let content = document.getElementById('createSheetContent'); sheet.style.display = 'flex'; content.style.transform = 'translateY(100%)'; void sheet.offsetWidth; sheet.classList.add('active'); content.style.transform = 'translateY(0)'; setCreationType(defaultType, document.getElementById('btn-type-' + defaultType)); }
+        function closeCreateSheet() { let sheet = document.getElementById('createSheet'); let content = document.getElementById('createSheetContent'); sheet.classList.remove('active'); content.style.transform = 'translateY(100%)'; setTimeout(() => { sheet.style.display = 'none'; content.style.transform = ''; }, 400); }
+        function selectStyle(element, styleString) { document.querySelectorAll('.style-pill').forEach(el => el.classList.remove('active')); element.classList.add('active'); selectedArtStyle = styleString; }
 
         function setCreationType(type, el) {
-            currentCreationType = type; 
-            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active')); 
-            if(el) el.classList.add('active');
-            
-            let promptArea = document.getElementById('promptAreaWrap'); 
-            let upText = document.getElementById('upAreaText'); 
-            let styleRow = document.getElementById('artStylesRow'); 
-            let promptBox = document.getElementById('createPrompt');
-            
-            if(type === 'image') { 
-                promptArea.style.display = 'block'; 
-                styleRow.style.display = 'flex'; 
-                upText.innerText = "Add Reference Image (Optional - Will be ignored)"; 
-                promptBox.placeholder = "Describe your vision for the image..."; 
-            } else if (type === 'video') { 
-                promptArea.style.display = 'block'; 
-                styleRow.style.display = 'flex'; 
-                upText.innerText = "Upload Initial Frame Image (Optional)"; 
-                promptBox.placeholder = "Describe the video scene or animation..."; 
-            } else if (type === 'bgrm') { 
-                promptArea.style.display = 'none'; 
-                styleRow.style.display = 'none'; 
-                upText.innerText = "Upload Photo to Remove BG (Required)"; 
-            }
+            currentCreationType = type; document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active')); if(el) el.classList.add('active');
+            let promptArea = document.getElementById('promptAreaWrap'); let upText = document.getElementById('upAreaText'); let styleRow = document.getElementById('artStylesRow'); let promptBox = document.getElementById('createPrompt');
+            if(type === 'image') { promptArea.style.display = 'block'; styleRow.style.display = 'flex'; upText.innerText = "Add Reference Image (Optional - Will be ignored)"; promptBox.placeholder = "Describe your vision for the image..."; } 
+            else if (type === 'video') { promptArea.style.display = 'block'; styleRow.style.display = 'flex'; upText.innerText = "Upload Initial Frame Image (Optional)"; promptBox.placeholder = "Describe the video scene or animation..."; } 
+            else if (type === 'bgrm') { promptArea.style.display = 'none'; styleRow.style.display = 'none'; upText.innerText = "Upload Photo to Remove BG (Required)"; }
         }
 
-        function handleCreateUpload(e) { 
-            if(!e.target.files[0]) return; 
-            uploadedFile = e.target.files[0]; 
-            document.getElementById('upAreaImg').src = URL.createObjectURL(uploadedFile); 
-            document.getElementById('upAreaImg').style.display = 'block'; 
-            document.getElementById('rmMediaBtn').style.display = 'flex'; 
-        }
+        function handleCreateUpload(e) { if(!e.target.files[0]) return; uploadedFile = e.target.files[0]; document.getElementById('upAreaImg').src = URL.createObjectURL(uploadedFile); document.getElementById('upAreaImg').style.display = 'block'; document.getElementById('rmMediaBtn').style.display = 'flex'; }
+        function removeCreatePhoto() { uploadedFile = null; document.getElementById('hiddenCreateUpload').value = ''; document.getElementById('upAreaImg').src = ''; document.getElementById('upAreaImg').style.display = 'none'; document.getElementById('rmMediaBtn').style.display = 'none'; }
 
-        function removeCreatePhoto() { 
-            uploadedFile = null; 
-            document.getElementById('hiddenCreateUpload').value = ''; 
-            document.getElementById('upAreaImg').src = ''; 
-            document.getElementById('upAreaImg').style.display = 'none'; 
-            document.getElementById('rmMediaBtn').style.display = 'none'; 
-        }
-
-        // --- GENERATION ENGINE ---
-        function stopGenerationWithError(msg) { 
-            clearInterval(loaderInterval); 
-            isGenerating = false; 
-            let overlay = document.getElementById('loaderOverlay'); 
-            overlay.classList.remove('active'); 
-            setTimeout(() => overlay.style.display = 'none', 300); 
-            showToast(msg, "error"); 
-        }
+        function stopGenerationWithError(msg) { clearInterval(loaderInterval); isGenerating = false; let overlay = document.getElementById('loaderOverlay'); overlay.classList.remove('active'); setTimeout(() => overlay.style.display = 'none', 300); showToast(msg, "error"); }
 
         const getBase64Creation = (file) => new Promise((resolve, reject) => {
-            const reader = new FileReader(); 
-            reader.readAsDataURL(file); 
-            reader.onload = () => resolve(reader.result); 
-            reader.onerror = error => reject(error);
+            const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error);
         });
 
-        // --- 🔥 100% FIXED & SAFE GENERATION ENGINE 🔥 ---
         async function startGenerationEngine() {
             if(isGenerating) return;
-            
             let basePrompt = document.getElementById('createPrompt').value.trim();
             let finalPrompt = basePrompt + selectedArtStyle;
 
@@ -3246,98 +2850,39 @@
             if(currentCreationType === 'video' && !basePrompt && !uploadedFile) return showToast("Enter a prompt or upload an image!", "error");
             if(currentCreationType === 'bgrm' && !uploadedFile) return showToast("Image is required for BG removal!", "error");
             
-            if(userCoinBalance < 2) { 
-                openStore(); 
-                return showToast("Need 2 credits to generate!", "error"); 
-            }
+            if(userCoinBalance < 2) { openStore(); return showToast("Need 2 credits to generate!", "error"); }
 
-            isGenerating = true; 
-            closeCreateSheet(); 
+            isGenerating = true; closeCreateSheet(); 
+            let overlay = document.getElementById('loaderOverlay'); overlay.style.display = 'flex'; setTimeout(() => overlay.classList.add('active'), 10);
             
-            let overlay = document.getElementById('loaderOverlay'); 
-            overlay.style.display = 'flex'; 
-            setTimeout(() => overlay.classList.add('active'), 10);
-            
-            let percent = 1; 
-            let circle = document.getElementById('loaderCircle'); 
-            let text = document.getElementById('loaderPercent'); 
-            let msg = document.getElementById('loaderMsg');
-            
-            circle.style.strokeDashoffset = 408; 
-            text.innerText = percent;
-            
-            loaderInterval = setInterval(() => { 
-                if(percent >= 98) return; 
-                percent += (percent > 85 ? 1 : Math.floor(Math.random() * 4) + 1); 
-                text.innerText = percent; 
-                circle.style.strokeDashoffset = 408 - (percent / 100) * 408; 
-                if(percent % 15 === 0) msg.innerText = loaderMessages[Math.floor(Math.random() * loaderMessages.length)]; 
-            }, 600);
+            let percent = 1; let circle = document.getElementById('loaderCircle'); let text = document.getElementById('loaderPercent'); let msg = document.getElementById('loaderMsg');
+            circle.style.strokeDashoffset = 408; text.innerText = percent;
+            loaderInterval = setInterval(() => { if(percent >= 98) return; percent += (percent > 85 ? 1 : Math.floor(Math.random() * 4) + 1); text.innerText = percent; circle.style.strokeDashoffset = 408 - (percent / 100) * 408; if(percent % 15 === 0) msg.innerText = loaderMessages[Math.floor(Math.random() * loaderMessages.length)]; }, 600);
 
             try {
                 if (currentCreationType === 'bgrm') {
-                    let formData = new FormData(); 
-                    formData.append('image_file', uploadedFile); 
-                    formData.append('size', 'auto');
-                    
-                    let response = await fetch('https://api.remove.bg/v1.0/removebg', { 
-                        method: 'POST', 
-                        headers: { 'X-Api-Key': REMOVE_BG_API_KEY }, 
-                        body: formData 
-                    });
-                    
+                    let formData = new FormData(); formData.append('image_file', uploadedFile); formData.append('size', 'auto');
+                    let response = await fetch('https://api.remove.bg/v1.0/removebg', { method: 'POST', headers: { 'X-Api-Key': REMOVE_BG_API_KEY }, body: formData });
                     if (!response.ok) throw new Error(`Background API Limit Reached`);
-                    
-                    finalResultBlob = await response.blob(); 
-                    finalResultType = 'image'; 
-                    finalResultUrl = URL.createObjectURL(finalResultBlob); 
-                    finishGen(); 
-                    return; 
+                    finalResultBlob = await response.blob(); finalResultType = 'image'; finalResultUrl = URL.createObjectURL(finalResultBlob); finishGen(); return; 
                 }
 
-                let targetUrl = ""; 
-                let payloadData = {};
+                let targetUrl = ""; let payloadData = {};
 
                 if (currentCreationType === 'image') {
-                    finalResultType = 'image'; 
-                    let seed = Math.floor(Math.random()*100000); 
-                    let safePrompt = (finalPrompt || "A cinematic masterpiece").substring(0, 800);
+                    finalResultType = 'image'; let seed = Math.floor(Math.random()*100000); let safePrompt = (finalPrompt || "A cinematic masterpiece").substring(0, 800);
                     finalResultUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(safePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
-                    
-                    await new Promise((resolve, reject) => { 
-                        let img = new Image(); 
-                        img.onload = () => resolve(); 
-                        img.onerror = () => reject(new Error("Image Generation Failed.")); 
-                        img.src = finalResultUrl; 
-                    });
+                    await new Promise((resolve, reject) => { let img = new Image(); img.onload = () => resolve(); img.onerror = () => reject(new Error("Image Generation Failed.")); img.src = finalResultUrl; });
                 } 
                 else if (currentCreationType === 'video') {
-                    finalResultType = 'video'; 
-                    targetUrl = "https://api.replicate.com/v1/predictions"; 
-                    
-                    let safeImageBase64 = null; 
-                    if(uploadedFile) safeImageBase64 = await getBase64Creation(uploadedFile);
+                    finalResultType = 'video'; targetUrl = "https://api.replicate.com/v1/predictions"; 
+                    let safeImageBase64 = null; if(uploadedFile) safeImageBase64 = await getBase64Creation(uploadedFile);
 
-                    if (safeImageBase64) { 
-                        payloadData = { 
-                            version: "3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438", 
-                            input: { image: safeImageBase64, sizing_strategy: "maintain_aspect_ratio" } 
-                        }; 
-                    } else { 
-                        payloadData = { 
-                            version: "9f747673945c62801b13b84701c783929c0ee784e4748ec062204894dda1a351", 
-                            input: { prompt: (finalPrompt || "Cinematic masterpiece").substring(0, 800), num_frames: 24, fps: 8 } 
-                        }; 
-                    }
+                    if (safeImageBase64) { payloadData = { version: "3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438", input: { image: safeImageBase64, sizing_strategy: "maintain_aspect_ratio" } }; } 
+                    else { payloadData = { version: "9f747673945c62801b13b84701c783929c0ee784e4748ec062204894dda1a351", input: { prompt: (finalPrompt || "Cinematic masterpiece").substring(0, 800), num_frames: 24, fps: 8 } }; }
 
-                    let cr = await fetch(`${BACKEND_URL}/api/proxy`, { 
-                        method: "POST", 
-                        headers: {"Content-Type": "application/json"}, 
-                        body: JSON.stringify({ targetUrl: targetUrl, method: "POST", data: payloadData }) 
-                    });
-                    
+                    let cr = await fetch(`${BACKEND_URL}/api/proxy`, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ targetUrl: targetUrl, method: "POST", data: payloadData }) });
                     let cd = await cr.json();
-                    
                     if (cd.error) throw new Error(typeof cd.error === 'string' ? cd.error : "Replicate API rejected the request.");
                     if (!cd.urls || !cd.urls.get) throw new Error("Could not start Video API.");
 
@@ -3345,168 +2890,54 @@
                     await new Promise((res, rej) => {
                         let chk = setInterval(async() => {
                             try {
-                                let pd = await fetch(`${BACKEND_URL}/api/proxy`, { 
-                                    method: "POST", 
-                                    headers: {"Content-Type": "application/json"}, 
-                                    body: JSON.stringify({ targetUrl: cd.urls.get, method: "GET" }) 
-                                });
+                                let pd = await fetch(`${BACKEND_URL}/api/proxy`, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({ targetUrl: cd.urls.get, method: "GET" }) });
                                 let p = await pd.json();
-                                
-                                if (p.status === "succeeded") { 
-                                    clearInterval(chk); 
-                                    finalResultUrl = Array.isArray(p.output) ? p.output[0] : p.output; 
-                                    res(); 
-                                } else if (p.status === "failed" || p.status === "canceled") { 
-                                    clearInterval(chk); 
-                                    rej(new Error(p.error || "Video model failed.")); 
-                                }
-                            } catch(e) { 
-                                rc++; 
-                                if(rc > 60) { 
-                                    clearInterval(chk); 
-                                    rej(new Error("Timeout! Video generation taking too long.")); 
-                                } 
-                            }
+                                if (p.status === "succeeded") { clearInterval(chk); finalResultUrl = Array.isArray(p.output) ? p.output[0] : p.output; res(); } 
+                                else if (p.status === "failed" || p.status === "canceled") { clearInterval(chk); rej(new Error(p.error || "Video model failed.")); }
+                            } catch(e) { rc++; if(rc > 60) { clearInterval(chk); rej(new Error("Timeout! Video generation taking too long.")); } }
                         }, 3000);
                     });
                 }
                 finishGen();
-            } catch(e) { 
-                stopGenerationWithError("Generation Failed: " + e.message); 
-            }
+            } catch(e) { stopGenerationWithError("Generation Failed: " + e.message); }
         }
 
         function finishGen() {
-            clearInterval(loaderInterval); 
-            document.getElementById('loaderPercent').innerText = "100"; 
-            document.getElementById('loaderCircle').style.strokeDashoffset = 0; 
-            
+            clearInterval(loaderInterval); document.getElementById('loaderPercent').innerText = "100"; document.getElementById('loaderCircle').style.strokeDashoffset = 0; 
             setTimeout(() => { 
-                let overlay = document.getElementById('loaderOverlay'); 
-                overlay.classList.remove('active'); 
-                setTimeout(() => overlay.style.display = 'none', 300);
-                
-                showResultView(finalResultUrl, finalResultType); 
-                isGenerating = false;
-                
-                userCoinBalance = Math.max(0, userCoinBalance - 2); 
-                
-                updateCoinUI();
-                localStorage.setItem('offline_coins_' + currentUser.uid, userCoinBalance);
-                
-                if(currentUser) { 
-                    try { db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance); } catch(e){}
-                }
-                
-                if (finalResultUrl && currentUser) { 
-                    try {
-                        db.ref(`users/${currentUser.uid}/gallery`).push({ 
-                            url: finalResultUrl, 
-                            type: finalResultType, 
-                            timestamp: firebase.database.ServerValue.TIMESTAMP 
-                        });
-                    } catch(e){} 
-                }
+                let overlay = document.getElementById('loaderOverlay'); overlay.classList.remove('active'); setTimeout(() => overlay.style.display = 'none', 300);
+                showResultView(finalResultUrl, finalResultType); isGenerating = false;
+                userCoinBalance = Math.max(0, userCoinBalance - 2); document.getElementById('coinCount').innerText = userCoinBalance;
+                if(currentUser) { try { db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance); } catch(e){} }
+                if (finalResultUrl && currentUser) { try { db.ref(`users/${currentUser.uid}/gallery`).push({ url: finalResultUrl, type: finalResultType, timestamp: firebase.database.ServerValue.TIMESTAMP }); } catch(e){} }
             }, 800);
         }
         
         function showResultView(srcUrl, type) { 
-            let c = document.getElementById('resultMediaContainer'); 
-            c.innerHTML = `<div style="color:var(--text-dim); position:absolute; z-index:1;"><i class="fa-solid fa-circle-notch fa-spin"></i> Finalizing HD...</div>`; 
-            
-            if (type === 'video') { 
-                c.innerHTML += `<video src="${srcUrl}" autoplay loop controls playsinline style="z-index:2; border-radius:16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-height:80vh; max-width:90vw;"></video>`; 
-            } else { 
-                c.innerHTML += `<img src="${srcUrl}" style="z-index:2; border-radius:16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-height:80vh; max-width:90vw;" onload="this.previousSibling.style.display='none'">`; 
-            }
-            
-            let view = document.getElementById('resultView'); 
-            view.style.display = 'flex'; 
-            setTimeout(() => view.classList.add('active'), 10);
+            let c = document.getElementById('resultMediaContainer'); c.innerHTML = `<div style="color:var(--text-dim); position:absolute; z-index:1;"><i class="fa-solid fa-circle-notch fa-spin"></i> Finalizing HD...</div>`; 
+            if (type === 'video') { c.innerHTML += `<video src="${srcUrl}" autoplay loop controls playsinline style="z-index:2; border-radius:16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-height:80vh; max-width:90vw;"></video>`; } 
+            else { c.innerHTML += `<img src="${srcUrl}" style="z-index:2; border-radius:16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-height:80vh; max-width:90vw;" onload="this.previousSibling.style.display='none'">`; }
+            let view = document.getElementById('resultView'); view.style.display = 'flex'; setTimeout(() => view.classList.add('active'), 10);
         }
         
-        function closeResultView() { 
-            let view = document.getElementById('resultView'); 
-            view.classList.remove('active'); 
-            
-            setTimeout(() => { 
-                view.style.display = 'none'; 
-                document.getElementById('resultMediaContainer').innerHTML = ''; 
-                removeCreatePhoto(); 
-                document.getElementById('createPrompt').value = ''; 
-            }, 400); 
-        }
+        function closeResultView() { let view = document.getElementById('resultView'); view.classList.remove('active'); setTimeout(() => { view.style.display = 'none'; document.getElementById('resultMediaContainer').innerHTML = ''; removeCreatePhoto(); document.getElementById('createPrompt').value = ''; }, 400); }
         
         async function downloadResult() { 
-            if(!finalResultUrl) return; 
-            showToast("Saving securely...", "info"); 
-            
+            if(!finalResultUrl) return; showToast("Saving securely...", "info"); 
             try { 
-                let blob = finalResultBlob; 
-                if(!blob){ 
-                    let r = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(finalResultUrl)); 
-                    blob = await r.blob(); 
-                } 
-                let u = URL.createObjectURL(blob); 
-                let a = document.createElement("a"); 
-                a.href = u; 
-                a.download = `NexArt_${Date.now()}.${finalResultType === 'video' ? 'mp4' : 'jpg'}`; 
-                document.body.appendChild(a); 
-                a.click(); 
-                document.body.removeChild(a); 
-                URL.revokeObjectURL(u); 
-                
-                showToast("Masterpiece Saved! 📥", "success"); 
-            } catch(e) { 
-                window.open(finalResultUrl, '_blank'); 
-            } 
+                let blob = finalResultBlob; if(!blob){ let r = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(finalResultUrl)); blob = await r.blob(); } 
+                let u = URL.createObjectURL(blob); let a = document.createElement("a"); a.href = u; a.download = `NexArt_${Date.now()}.${finalResultType === 'video' ? 'mp4' : 'jpg'}`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u); showToast("Masterpiece Saved! 📥", "success"); 
+            } catch(e) { window.open(finalResultUrl, '_blank'); } 
         }
         
         async function shareResult() { 
-            if(navigator.share) { 
-                try { 
-                    let blob = finalResultBlob; 
-                    if(!blob){ 
-                        let r = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(finalResultUrl)); 
-                        blob = await r.blob(); 
-                    } 
-                    const f = new File([blob], `NexArt.${finalResultType === 'video' ? 'mp4' : 'jpg'}`, { type: blob.type }); 
-                    await navigator.share({ files: [f], title: 'NexArt Studio' }); 
-                } catch(e){ 
-                    if(e.name !== "AbortError") downloadResult(); 
-                } 
-            } else { 
-                downloadResult(); 
-            }
+            if(navigator.share) { try { let blob = finalResultBlob; if(!blob){ let r = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(finalResultUrl)); blob = await r.blob(); } const f = new File([blob], `NexArt.${finalResultType === 'video' ? 'mp4' : 'jpg'}`, { type: blob.type }); await navigator.share({ files: [f], title: 'NexArt Studio' }); } catch(e){ if(e.name !== "AbortError") downloadResult(); } } 
+            else { downloadResult(); }
         }
 
-        function openStore() { 
-            let sheet = document.getElementById('storeModal'); 
-            let content = document.getElementById('storeSheetContent'); 
-            sheet.style.display = 'flex'; 
-            content.style.transform = 'translateY(100%)'; 
-            void sheet.offsetWidth; 
-            sheet.classList.add('active'); 
-            content.style.transform = 'translateY(0)'; 
-        }
-
-        function closeStore() { 
-            let sheet = document.getElementById('storeModal'); 
-            let content = document.getElementById('storeSheetContent'); 
-            sheet.classList.remove('active'); 
-            content.style.transform = 'translateY(100%)'; 
-            setTimeout(() => sheet.style.display = 'none', 400); 
-        }
-
-        function processPayment(credits, price) { 
-            showToast("Initializing gateway...", "info"); 
-            if (window.AppInventor) { 
-                window.AppInventor.setWebViewString("PAY_" + credits + "_" + price); 
-            } else { 
-                setTimeout(() => showToast("Payments require the native app.", "error"), 1500); 
-            } 
-            closeStore(); 
-        }
+        function openStore() { let sheet = document.getElementById('storeModal'); let content = document.getElementById('storeSheetContent'); sheet.style.display = 'flex'; content.style.transform = 'translateY(100%)'; void sheet.offsetWidth; sheet.classList.add('active'); content.style.transform = 'translateY(0)'; }
+        function closeStore() { let sheet = document.getElementById('storeModal'); let content = document.getElementById('storeSheetContent'); sheet.classList.remove('active'); content.style.transform = 'translateY(100%)'; setTimeout(() => sheet.style.display = 'none', 400); }
+        function processPayment(credits, price) { showToast("Initializing gateway...", "info"); if (window.AppInventor) { window.AppInventor.setWebViewString("PAY_" + credits + "_" + price); } else { setTimeout(() => showToast("Payments require the native app.", "error"), 1500); } closeStore(); }
     </script>
 </body>
 </html>
