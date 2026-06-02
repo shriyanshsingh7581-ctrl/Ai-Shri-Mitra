@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#060608">
-    <title>NexArt AI Studio - Ultra Premium</title>
+    <title>NexArt AI Studio - Super App</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -53,7 +53,7 @@
         ::-webkit-scrollbar { 
             display: none; 
         }
-        
+
         body { 
             background-color: var(--bg-base); 
             background-image: var(--bg-gradient); 
@@ -63,9 +63,9 @@
             overflow-x: hidden; 
             display: flex; 
             flex-direction: column; 
-            overscroll-behavior-y: none;
+            overscroll-behavior-y: none; 
         }
-        
+
         button { 
             cursor: pointer; 
             transition: var(--transition-fast); 
@@ -207,7 +207,7 @@
             -webkit-background-clip: text; 
             -webkit-text-fill-color: transparent; 
         }
-        
+
         .coin-pill { 
             background: var(--glass-bg); 
             padding: 8px 18px; 
@@ -288,7 +288,7 @@
         .welcome-card:hover::after { 
             transform: scale(1.05) translateY(-5px); 
         }
-        
+
         .daily-reward-btn { 
             background: rgba(0,0,0,0.4); 
             backdrop-filter: blur(10px); 
@@ -321,7 +321,7 @@
             justify-content: space-between; 
             align-items: center;
         }
-        
+
         .bento-grid { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -395,8 +395,7 @@
             padding-left: 20px; 
             padding-right: 20px; 
         }
-        
-        /* MASONRY GRID */
+
         .masonry-grid { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
@@ -469,7 +468,11 @@
         }
 
         /* --- AI CHAT INTERFACE --- */
-        #chatTab { padding: 0; height: 100%; }
+        #chatTab { 
+            padding: 0; 
+            height: 100%; 
+        }
+
         .chat-container { 
             display: flex; 
             flex-direction: column; 
@@ -523,8 +526,14 @@
             animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
         }
 
-        .msg.ai { align-self: flex-start; }
-        .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+        .msg.ai { 
+            align-self: flex-start; 
+        }
+
+        .msg.user { 
+            align-self: flex-end; 
+            flex-direction: row-reverse; 
+        }
 
         .msg-avatar { 
             width: 36px; 
@@ -539,8 +548,16 @@
             border: 1px solid var(--glass-border); 
         }
 
-        .msg.ai .msg-avatar { background: var(--brand-gradient); color: white; border: none; }
-        .msg.user .msg-avatar { background: var(--glass-highlight); color: var(--text-main); }
+        .msg.ai .msg-avatar { 
+            background: var(--brand-gradient); 
+            color: white; 
+            border: none; 
+        }
+
+        .msg.user .msg-avatar { 
+            background: var(--glass-highlight); 
+            color: var(--text-main); 
+        }
 
         .msg-bubble { 
             padding: 14px 18px; 
@@ -565,7 +582,7 @@
             border-top-right-radius: 4px; 
             font-weight: 500; 
         }
-        
+
         .chat-input-area { 
             padding: 15px 24px calc(20px + var(--safe-bottom)); 
             display: flex; 
@@ -608,12 +625,259 @@
             border: none; 
         }
 
-        /* Typing Indicator */
-        .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
-        .typing-indicator span { width: 6px; height: 6px; background: var(--text-dim); border-radius: 50%; animation: typeBounce 1.4s infinite both; }
+        .typing-indicator { 
+            display: flex; 
+            gap: 4px; 
+            align-items: center; 
+            padding: 4px 0; 
+        }
+
+        .typing-indicator span { 
+            width: 6px; 
+            height: 6px; 
+            background: var(--text-dim); 
+            border-radius: 50%; 
+            animation: typeBounce 1.4s infinite both; 
+        }
+
         .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
         .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes typeBounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+        @keyframes typeBounce { 
+            0%, 80%, 100% { transform: scale(0); } 
+            40% { transform: scale(1); } 
+        }
+
+        /* --- NEXHEALTH PHARMACY UI --- */
+        .health-sub-tabs {
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 24px; 
+            padding-bottom: 5px; 
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+        }
+
+        .health-sub-tabs::-webkit-scrollbar { display: none; }
+
+        .health-pill {
+            padding: 12px 20px; 
+            border-radius: 100px; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: var(--text-dim); 
+            white-space: nowrap; 
+            cursor: pointer; 
+            transition: var(--transition-fast); 
+            scroll-snap-align: start;
+        }
+
+        .health-pill.active {
+            background: rgba(6, 182, 212, 0.2); 
+            color: white; 
+            border-color: #06b6d4; 
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2); 
+        }
+
+        .med-search-area { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 15px; 
+        }
+        
+        .med-search-input { 
+            flex: 1; 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            color: white; 
+            padding: 16px 20px; 
+            border-radius: 100px; 
+            font-size: 15px; 
+        }
+        
+        .med-search-input:focus { 
+            border-color: #3b82f6; 
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.15); 
+        }
+
+        .symptom-ai-btn {
+            width: 52px; 
+            height: 52px; 
+            border-radius: 50%; 
+            background: rgba(168, 85, 247, 0.1); 
+            color: #a855f7; 
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 18px; 
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2); 
+            transition: var(--transition-fast);
+        }
+
+        .symptom-ai-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .med-search-btn { 
+            width: 52px; 
+            height: 52px; 
+            border-radius: 50%; 
+            background: linear-gradient(135deg, #06b6d4, #3b82f6); 
+            color: #fff; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 18px; 
+            box-shadow: 0 8px 25px rgba(6,182,212,0.4); 
+            border: none; 
+        }
+
+        .med-filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .med-select {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            outline: none;
+            appearance: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .med-select option {
+            background: var(--bg-surface);
+            color: white;
+            padding: 10px;
+        }
+        
+        .med-card { 
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border); 
+            border-radius: var(--radius-md); 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            margin-bottom: 15px; 
+            backdrop-filter: blur(10px); 
+            animation: slideUpFade 0.4s ease forwards;
+        }
+        
+        .med-card-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        
+        .med-store { 
+            font-size: 12px; 
+            font-weight: 800; 
+            background: rgba(255,255,255,0.1); 
+            padding: 4px 10px; 
+            border-radius: 100px; 
+            color: var(--text-dim); 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+        }
+
+        .med-info-btn {
+            background: rgba(168, 85, 247, 0.15);
+            color: #a855f7;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 5px 12px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .med-info-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .med-title { 
+            font-size: 16px; 
+            font-weight: 700; 
+            color: white; 
+            line-height: 1.4; 
+        }
+        
+        .med-price-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-top: 1px solid rgba(255,255,255,0.05); 
+            padding-top: 15px; 
+            margin-top: 5px; 
+        }
+        
+        .med-price { 
+            font-size: 20px; 
+            font-weight: 800; 
+            color: #10b981; 
+        }
+        
+        .med-buy-btn { 
+            background: white; 
+            color: black; 
+            font-size: 13px; 
+            font-weight: 800; 
+            padding: 10px 20px; 
+            border-radius: 100px; 
+            text-transform: uppercase; 
+            transition: var(--transition-fast); 
+            border: none;
+        }
+        
+        .med-buy-btn:active { 
+            transform: scale(0.95); 
+        }
+
+        .med-ai-content {
+            color: white;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .med-ai-content ul {
+            padding-left: 20px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .med-ai-content li {
+            margin-bottom: 6px;
+        }
+
+        /* Input forms for new features */
+        .app-input {
+            width: 100%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+        .app-input:focus {
+            border-color: #06b6d4;
+        }
 
         /* --- FLOATING BOTTOM NAVIGATION --- */
         .dock-container { 
@@ -676,7 +940,7 @@
             border-radius: 50%; 
             box-shadow: 0 0 8px var(--text-main); 
         }
-        
+
         .create-fab { 
             width: 54px; 
             height: 54px; 
@@ -765,7 +1029,7 @@
             letter-spacing: 1px; 
             font-weight: 600; 
         }
-        
+
         .pro-banner { 
             background: var(--brand-gradient); 
             border-radius: var(--radius-md); 
@@ -782,7 +1046,7 @@
         .pro-banner:active { 
             transform: scale(0.97); 
         }
-        
+
         .menu-group { 
             background: var(--glass-bg); 
             border: 1px solid var(--glass-border); 
@@ -831,7 +1095,7 @@
             color: white; 
         }
 
-        /* --- PHOTO EDITOR UI --- */
+        /* --- PHOTO EDITOR MODAL --- */
         #photoEditorModal { 
             position: fixed; 
             inset: 0; 
@@ -877,7 +1141,7 @@
             border-radius: 16px; 
             box-shadow: 0 15px 40px rgba(0,0,0,0.8); 
         }
-        
+
         .editor-controls { 
             background: rgba(18,16,25,0.95); 
             padding: 30px 24px calc(30px + var(--safe-bottom)); 
@@ -902,8 +1166,7 @@
             text-transform: uppercase; 
             letter-spacing: 1.5px; 
         }
-        
-        /* Modern Pro Sliders */
+
         input[type=range] { 
             -webkit-appearance: none; 
             width: 100%; 
@@ -950,7 +1213,7 @@
         input[type=range]:active::-webkit-slider-thumb { 
             transform: scale(1.1); 
         }
-        
+
         .editor-upload-prompt { 
             display: flex; 
             flex-direction: column; 
@@ -969,7 +1232,7 @@
             background: rgba(255,255,255,0.05); 
         }
 
-        /* --- CREATION BOTTOM SHEET 🔥 --- */
+        /* --- CREATION BOTTOM SHEET --- */
         .bottom-sheet { 
             position: fixed; 
             inset: 0; 
@@ -1017,7 +1280,7 @@
         .bottom-sheet.active .sheet-content { 
             transform: translateY(0); 
         }
-        
+
         .drag-handle { 
             width: 48px; 
             height: 5px; 
@@ -1031,7 +1294,7 @@
             cursor: grabbing; 
             background: rgba(255,255,255,0.4); 
         }
-        
+
         .sheet-header { 
             display: flex; 
             justify-content: space-between; 
@@ -1059,7 +1322,7 @@
             color: white; 
             cursor: pointer; 
         }
-        
+
         .type-selector { 
             display: flex; 
             background: rgba(0,0,0,0.4); 
@@ -1088,8 +1351,7 @@
             color: #000; 
             box-shadow: 0 4px 15px rgba(255,255,255,0.2); 
         }
-        
-        /* Art Styles Row */
+
         .style-scroll-wrapper { 
             display: flex; 
             overflow-x: auto; 
@@ -1099,10 +1361,6 @@
             scroll-snap-type: x mandatory; 
             margin-left: -5px; 
             padding-left: 5px;
-        }
-
-        .style-scroll-wrapper::-webkit-scrollbar { 
-            display: none; 
         }
 
         .style-pill { 
@@ -1175,7 +1433,7 @@
         .magic-enhance-btn:active { 
             transform: scale(0.9); 
         }
-        
+
         .media-upload-area { 
             width: 100%; 
             height: 120px; 
@@ -1226,7 +1484,7 @@
             z-index: 3; 
             cursor: pointer; 
         }
-        
+
         .gen-btn-huge { 
             width: 100%; 
             background: var(--text-main); 
@@ -1296,7 +1554,7 @@
             padding: 6px 14px; 
             border-bottom-left-radius: 14px; 
             text-transform: uppercase; 
-            letter-spacing: 1px;
+            letter-spacing: 1px; 
         }
 
         .pack-info h3 { 
@@ -1306,7 +1564,7 @@
             display: flex; 
             align-items: center; 
             gap: 8px; 
-            margin-bottom: 4px;
+            margin-bottom: 4px; 
         }
 
         .pack-info h3 i { 
@@ -1483,7 +1741,7 @@
             text-transform: uppercase; 
             transition: var(--transition-fast); 
             border: none; 
-            letter-spacing: 0.5px;
+            letter-spacing: 0.5px; 
         }
 
         .res-btn.save { 
@@ -1594,6 +1852,14 @@
                                 <div><span>Background Remover</span><p style="margin-top:2px;">Clean cuts in seconds</p></div>
                             </div>
                         </div>
+                        
+                        <div class="bento-item large" style="background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(59,130,246,0.15)); border-color: rgba(6,182,212,0.4); box-shadow: 0 10px 30px rgba(6,182,212,0.15);" onclick="switchMainTab('pharmacyTab', document.getElementById('nav-pharmacy'))">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <i class="fa-solid fa-pills" style="font-size: 24px; background: linear-gradient(135deg, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                                <div><span>NexHealth Suite</span><p style="margin-top:2px;">Pharmacy, Diet & Reminders</p></div>
+                            </div>
+                            <i class="fa-solid fa-arrow-right" style="color: var(--text-dim); font-size: 14px; background:none; -webkit-text-fill-color: var(--text-dim);"></i>
+                        </div>
                     </div>
                 </div>
 
@@ -1608,7 +1874,6 @@
                             <i class="fa-solid fa-volume-xmark"></i> Voice Off
                         </button>
                     </div>
-
                     <div class="chat-messages" id="chatHistory">
                         <div class="msg ai">
                             <div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div>
@@ -1618,6 +1883,80 @@
                     <div class="chat-input-area">
                         <input type="text" id="chatInput" class="chat-input" placeholder="Message NexArt AI..." onkeypress="if(event.key === 'Enter') sendChatMessage()" autocomplete="off">
                         <button class="chat-send-btn" onclick="sendChatMessage()"><i class="fa-solid fa-arrow-up"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pharmacyTab" class="section">
+                <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 15px; padding-left: 5px;">NexHealth <i class="fa-solid fa-leaf" style="color: #10b981;"></i></h2>
+                
+                <div class="health-sub-tabs" id="healthSubTabs">
+                    <div class="health-pill active" onclick="switchHealthTab('pharmacy', this)">💊 Pharmacy</div>
+                    <div class="health-pill" onclick="switchHealthTab('food', this)">🥗 AI Dietician</div>
+                    <div class="health-pill" onclick="switchHealthTab('reminders', this)">⏰ Reminders</div>
+                </div>
+
+                <div id="health-pharmacy" style="display: block;">
+                    <div class="med-search-area">
+                        <input type="text" id="medSearchInput" class="med-search-input" placeholder="Medicine name OR your symptoms..." onkeypress="if(event.key === 'Enter') fetchMedicinePrices()">
+                        <button class="symptom-ai-btn" onclick="handleSymptomSearch()" title="Ask AI for Medicine"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+                        <button class="med-search-btn" onclick="fetchMedicinePrices()"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                    
+                    <div class="med-filter-bar" id="medFilterBar" style="display: none;">
+                        <select id="medStoreFilter" class="med-select" onchange="renderMedResults()">
+                            <option value="All">All Stores</option>
+                            <option value="Tata 1mg">Tata 1mg</option>
+                            <option value="PharmEasy">PharmEasy</option>
+                            <option value="Apollo">Apollo</option>
+                            <option value="Netmeds">Netmeds</option>
+                            <option value="Flipkart Health+">Flipkart</option>
+                        </select>
+                        <select id="medSortFilter" class="med-select" onchange="renderMedResults()">
+                            <option value="default">Sort: Default</option>
+                            <option value="low">Price: Low to High</option>
+                            <option value="high">Price: High to Low</option>
+                        </select>
+                    </div>
+                    
+                    <div id="medResultsBox">
+                        <div style="text-align:center; padding:40px 20px; color:var(--text-dim); border: 1px dashed var(--glass-border); border-radius: var(--radius-md);">
+                            <i class="fa-solid fa-pills" style="font-size:32px; opacity:0.5; margin-bottom:15px;"></i>
+                            <p>Search any medicine or ask AI about your symptoms.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="health-food" style="display: none;">
+                    <div class="med-card" style="text-align:center; padding:30px 20px;">
+                        <i class="fa-solid fa-bowl-food" style="font-size: 40px; color: #06b6d4; margin-bottom:15px;"></i>
+                        <h3 style="font-size:18px; margin-bottom:10px;">AI Food Scanner</h3>
+                        <p style="color:var(--text-dim); font-size:13px; margin-bottom:20px;">Upload a photo of your food to instantly get calories, protein, and health details.</p>
+                        
+                        <input type="file" id="foodImgInput" accept="image/*" style="display:none;" onchange="previewFoodImage(event)">
+                        
+                        <div id="foodPreviewBox" style="display:none; margin-bottom:20px; position:relative;">
+                            <img id="foodPreviewImg" style="width:100%; border-radius:15px; max-height:200px; object-fit:cover;">
+                            <button onclick="document.getElementById('foodImgInput').click()" style="position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.7); color:white; padding:8px 15px; border-radius:100px; font-size:12px; backdrop-filter:blur(5px);"><i class="fa-solid fa-camera"></i> Change</button>
+                        </div>
+
+                        <div style="display:flex; gap:10px;">
+                            <button onclick="document.getElementById('foodImgInput').click()" class="med-buy-btn" style="flex:1; background:var(--glass-bg); color:white; border:1px solid var(--glass-border);"><i class="fa-solid fa-upload"></i> Upload</button>
+                            <button onclick="analyzeFood()" class="med-buy-btn" style="flex:1; background:linear-gradient(135deg, #a855f7, #06b6d4); color:white; border:none;"><i class="fa-solid fa-wand-magic-sparkles"></i> Scan Diet</button>
+                        </div>
+                    </div>
+                    <div id="foodResBox"></div>
+                </div>
+
+                <div id="health-reminders" style="display: none;">
+                    <div class="med-card">
+                        <h3 style="font-size:16px; margin-bottom:15px;">Add New Reminder</h3>
+                        <input type="text" id="remName" class="app-input" placeholder="Medicine Name or 'Drink Water'...">
+                        <input type="time" id="remTime" class="app-input">
+                        <button onclick="addReminder()" class="med-buy-btn" style="width:100%; background:#10b981; color:white; border:none;"><i class="fa-solid fa-bell"></i> Set Alarm</button>
+                    </div>
+                    <h3 style="font-size:14px; color:var(--text-dim); margin:20px 0 10px 5px; text-transform:uppercase; letter-spacing:1px;">Active Reminders</h3>
+                    <div id="reminderList">
                     </div>
                 </div>
             </div>
@@ -1639,8 +1978,14 @@
                     </div>
                 </div>
                 <div class="profile-stats">
-                    <div class="stat-box"><div class="stat-num" id="statCoins">...</div><div class="stat-label">Credits Left</div></div>
-                    <div class="stat-box"><div class="stat-num" id="statCreations">0</div><div class="stat-label">Total Arts</div></div>
+                    <div class="stat-box">
+                        <div class="stat-num" id="statCoins">...</div>
+                        <div class="stat-label">Credits Left</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-num" id="statCreations">0</div>
+                        <div class="stat-label">Total Arts</div>
+                    </div>
                 </div>
                 <div class="pro-banner" onclick="openStore()">
                     <div>
@@ -1651,11 +1996,13 @@
                 </div>
                 <div class="menu-group">
                     <div class="menu-item" onclick="logout()">
-                        <div class="menu-item-left"><div class="menu-icon-box" style="background: rgba(255,71,87,0.1); color: #ff4757;"><i class="fa-solid fa-arrow-right-from-bracket"></i></div><span class="menu-text" style="color: #ff4757;">Log Out</span></div>
+                        <div class="menu-item-left">
+                            <div class="menu-icon-box" style="background: rgba(255,71,87,0.1); color: #ff4757;">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            </div>
+                            <span class="menu-text" style="color: #ff4757;">Log Out</span>
+                        </div>
                     </div>
-                </div>
-                <div style="text-align:center; color:var(--text-muted); font-size:12px; margin-top:40px; font-weight: 500;">
-                    <p>NexArt AI Studio v3.0 Premium</p><p style="margin-top: 8px;">Built with <i class="fa-solid fa-bolt" style="color: #facc15; font-size: 11px;"></i> by <span style="font-weight: 700; color: var(--text-dim);">Shriyansh</span></p>
                 </div>
             </div>
         </main>
@@ -1665,31 +2012,22 @@
                 <div class="nav-item active" onclick="switchMainTab('homeTab', this)"><i class="fa-solid fa-compass"></i></div>
                 <div class="nav-item" onclick="switchMainTab('chatTab', this)"><i class="fa-solid fa-message"></i></div>
                 <div class="create-fab" onclick="openCreateSheet('image')"><i class="fa-solid fa-plus"></i></div>
-                <div class="nav-item" onclick="switchMainTab('vaultTab', this)"><i class="fa-solid fa-layer-group"></i></div>
+                <div class="nav-item" id="nav-pharmacy" onclick="switchMainTab('pharmacyTab', this)"><i class="fa-solid fa-notes-medical"></i></div>
                 <div class="nav-item" onclick="switchMainTab('profileTab', this)"><i class="fa-solid fa-user"></i></div>
             </nav>
         </div>
     </div>
 
-    <div id="photoEditorModal">
-        <div class="editor-header">
-            <button class="res-close" style="background:transparent; border:none; box-shadow:none; font-size:20px;" onclick="closePhotoEditor()"><i class="fa-solid fa-xmark"></i></button>
-            <span style="font-weight: 800; letter-spacing: 1px; font-size: 14px;">PRO EDITOR</span>
-            <button style="background: var(--text-main); color: black; padding: 10px 20px; border-radius: 100px; font-weight: 800; font-size: 12px; box-shadow: 0 4px 10px rgba(255,255,255,0.2);" onclick="downloadEditedPhoto()">SAVE</button>
-        </div>
-        <div class="editor-workspace">
-            <div class="editor-upload-prompt" id="editorUploadPrompt" onclick="document.getElementById('editorInputFile').click()">
-                <i class="fa-solid fa-image" style="font-size: 32px;"></i>
-                <span style="font-weight: 600; font-size: 16px;">Tap to Upload Photo</span>
+    <div id="medInfoSheet" class="bottom-sheet">
+        <div style="flex:1;" onclick="closeMedInfoSheet()"></div>
+        <div class="sheet-content" id="medInfoSheetContent">
+            <div class="drag-handle" id="medInfoSheetHandle"></div>
+            <div class="sheet-header">
+                <div class="sheet-title"><i class="fa-solid fa-sparkles" style="color: #a855f7;"></i> AI Medicine Info</div>
+                <div class="sheet-close" onclick="closeMedInfoSheet()"><i class="fa-solid fa-xmark"></i></div>
             </div>
-            <img id="editorImagePreview">
-            <input type="file" id="editorInputFile" accept="image/*" style="display:none;" onchange="loadEditorImage(event)">
-        </div>
-        <div class="editor-controls">
-            <div class="slider-group"><div class="slider-label"><span>Brightness</span> <span id="valBr">100%</span></div><input type="range" id="filterBr" min="0" max="200" value="100" oninput="applyEditFilters()"></div>
-            <div class="slider-group"><div class="slider-label"><span>Contrast</span> <span id="valCt">100%</span></div><input type="range" id="filterCt" min="0" max="200" value="100" oninput="applyEditFilters()"></div>
-            <div class="slider-group"><div class="slider-label"><span>Saturation</span> <span id="valSt">100%</span></div><input type="range" id="filterSt" min="0" max="200" value="100" oninput="applyEditFilters()"></div>
-            <div class="slider-group" style="margin-bottom:0;"><div class="slider-label"><span>Cinematic Blur</span> <span id="valBl">0px</span></div><input type="range" id="filterBl" min="0" max="10" value="0" step="0.5" oninput="applyEditFilters()"></div>
+            <div id="medAiResponse" class="med-ai-content">
+            </div>
         </div>
     </div>
 
@@ -1732,6 +2070,42 @@
         </div>
     </div>
 
+    <div id="photoEditorModal">
+        <div class="editor-header">
+            <button class="res-close" style="background:transparent; border:none; box-shadow:none; font-size:20px;" onclick="closePhotoEditor()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <span style="font-weight: 800; letter-spacing: 1px; font-size: 14px;">PRO EDITOR</span>
+            <button style="background: var(--text-main); color: black; padding: 10px 20px; border-radius: 100px; font-weight: 800; font-size: 12px;" onclick="downloadEditedPhoto()">SAVE</button>
+        </div>
+        <div class="editor-workspace">
+            <div class="editor-upload-prompt" id="editorUploadPrompt" onclick="document.getElementById('editorInputFile').click()">
+                <i class="fa-solid fa-image" style="font-size: 32px;"></i>
+                <span style="font-weight: 600; font-size: 16px;">Tap to Upload Photo</span>
+            </div>
+            <img id="editorImagePreview">
+            <input type="file" id="editorInputFile" accept="image/*" style="display:none;" onchange="loadEditorImage(event)">
+        </div>
+        <div class="editor-controls">
+            <div class="slider-group">
+                <div class="slider-label"><span>Brightness</span> <span id="valBr">100%</span></div>
+                <input type="range" id="filterBr" min="0" max="200" value="100" oninput="applyEditFilters()">
+            </div>
+            <div class="slider-group">
+                <div class="slider-label"><span>Contrast</span> <span id="valCt">100%</span></div>
+                <input type="range" id="filterCt" min="0" max="200" value="100" oninput="applyEditFilters()">
+            </div>
+            <div class="slider-group">
+                <div class="slider-label"><span>Saturation</span> <span id="valSt">100%</span></div>
+                <input type="range" id="filterSt" min="0" max="200" value="100" oninput="applyEditFilters()">
+            </div>
+            <div class="slider-group" style="margin-bottom:0;">
+                <div class="slider-label"><span>Cinematic Blur</span> <span id="valBl">0px</span></div>
+                <input type="range" id="filterBl" min="0" max="10" value="0" step="0.5" oninput="applyEditFilters()">
+            </div>
+        </div>
+    </div>
+
     <div id="storeModal" class="bottom-sheet">
         <div style="flex:1;" onclick="closeStore()"></div>
         <div class="sheet-content" id="storeSheetContent">
@@ -1741,16 +2115,44 @@
                 <div class="sheet-close" onclick="closeStore()"><i class="fa-solid fa-xmark"></i></div>
             </div>
             <div class="pack-grid">
-                <div class="pack-card" onclick="processPayment(100, 49)"><div class="pack-info"><h3><i class="fa-solid fa-bolt"></i> 100</h3><p style="color:var(--text-dim); font-size:14px;">Starter Pack</p></div><div class="pack-price">₹49</div></div>
-                <div class="pack-card popular" onclick="processPayment(500, 149)"><div class="popular-badge">MOST POPULAR</div><div class="pack-info"><h3><i class="fa-solid fa-bolt"></i> 500</h3><p style="color:var(--text-dim); font-size:14px;">Creator Pack</p></div><div class="pack-price">₹149</div></div>
-                <div class="pack-card" onclick="processPayment(2000, 499)"><div class="pack-info"><h3><i class="fa-solid fa-bolt"></i> 2000</h3><p style="color:var(--text-dim); font-size:14px;">Studio Pack</p></div><div class="pack-price">₹499</div></div>
+                <div class="pack-card" onclick="processPayment(100, 49)">
+                    <div class="pack-info">
+                        <h3><i class="fa-solid fa-bolt"></i> 100</h3>
+                        <p style="color:var(--text-dim); font-size:14px;">Starter Pack</p>
+                    </div>
+                    <div class="pack-price">₹49</div>
+                </div>
+                <div class="pack-card popular" onclick="processPayment(500, 149)">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <div class="pack-info">
+                        <h3><i class="fa-solid fa-bolt"></i> 500</h3>
+                        <p style="color:var(--text-dim); font-size:14px;">Creator Pack</p>
+                    </div>
+                    <div class="pack-price">₹149</div>
+                </div>
+                <div class="pack-card" onclick="processPayment(2000, 499)">
+                    <div class="pack-info">
+                        <h3><i class="fa-solid fa-bolt"></i> 2000</h3>
+                        <p style="color:var(--text-dim); font-size:14px;">Studio Pack</p>
+                    </div>
+                    <div class="pack-price">₹499</div>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="loaderOverlay">
         <div class="loader-ring">
-            <svg viewBox="0 0 140 140"><defs><linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs><circle class="bg" cx="70" cy="70" r="65"></circle><circle class="progress" id="loaderCircle" cx="70" cy="70" r="65"></circle></svg>
+            <svg viewBox="0 0 140 140">
+                <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#a855f7"/>
+                        <stop offset="100%" stop-color="#06b6d4"/>
+                    </linearGradient>
+                </defs>
+                <circle class="bg" cx="70" cy="70" r="65"></circle>
+                <circle class="progress" id="loaderCircle" cx="70" cy="70" r="65"></circle>
+            </svg>
             <div class="loader-pct"><span id="loaderPercent">0</span><span style="font-size:16px;">%</span></div>
         </div>
         <div class="loader-text" id="loaderMsg">Initializing Next-Gen Models...</div>
@@ -1787,8 +2189,6 @@
         
         // BACKEND URL
         const BACKEND_URL = "https://shri-mitra-backend.onrender.com";
-        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dxeuzdwkz/image/upload";
-        const UPLOAD_PRESET = "shri_mitra_preset";
         const REMOVE_BG_API_KEY = "WPREb6KfsRrmaBb99FoBFonv";
 
         const discoverData = [
@@ -1803,7 +2203,7 @@
             "Applying cinematic effects...", 
             "Refining intricate details...", 
             "Running diffusion models...", 
-            "Perfecting the composition...",
+            "Perfecting the composition...", 
             "Almost ready..."
         ];
 
@@ -1818,13 +2218,13 @@
             appId: "1:668988371049:web:8e62a795b8392cb52fb2f8" 
         };
         
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) { 
+            firebase.initializeApp(firebaseConfig); 
         }
+        
         const auth = firebase.auth(); 
         const db = firebase.database();
 
-        // --- CORE UI FUNCTIONS ---
         function showToast(msg, type = 'success') {
             let c = document.getElementById('toastContainer'); 
             let t = document.createElement('div'); 
@@ -1833,6 +2233,7 @@
             let color = type === 'error' ? '#ff4757' : (type === 'magic' ? '#facc15' : '#06b6d4');
             t.innerHTML = `<i class="fa-solid ${icon}" style="color:${color}; font-size:16px;"></i> <span>${msg}</span>`;
             c.appendChild(t); 
+            
             setTimeout(() => { 
                 t.style.animation = 'toastIn 0.4s reverse forwards'; 
                 setTimeout(() => t.remove(), 400); 
@@ -1842,6 +2243,7 @@
         window.addEventListener('load', function() {
             init3DTiltEffect(); 
             initSwipeGestures();
+            renderReminders();
             
             setTimeout(() => { 
                 let splash = document.getElementById('splashScreen'); 
@@ -1851,16 +2253,16 @@
                     setTimeout(() => splash.style.display = 'none', 600); 
                 } 
             }, 1200);
-
+            
             try { 
                 let s = localStorage.getItem('nexart_session'); 
                 if (s) { 
                     let u = JSON.parse(s); 
                     document.getElementById('loginOverlay').classList.remove('active'); 
                     window.kodularLoginSuccess(u.email, u.displayName, u.photoURL, true); 
-                } else {
+                } else { 
                     document.getElementById('loginOverlay').classList.add('active'); 
-                }
+                } 
             } catch(e) { 
                 document.getElementById('loginOverlay').classList.add('active'); 
             }
@@ -1869,64 +2271,64 @@
         function init3DTiltEffect() {
             if (window.matchMedia("(pointer: coarse)").matches) return; 
             
-            document.querySelectorAll('.bento-item').forEach(item => {
-                item.addEventListener('mousemove', e => {
-                    const rect = item.getBoundingClientRect();
+            document.querySelectorAll('.bento-item').forEach(item => { 
+                item.addEventListener('mousemove', e => { 
+                    const rect = item.getBoundingClientRect(); 
                     const x = e.clientX - rect.left; 
-                    const y = e.clientY - rect.top;
+                    const y = e.clientY - rect.top; 
                     const xc = rect.width/2; 
-                    const yc = rect.height/2;
+                    const yc = rect.height/2; 
                     const dx = x - xc; 
-                    const dy = y - yc;
-                    item.style.transform = `perspective(1000px) rotateY(${dx/20}deg) rotateX(${-dy/20}deg) scale3d(1.02,1.02,1.02)`;
-                });
+                    const dy = y - yc; 
+                    item.style.transform = `perspective(1000px) rotateY(${dx/20}deg) rotateX(${-dy/20}deg) scale3d(1.02,1.02,1.02)`; 
+                }); 
                 item.addEventListener('mouseleave', () => { 
                     item.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale3d(1,1,1)'; 
-                });
+                }); 
             });
         }
 
         function initSwipeGestures() {
             const setupSwipe = (handleId, contentId, closeFunc) => {
-                const handle = document.getElementById(handleId);
-                const content = document.getElementById(contentId);
+                const handle = document.getElementById(handleId); 
+                const content = document.getElementById(contentId); 
                 if(!handle || !content) return;
                 
-                let startY = 0;
-                let currentY = 0;
+                let startY = 0; 
+                let currentY = 0; 
                 let isDragging = false;
                 
-                handle.addEventListener('touchstart', e => {
-                    startY = e.touches[0].clientY;
-                    isDragging = true;
-                    content.style.transition = 'none';
+                handle.addEventListener('touchstart', e => { 
+                    startY = e.touches[0].clientY; 
+                    isDragging = true; 
+                    content.style.transition = 'none'; 
                 }, {passive: true});
                 
-                handle.addEventListener('touchmove', e => {
-                    if(!isDragging) return;
-                    currentY = e.touches[0].clientY - startY;
-                    if(currentY > 0) {
-                        content.style.transform = `translateY(${currentY}px)`;
-                    }
+                handle.addEventListener('touchmove', e => { 
+                    if(!isDragging) return; 
+                    currentY = e.touches[0].clientY - startY; 
+                    if(currentY > 0) { 
+                        content.style.transform = `translateY(${currentY}px)`; 
+                    } 
                 }, {passive: true});
                 
-                handle.addEventListener('touchend', e => {
-                    isDragging = false;
-                    content.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-                    if(currentY > 100) {
-                        closeFunc();
-                    } else {
-                        content.style.transform = 'translateY(0)';
-                    }
-                    currentY = 0;
+                handle.addEventListener('touchend', e => { 
+                    isDragging = false; 
+                    content.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'; 
+                    if(currentY > 100) { 
+                        closeFunc(); 
+                    } else { 
+                        content.style.transform = 'translateY(0)'; 
+                    } 
+                    currentY = 0; 
                 });
             };
             
             setupSwipe('createSheetHandle', 'createSheetContent', closeCreateSheet);
             setupSwipe('storeSheetHandle', 'storeSheetContent', closeStore);
+            setupSwipe('medInfoSheetHandle', 'medInfoSheetContent', closeMedInfoSheet);
         }
 
-        // --- AUTH LOGIC ---
         function handleLoginClick() { 
             if (window.AppInventor) { 
                 showToast("Requesting Native Login...", "info"); 
@@ -1935,41 +2337,63 @@
                 signInWithGoogle(); 
             } 
         }
-        
+
         function signInWithGoogle() { 
             auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => { 
-                if(e.code === 'auth/popup-blocked') {
+                if(e.code === 'auth/popup-blocked') { 
                     auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); 
-                } else {
+                } else { 
                     showToast(e.message, "error"); 
-                }
+                } 
             }); 
         }
 
+        // --- 🟢 FIXED: KODULAR LOGIN SUCCESS HANDLER ---
         window.kodularLoginSuccess = function(email, name, photoUrl, isAutoLogin = false) {
-            let safeUid = email.replace(/[\.\#\$\[\]]/g, '_'); 
-            if (!name || name === 'null') name = email.split('@')[0];
-            
-            currentUser = { uid: safeUid, displayName: name, photoURL: photoUrl, email: email };
-            
-            try { localStorage.setItem('nexart_session', JSON.stringify(currentUser)); } catch(e){}
-            
-            document.getElementById('loginOverlay').classList.remove('active'); 
-            document.getElementById('mainApp').style.display = 'block';
-            
-            document.getElementById('profilePic').src = (photoUrl && photoUrl !== 'null') ? photoUrl : "https://cdn-icons-png.flaticon.com/512/149/149071.png"; 
-            document.getElementById('profileName').innerText = name;
-            
-            fetchUserCoins(safeUid); 
-            loadDiscover(); 
-            loadVault();
-            
-            if(!isAutoLogin) showToast("Login Successful! Welcome to Studio.", "success");
+            try {
+                if (!email) return;
+
+                let safeUid = email.replace(/[\.\#\$\[\]]/g, '_'); 
+                
+                // Extremely safe name parsing for Kodular
+                let safeName = name;
+                if (!safeName || safeName === 'null' || safeName === 'undefined' || safeName.trim() === '') {
+                    safeName = email.split('@')[0]; // Extract name from email
+                }
+                
+                let safePhoto = photoUrl;
+                if (!safePhoto || safePhoto === 'null' || safePhoto === 'undefined' || safePhoto.trim() === '') {
+                    safePhoto = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; // Default Profile
+                }
+
+                currentUser = { uid: safeUid, displayName: safeName, photoURL: safePhoto, email: email };
+                
+                localStorage.setItem('nexart_session', JSON.stringify(currentUser)); 
+                
+                document.getElementById('loginOverlay').classList.remove('active'); 
+                document.getElementById('mainApp').style.display = 'block';
+                
+                document.getElementById('profilePic').src = safePhoto; 
+                document.getElementById('profileName').innerText = safeName;
+                
+                fetchUserCoins(safeUid); 
+                loadDiscover(); 
+                loadVault();
+                
+                if(!isAutoLogin) {
+                    showToast("Login Successful! Welcome to Studio.", "success");
+                }
+            } catch(e) {
+                console.error("Login Parsing Error:", e);
+                showToast("Login completed with minor UI error", "info");
+            }
         };
 
         auth.onAuthStateChanged(u => {
-            let localSession = null;
-            try { localSession = localStorage.getItem('nexart_session'); } catch(e){}
+            let localSession = null; 
+            try { 
+                localSession = localStorage.getItem('nexart_session'); 
+            } catch(e) {}
             
             if (u && !window.AppInventor && !localSession) { 
                 window.kodularLoginSuccess(u.email, u.displayName, u.photoURL, false); 
@@ -1982,150 +2406,219 @@
         function logout() { 
             if(confirm("Are you sure you want to log out?")) { 
                 currentUser = null; 
-                try { localStorage.removeItem('nexart_session'); } catch(e){}
+                try { 
+                    localStorage.removeItem('nexart_session'); 
+                } catch(e) {} 
                 
-                if(window.AppInventor) window.AppInventor.setWebViewString("LOGOUT"); 
-                else auth.signOut(); 
-                
+                if(window.AppInventor) {
+                    window.AppInventor.setWebViewString("LOGOUT"); 
+                } else {
+                    auth.signOut(); 
+                }
                 location.reload(); 
             } 
         }
-        
+
         function switchMainTab(tabId, el) { 
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); 
             document.getElementById(tabId).classList.add('active'); 
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active')); 
-            el.classList.add('active'); 
+            if(el) el.classList.add('active'); 
         }
 
-        // --- COIN / REWARD SYSTEM ---
-        function fetchUserCoins(safeUid) {
-            db.ref(`users/${safeUid}/coins`).on('value', s => { 
-                userCoinBalance = s.exists() ? s.val() : 50; 
-                if (!s.exists()) db.ref(`users/${safeUid}/coins`).set(50);
-                
-                document.getElementById('coinCount').innerText = userCoinBalance; 
-                if(document.getElementById('statCoins')) document.getElementById('statCoins').innerText = userCoinBalance;
-            });
+        function switchHealthTab(tabName, el) {
+            document.querySelectorAll('#healthSubTabs .health-pill').forEach(pill => pill.classList.remove('active'));
+            el.classList.add('active');
+            
+            document.getElementById('health-pharmacy').style.display = (tabName === 'pharmacy') ? 'block' : 'none';
+            document.getElementById('health-food').style.display = (tabName === 'food') ? 'block' : 'none';
+            document.getElementById('health-reminders').style.display = (tabName === 'reminders') ? 'block' : 'none';
         }
 
-        window.addPurchasedCredits = function(amount) {
-            if(!currentUser) return showToast("User not found", "error");
+        // --- 🟢 FIXED: BULLETPROOF COIN FETCHER FOR WEBVIEW ---
+        function updateCoinUI() {
+            let cc = document.getElementById('coinCount');
+            if(cc) cc.innerText = userCoinBalance;
+            let sc = document.getElementById('statCoins');
+            if(sc) sc.innerText = userCoinBalance;
+        }
+
+        function fetchUserCoins(safeUid) { 
+            // Optimistic UI Load (prevents '...' showing if DB fails)
+            userCoinBalance = parseInt(localStorage.getItem('offline_coins_' + safeUid) || 50);
+            updateCoinUI();
+
+            try {
+                db.ref(`users/${safeUid}/coins`).on('value', s => { 
+                    if(s.exists()) {
+                        userCoinBalance = parseInt(s.val());
+                    } else {
+                        userCoinBalance = 50; 
+                        db.ref(`users/${safeUid}/coins`).set(50).catch(e => console.warn("Firebase Set Error", e)); 
+                    }
+                    updateCoinUI();
+                    localStorage.setItem('offline_coins_' + safeUid, userCoinBalance);
+                }, error => {
+                    console.warn("Firebase DB Permission Denied (Webview Auth Issue). Using local offline coins.");
+                    // Keep the local coins displayed
+                    updateCoinUI();
+                }); 
+            } catch(e) {
+                console.error("Firebase Database Call Error", e);
+                updateCoinUI();
+            }
+        }
+
+        window.addPurchasedCredits = function(amount) { 
+            if(!currentUser) return showToast("User not found", "error"); 
             userCoinBalance += parseInt(amount); 
             
-            document.getElementById('coinCount').innerText = userCoinBalance;
-            if(document.getElementById('statCoins')) document.getElementById('statCoins').innerText = userCoinBalance;
+            updateCoinUI();
+            localStorage.setItem('offline_coins_' + currentUser.uid, userCoinBalance);
             
-            db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance);
-            showToast(`Successfully added ${amount} Credits! ⚡`, "success");
+            try {
+                db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance).catch(e=>console.warn(e)); 
+            } catch(e) {}
+            
+            showToast(`Successfully added ${amount} Credits! ⚡`, "success"); 
         };
 
         function claimDailyReward() {
             if(!currentUser) return showToast("Please login first", "error");
             
-            let lastClaim = null;
-            try { lastClaim = localStorage.getItem('nexart_daily_' + currentUser.uid); } catch(e){}
+            let lastClaim = null; 
+            try { 
+                lastClaim = localStorage.getItem('nexart_daily_' + currentUser.uid); 
+            } catch(e) {}
             
             const now = new Date().getTime();
             
-            if(lastClaim && (now - parseInt(lastClaim)) < 86400000) {
-                let timeLeft = 86400000 - (now - parseInt(lastClaim));
-                let hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
-                let minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                return showToast(`Reward available in ${hoursLeft}h ${minutesLeft}m`, "error");
+            if(lastClaim && (now - parseInt(lastClaim)) < 86400000) { 
+                let timeLeft = 86400000 - (now - parseInt(lastClaim)); 
+                let hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60)); 
+                let minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60)); 
+                return showToast(`Reward available in ${hoursLeft}h ${minutesLeft}m`, "error"); 
             }
             
-            userCoinBalance += 10;
-            db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance);
-            try { localStorage.setItem('nexart_daily_' + currentUser.uid, now.toString()); } catch(e){}
+            userCoinBalance += 10; 
+            updateCoinUI();
+            localStorage.setItem('offline_coins_' + currentUser.uid, userCoinBalance);
+            
+            try {
+                db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance).catch(e=>console.warn(e)); 
+            } catch(e) {}
+            
+            try { 
+                localStorage.setItem('nexart_daily_' + currentUser.uid, now.toString()); 
+            } catch(e) {} 
+            
             showToast("🎁 Claimed 10 Free Credits!", "success");
         }
 
-        // --- CONTENT LOADING ---
         function loadDiscover() {
             const grid = document.getElementById('discoverGrid'); 
             grid.innerHTML = '';
+            
             discoverData.forEach(d => {
                 let isVid = d.type === 'video';
+                let mediaTag = isVid ? `<video src="${d.url}" loop muted autoplay playsinline></video><i class="fa-solid fa-play" style="position:absolute;top:15px;left:15px;color:white;font-size:18px; filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></i>` : `<img src="${d.url}" loading="lazy">`;
+                
                 grid.innerHTML += `
-                    <div class="grid-item ${isVid?'video':''}" onclick="openCreateSheet('${d.type}')">
-                        ${isVid ? `<video src="${d.url}" loop muted autoplay playsinline></video><i class="fa-solid fa-play" style="position:absolute;top:15px;left:15px;color:white;font-size:18px; filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></i>` : `<img src="${d.url}" loading="lazy">`}
-                        <div class="item-overlay"><div class="badge-type">${d.tag}</div><div class="item-title">${d.title}</div></div>
+                    <div class="grid-item ${isVid ? 'video' : ''}" onclick="openCreateSheet('${d.type}')">
+                        ${mediaTag}
+                        <div class="item-overlay">
+                            <div class="badge-type">${d.tag}</div>
+                            <div class="item-title">${d.title}</div>
+                        </div>
                     </div>`;
             });
         }
 
+        // --- 🟢 FIXED: BULLETPROOF VAULT LOADER FOR WEBVIEW ---
         function loadVault() {
             if(!currentUser) return;
-            db.ref(`users/${currentUser.uid}/gallery`).on('value', sn => {
-                let g = document.getElementById('myVaultGrid'); g.innerHTML = '';
-                if (sn.exists()) {
-                    let arr = []; 
-                    sn.forEach(c => arr.push(c.val())); 
-                    document.getElementById('statCreations').innerText = arr.length;
+            let g = document.getElementById('myVaultGrid'); 
+            
+            try {
+                db.ref(`users/${currentUser.uid}/gallery`).on('value', sn => {
+                    g.innerHTML = '';
                     
-                    arr.reverse().forEach(d => {
-                        let div = document.createElement('div'); 
-                        div.className = 'grid-item'; 
-                        if(d.type==='video') div.classList.add('video');
+                    if (sn.exists()) {
+                        let arr = []; 
+                        sn.forEach(c => arr.push(c.val())); 
+                        if(document.getElementById('statCreations')) document.getElementById('statCreations').innerText = arr.length;
                         
-                        div.innerHTML = (d.type === 'video' || d.url.endsWith('.mp4')) 
-                            ? `<video src="${d.url}" autoplay loop muted playsinline></video><i class="fa-solid fa-play" style="position:absolute;top:15px;left:15px;color:white; filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></i>` 
-                            : `<img src="${d.url}" loading="lazy">`;
+                        arr.reverse().forEach(d => {
+                            let div = document.createElement('div'); 
+                            div.className = 'grid-item'; 
+                            if(d.type === 'video') div.classList.add('video');
                             
-                        div.onclick = () => window.open(d.url, '_blank'); 
-                        g.appendChild(div);
-                    });
-                } else {
-                    g.innerHTML = `<div style="grid-column:span 2;text-align:center;color:var(--text-dim);padding-top:60px; font-weight:500;">No creations yet. Start exploring!</div>`;
-                }
-            });
+                            let isVid = (d.type === 'video' || d.url.endsWith('.mp4'));
+                            div.innerHTML = isVid ? `<video src="${d.url}" autoplay loop muted playsinline></video><i class="fa-solid fa-play" style="position:absolute;top:15px;left:15px;color:white; filter:drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></i>` : `<img src="${d.url}" loading="lazy">`;
+                            
+                            div.onclick = () => window.open(d.url, '_blank'); 
+                            g.appendChild(div);
+                        });
+                    } else { 
+                        if(document.getElementById('statCreations')) document.getElementById('statCreations').innerText = "0";
+                        g.innerHTML = `<div style="grid-column:span 2;text-align:center;color:var(--text-dim);padding-top:60px; font-weight:500;">No creations yet. Start exploring!</div>`; 
+                    }
+                }, error => {
+                    console.warn("Gallery Sync Failed. Operating in offline/deny mode.");
+                    g.innerHTML = `<div style="grid-column:span 2;text-align:center;color:var(--text-dim);padding-top:60px; font-weight:500;">Cloud Gallery Unavailable.</div>`; 
+                });
+            } catch(e) {
+                console.error("Gallery Loading Error", e);
+            }
         }
 
-        // --- PRO PHOTO EDITOR ---
         let currentEditImage = null;
+        
         function openPhotoEditor() { 
-            let modal = document.getElementById('photoEditorModal');
+            let modal = document.getElementById('photoEditorModal'); 
             modal.style.display = 'flex'; 
-            void modal.offsetWidth;
-            modal.classList.add('active');
+            void modal.offsetWidth; 
+            modal.classList.add('active'); 
         }
-        
+
         function closePhotoEditor() { 
-            let modal = document.getElementById('photoEditorModal');
-            modal.classList.remove('active');
-            setTimeout(() => modal.style.display = 'none', 300);
+            let modal = document.getElementById('photoEditorModal'); 
+            modal.classList.remove('active'); 
+            setTimeout(() => modal.style.display = 'none', 300); 
         }
-        
+
         function loadEditorImage(e) { 
             if(!e.target.files[0]) return; 
+            
             currentEditImage = URL.createObjectURL(e.target.files[0]); 
             document.getElementById('editorUploadPrompt').style.display = 'none'; 
-            let img = document.getElementById('editorImagePreview');
-            img.src = currentEditImage; 
-            img.style.display = 'block';
             
-            document.getElementById('filterBr').value = 100;
-            document.getElementById('filterCt').value = 100;
-            document.getElementById('filterSt').value = 100;
-            document.getElementById('filterBl').value = 0;
-            applyEditFilters();
+            let img = document.getElementById('editorImagePreview'); 
+            img.src = currentEditImage; 
+            img.style.display = 'block'; 
+            
+            document.getElementById('filterBr').value = 100; 
+            document.getElementById('filterCt').value = 100; 
+            document.getElementById('filterSt').value = 100; 
+            document.getElementById('filterBl').value = 0; 
+            
+            applyEditFilters(); 
         }
-        
+
         function applyEditFilters() { 
             let br = document.getElementById('filterBr').value; 
             let ct = document.getElementById('filterCt').value; 
             let st = document.getElementById('filterSt').value; 
             let bl = document.getElementById('filterBl').value; 
             
-            document.getElementById('valBr').innerText = br+'%'; 
-            document.getElementById('valCt').innerText = ct+'%'; 
-            document.getElementById('valSt').innerText = st+'%'; 
-            document.getElementById('valBl').innerText = bl+'px'; 
+            document.getElementById('valBr').innerText = br + '%'; 
+            document.getElementById('valCt').innerText = ct + '%'; 
+            document.getElementById('valSt').innerText = st + '%'; 
+            document.getElementById('valBl').innerText = bl + 'px'; 
             
             document.getElementById('editorImagePreview').style.filter = `brightness(${br}%) contrast(${ct}%) saturate(${st}%) blur(${bl}px)`; 
         }
-        
+
         function downloadEditedPhoto() { 
             if(!currentEditImage) return showToast('Upload a photo first!', 'error'); 
             showToast('Processing Image...', 'info'); 
@@ -2141,24 +2634,23 @@
                 ctx.filter = img.style.filter; 
                 ctx.drawImage(tempImg, 0, 0, canvas.width, canvas.height); 
                 
-                try {
+                try { 
                     let a = document.createElement('a'); 
                     a.href = canvas.toDataURL('image/jpeg', 0.95); 
                     a.download = `NexArt_Edit_${Date.now()}.jpg`; 
                     a.click(); 
                     showToast('Masterpiece Saved! 🎨', 'success'); 
-                } catch(e) {
-                    showToast('Could not save image directly.', 'error');
-                }
+                } catch(e) { 
+                    showToast('Could not save image directly.', 'error'); 
+                } 
             }; 
             tempImg.src = currentEditImage; 
         }
 
-        // --- AI CHAT & TTS ---
         function toggleVoiceOutput() {
             if(!('speechSynthesis' in window)) return showToast("Voice not supported", "error");
             
-            voiceEnabled = !voiceEnabled;
+            voiceEnabled = !voiceEnabled; 
             let btn = document.getElementById('ttsToggleBtn');
             
             if(voiceEnabled) { 
@@ -2179,24 +2671,27 @@
             let cleanText = text.replace(/<[^>]*>?/gm, '').replace(/[*_]/g, ''); 
             
             try {
-                let res = await fetch(`${BACKEND_URL}/api/tts`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ text: cleanText })
+                let res = await fetch(`${BACKEND_URL}/api/tts`, { 
+                    method: "POST", 
+                    headers: { "Content-Type": "application/json" }, 
+                    body: JSON.stringify({ text: cleanText }) 
                 });
+                
                 if(!res.ok) throw new Error("Backend TTS failed");
-                let blob = await res.blob();
-                let audio = new Audio(URL.createObjectURL(blob));
+                
+                let blob = await res.blob(); 
+                let audio = new Audio(URL.createObjectURL(blob)); 
                 audio.play();
             } catch(e) {
-                let utterance = new SpeechSynthesisUtterance(cleanText);
+                let utterance = new SpeechSynthesisUtterance(cleanText); 
                 utterance.rate = 1.05; 
-                utterance.pitch = 1.1;
+                utterance.pitch = 1.1; 
                 window.speechSynthesis.speak(utterance);
             }
         }
 
         let isChatting = false;
+        
         async function sendChatMessage() {
             if(isChatting) return;
             
@@ -2204,85 +2699,480 @@
             let text = input.value.trim(); 
             if(!text) return;
             
-            isChatting = true;
+            isChatting = true; 
             let hist = document.getElementById('chatHistory');
             
-            hist.innerHTML += `<div class="msg user"><div class="msg-avatar"><i class="fa-solid fa-user"></i></div><div class="msg-bubble">${text}</div></div>`; 
+            hist.innerHTML += `
+                <div class="msg user">
+                    <div class="msg-avatar"><i class="fa-solid fa-user"></i></div>
+                    <div class="msg-bubble">${text}</div>
+                </div>`; 
+            
             input.value = ''; 
             hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' });
             
             let typingId = 'typing_' + Date.now(); 
-            hist.innerHTML += `<div class="msg ai" id="${typingId}"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div></div>`; 
+            hist.innerHTML += `
+                <div class="msg ai" id="${typingId}">
+                    <div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div>
+                    <div class="msg-bubble">
+                        <div class="typing-indicator"><span></span><span></span><span></span></div>
+                    </div>
+                </div>`; 
             hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' });
 
             try {
-                let res = await fetch(`${BACKEND_URL}/api/fastchat`, {
-                    method: 'POST',
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        systemPrompt: "You are NexArt AI, a highly advanced, concise, and professional creative studio assistant. Keep responses helpful but reasonably short.",
-                        userPrompt: text
-                    })
+                let res = await fetch(`${BACKEND_URL}/api/fastchat`, { 
+                    method: 'POST', 
+                    headers: { "Content-Type": "application/json" }, 
+                    body: JSON.stringify({ 
+                        systemPrompt: "You are NexArt AI, a highly advanced, concise, and professional creative studio assistant. Keep responses helpful but reasonably short.", 
+                        userPrompt: text 
+                    }) 
                 });
-
-                if(!res.ok) {
-                    let errTxt = await res.text();
-                    throw new Error("Chat Server Offline");
-                }
-
-                let responseData = await res.json();
                 
-                if (responseData.error) {
-                    throw new Error(responseData.error.message || "API Error");
-                }
+                if(!res.ok) throw new Error("Chat Server Offline");
+                
+                let responseData = await res.json();
+                if (responseData.error) throw new Error(responseData.error.message || "API Error");
                 
                 let reply = responseData.choices[0].message.content;
-                
-                document.getElementById(typingId).remove();
+                document.getElementById(typingId).remove(); 
                 speakText(reply);
-
-                let formatted = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
-                hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div><div class="msg-bubble">${formatted}</div></div>`; 
                 
+                let formatted = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
+                
+                hist.innerHTML += `
+                    <div class="msg ai">
+                        <div class="msg-avatar"><i class="fa-solid fa-sparkles"></i></div>
+                        <div class="msg-bubble">${formatted}</div>
+                    </div>`; 
             } catch (err) {
                 document.getElementById(typingId).remove(); 
-                hist.innerHTML += `<div class="msg ai"><div class="msg-avatar"><i class="fa-solid fa-triangle-exclamation" style="color:#ff4757;"></i></div><div class="msg-bubble" style="color: #ff4757; border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.1);">Connection error: Please ensure the Render backend is fully awake.</div></div>`; 
-            } finally {
+                hist.innerHTML += `
+                    <div class="msg ai">
+                        <div class="msg-avatar"><i class="fa-solid fa-triangle-exclamation" style="color:#ff4757;"></i></div>
+                        <div class="msg-bubble" style="color: #ff4757; border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.1);">Connection error: Backend sleeping or unreachable.</div>
+                    </div>`; 
+            } finally { 
                 hist.scrollTo({ top: hist.scrollHeight, behavior: 'smooth' }); 
-                isChatting = false;
+                isChatting = false; 
             }
         }
 
-        // --- CREATION MODAL LOGIC ---
-        function openCreateSheet(defaultType = 'image') { 
-            let sheet = document.getElementById('createSheet');
-            let content = document.getElementById('createSheetContent');
+        // --- NEXHEALTH PHARMACY LOGIC (WITH FILTER & SORT) ---
+        let currentMedResults = []; 
+
+        async function handleSymptomSearch() {
+            let input = document.getElementById('medSearchInput');
+            let text = input.value.trim();
+            if(!text) return showToast("Pehle apni problem (symptoms) likhein!", "error");
+            
+            showToast("AI is analyzing symptoms...", "magic");
+            let resBox = document.getElementById('medResultsBox');
+            document.getElementById('medFilterBar').style.display = 'none';
+            resBox.innerHTML = `
+                <div style="text-align:center; padding:40px; color:var(--text-dim);">
+                    <i class="fa-solid fa-wand-magic-sparkles fa-beat" style="font-size: 30px; margin-bottom:15px; color: #a855f7;"></i>
+                    <p>AI is finding the best medicine for your symptoms...</p>
+                </div>`;
+
+            try {
+                let res = await fetch(`${BACKEND_URL}/api/fastchat`, { 
+                    method: 'POST', 
+                    headers: { "Content-Type": "application/json" }, 
+                    body: JSON.stringify({ 
+                        systemPrompt: "You are a medical AI. The user will describe symptoms in Hindi/English. Suggest exactly ONE common generic OTC medicine available in India (like Paracetamol, Cetirizine). Reply ONLY with the medicine name, nothing else.", 
+                        userPrompt: text 
+                    }) 
+                });
+                
+                if(!res.ok) throw new Error("AI failed"); 
+                let data = await res.json(); 
+                if(data.error) throw new Error(data.error);
+                
+                let medName = data.choices[0].message.content.trim(); 
+                input.value = medName; 
+                showToast(`AI Suggested: ${medName}`, "success");
+                
+                fetchMedicinePrices();
+            } catch(e) { 
+                showToast("AI could not analyze. Try searching medicine name directly.", "error"); 
+                resBox.innerHTML = '';
+            }
+        }
+
+        async function fetchMedicinePrices() {
+            let medName = document.getElementById('medSearchInput').value.trim();
+            if(!medName) return showToast("Enter a medicine name", "error");
+            
+            let resBox = document.getElementById('medResultsBox');
+            document.getElementById('medFilterBar').style.display = 'none'; 
+            
+            resBox.innerHTML = `
+                <div style="text-align:center; padding:40px; color:var(--text-dim);">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 30px; margin-bottom:15px; color: #06b6d4;"></i>
+                    <p>Scanning pharmacies across India...</p>
+                </div>`;
+            
+            try {
+                let res = await fetch(`${BACKEND_URL}/api/search`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ query: `buy ${medName} medicine online India price` })
+                });
+                
+                if(!res.ok) throw new Error("Search failed");
+                let data = await res.json();
+                let organic = data.organic || [];
+                
+                let pharmacies = organic.filter(item => 
+                    item.link.includes('1mg.com') || 
+                    item.link.includes('pharmeasy.in') || 
+                    item.link.includes('apollopharmacy') || 
+                    item.link.includes('netmeds.com') ||
+                    item.link.includes('flipkart')
+                );
+
+                currentMedResults = []; 
+                
+                if(pharmacies.length === 0) {
+                    resBox.innerHTML = '<p style="color:var(--text-dim); margin-bottom: 15px; text-align:center;">Exact price not found, but you can check direct stores:</p>';
+                    currentMedResults.push({ title: medName, store: "Tata 1mg", priceText: "Check Price", priceNum: Infinity, link: `https://www.1mg.com/search/all?name=${encodeURIComponent(medName)}` });
+                    currentMedResults.push({ title: medName, store: "PharmEasy", priceText: "Check Price", priceNum: Infinity, link: `https://pharmeasy.in/search/all?name=${encodeURIComponent(medName)}` });
+                } else {
+                    pharmacies.forEach(ph => {
+                        let storeName = "Pharmacy";
+                        if(ph.link.includes('1mg')) storeName = "Tata 1mg";
+                        else if(ph.link.includes('pharmeasy')) storeName = "PharmEasy";
+                        else if(ph.link.includes('apollo')) storeName = "Apollo";
+                        else if(ph.link.includes('netmeds')) storeName = "Netmeds";
+                        else if(ph.link.includes('flipkart')) storeName = "Flipkart Health+";
+
+                        let priceMatch = ph.snippet.match(/(?:Rs\.?|₹|INR)\s*(\d+(?:,\d+)?(?:\.\d+)?)/i);
+                        let priceNum = Infinity; 
+                        let displayPrice = "Check Price";
+
+                        if(priceMatch) {
+                            let cleanNumStr = priceMatch[1].replace(/,/g, ''); 
+                            priceNum = parseFloat(cleanNumStr);
+                            displayPrice = `₹${priceNum}`;
+                        }
+
+                        let shortTitle = ph.title.substring(0, 45) + (ph.title.length > 45 ? '...' : '');
+                        
+                        currentMedResults.push({
+                            title: shortTitle,
+                            store: storeName,
+                            priceText: displayPrice,
+                            priceNum: priceNum,
+                            link: ph.link
+                        });
+                    });
+                }
+                
+                document.getElementById('medFilterBar').style.display = 'flex'; 
+                document.getElementById('medStoreFilter').value = 'All'; 
+                document.getElementById('medSortFilter').value = 'default';
+                
+                renderMedResults(); 
+                showToast("Prices fetched!", "success");
+
+            } catch(e) {
+                resBox.innerHTML = '<div style="color:#ff4757; text-align:center; padding:20px;">Failed to scan prices. Please check your internet connection.</div>';
+            }
+        }
+
+        function renderMedResults() {
+            let storeFilter = document.getElementById('medStoreFilter').value;
+            let sortFilter = document.getElementById('medSortFilter').value;
+            
+            let filteredArr = currentMedResults;
+            if(storeFilter !== "All") {
+                filteredArr = filteredArr.filter(item => item.store === storeFilter);
+            }
+            
+            let sortedArr = [...filteredArr]; 
+            if(sortFilter === "low") {
+                sortedArr.sort((a, b) => a.priceNum - b.priceNum);
+            } else if (sortFilter === "high") {
+                sortedArr.sort((a, b) => {
+                    if(a.priceNum === Infinity) return 1;
+                    if(b.priceNum === Infinity) return -1;
+                    return b.priceNum - a.priceNum;
+                });
+            }
+
+            let resBox = document.getElementById('medResultsBox');
+            resBox.innerHTML = '';
+            
+            if(sortedArr.length === 0) {
+                resBox.innerHTML = '<p style="color:var(--text-dim); text-align:center; padding:20px;">No medicine found for this specific store.</p>';
+                return;
+            }
+
+            sortedArr.forEach(item => {
+                let color = item.priceText !== "Check Price" ? "#10b981" : "#06b6d4";
+                let safeTitle = item.title.replace(/'/g, "\\'"); 
+                
+                resBox.innerHTML += `
+                    <div class="med-card">
+                        <div class="med-card-header">
+                            <span class="med-store"><i class="fa-solid fa-store" style="margin-right:5px;"></i> ${item.store}</span>
+                            <button class="med-info-btn" onclick="explainMedicine('${safeTitle}')"><i class="fa-solid fa-sparkles"></i> Ask AI</button>
+                        </div>
+                        <div class="med-title">${item.title}</div>
+                        <div class="med-price-row">
+                            <div class="med-price" style="color: ${color}">${item.priceText}</div>
+                            <button class="med-buy-btn" onclick="window.open('${item.link}', '_blank')">Order Now</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        async function explainMedicine(medName) {
+            let sheet = document.getElementById('medInfoSheet'); 
+            let content = document.getElementById('medInfoSheetContent'); 
+            let responseBox = document.getElementById('medAiResponse');
+            
             sheet.style.display = 'flex'; 
-            content.style.transform = 'translateY(100%)';
-            void sheet.offsetWidth;
+            content.style.transform = 'translateY(100%)'; 
+            void sheet.offsetWidth; 
             sheet.classList.add('active'); 
-            content.style.transform = 'translateY(0)';
+            content.style.transform = 'translateY(0)'; 
+            
+            responseBox.innerHTML = `
+                <div style="text-align:center; padding:20px 0; color:var(--text-dim);">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; margin-bottom:10px; color: #a855f7;"></i>
+                    <p>AI is analyzing <b>${medName}</b>...</p>
+                </div>`;
+
+            try {
+                let res = await fetch(`${BACKEND_URL}/api/fastchat`, { 
+                    method: 'POST', 
+                    headers: { "Content-Type": "application/json" }, 
+                    body: JSON.stringify({ 
+                        systemPrompt: "You are a friendly pharmacist AI. Explain the medicine provided by the user in simple Hindi/Hinglish. Format exactly like this: \n\n**Mukhya Upyog (Uses):**\n- point 1\n- point 2\n\n**Kaise Khayein (Dosage):**\n- point 1\n\n**Side Effects:**\n- point 1\n\nKeep it very short and bulleted. Include this disclaimer at the end: '*⚠️ Yeh jankari AI dwara hai, kripya doctor se salah lein.*'", 
+                        userPrompt: "Explain medicine: " + medName 
+                    }) 
+                });
+                
+                if(!res.ok) throw new Error("API Failed");
+                let data = await res.json();
+                
+                let reply = data.choices[0].message.content;
+                let formatted = reply.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--neon-primary);">$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>');
+                
+                responseBox.innerHTML = formatted;
+            } catch(e) {
+                responseBox.innerHTML = `<p style="color:#ff4757; text-align:center;">Jankari nikalne mein error aaya. Kripya thodi der mein try karein.</p>`;
+            }
+        }
+
+        function closeMedInfoSheet() { 
+            let sheet = document.getElementById('medInfoSheet'); 
+            let content = document.getElementById('medInfoSheetContent'); 
+            sheet.classList.remove('active'); 
+            content.style.transform = 'translateY(100%)'; 
+            setTimeout(() => { sheet.style.display = 'none'; content.style.transform = ''; }, 400); 
+        }
+
+        // --- AI FOOD SCANNER LOGIC ---
+        let base64FoodImage = null;
+
+        function previewFoodImage(event) {
+            if(!event.target.files[0]) return;
+            let file = event.target.files[0];
+            
+            let url = URL.createObjectURL(file);
+            document.getElementById('foodPreviewImg').src = url;
+            document.getElementById('foodPreviewBox').style.display = 'block';
+            
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function () {
+                base64FoodImage = reader.result;
+            };
+            reader.onerror = function (error) {
+                showToast("Error reading image", "error");
+            };
+        }
+
+        async function analyzeFood() {
+            if(!base64FoodImage) return showToast("Pehle khane ki photo upload karein!", "error");
+            
+            let resBox = document.getElementById('foodResBox');
+            resBox.innerHTML = `
+                <div style="text-align:center; padding:20px; color:var(--text-dim);">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size:24px; color:#a855f7; margin-bottom:10px;"></i>
+                    <p>Replicate AI is analyzing your food... 🍕</p>
+                </div>`;
+            
+            try {
+                let targetUrl = "https://api.replicate.com/v1/models/yorickvp/llava-13b/predictions"; 
+                let payloadData = {
+                    input: {
+                        image: base64FoodImage,
+                        prompt: "Analyze this food image. Tell me: 1. Name of the food. 2. Estimated total Calories. 3. Protein content in grams. 4. Carbs content. 5. Is it healthy? Keep it short, use bullet points, and mix English and Hindi."
+                    }
+                };
+
+                let cr = await fetch(`${BACKEND_URL}/api/proxy`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ targetUrl: targetUrl, method: "POST", data: payloadData })
+                });
+
+                let cd = await cr.json();
+
+                if (cd.error) {
+                    let exactError = cd.error;
+                    if (cd.details) {
+                        try {
+                            let parsed = JSON.parse(cd.details);
+                            exactError = parsed.detail || parsed.error || cd.details;
+                        } catch(e) { exactError = cd.details; }
+                    }
+                    throw new Error(exactError);
+                }
+
+                if (!cd.urls || !cd.urls.get) throw new Error("Could not start Vision API.");
+
+                let rc = 0;
+                await new Promise((res, rej) => {
+                    let chk = setInterval(async() => {
+                        try {
+                            let pd = await fetch(`${BACKEND_URL}/api/proxy`, {
+                                method: "POST",
+                                headers: {"Content-Type": "application/json"},
+                                body: JSON.stringify({ targetUrl: cd.urls.get, method: "GET" })
+                            });
+                            let p = await pd.json();
+
+                            if (p.status === "succeeded") {
+                                clearInterval(chk);
+                                let reply = Array.isArray(p.output) ? p.output.join("") : p.output;
+                                let formatted = reply.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#06b6d4;">$1</strong>').replace(/\n/g, '<br>');
+                                resBox.innerHTML = `<div class="med-card" style="font-size:14px; line-height:1.6;">${formatted}</div>`;
+                                showToast("Analysis Complete!", "success");
+                                res();
+                            } else if (p.status === "failed" || p.status === "canceled") {
+                                clearInterval(chk);
+                                rej(new Error(p.error || "Vision model failed to analyze."));
+                            }
+                        } catch(e) {
+                            rc++;
+                            if(rc > 40) { 
+                                clearInterval(chk);
+                                rej(new Error("Timeout! Analysis took too long."));
+                            }
+                        }
+                    }, 3000);
+                });
+                
+            } catch(e) {
+                resBox.innerHTML = `<p style="color:#ff4757; text-align:center;">Failed to analyze image: ${e.message}</p>`;
+            }
+        }
+
+        // --- REMINDERS LOGIC ---
+        let savedReminders = [];
+
+        function renderReminders() {
+            try {
+                savedReminders = JSON.parse(localStorage.getItem('nex_reminders') || '[]');
+            } catch(e) { savedReminders = []; }
+            
+            let list = document.getElementById('reminderList');
+            list.innerHTML = '';
+            
+            if(savedReminders.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-dim); text-align:center; padding:10px; font-size:13px;">No active reminders.</p>';
+                return;
+            }
+            
+            savedReminders.forEach((r, idx) => {
+                list.innerHTML += `
+                    <div class="med-card" style="flex-direction:row; align-items:center; padding:15px; margin-bottom:10px;">
+                        <div style="flex:1;">
+                            <b style="color:white; font-size:15px;">${r.name}</b><br>
+                            <span style="color:var(--text-dim); font-size:12px;"><i class="fa-regular fa-clock" style="color:#facc15;"></i> ${r.time}</span>
+                        </div>
+                        <button onclick="deleteReminder(${idx})" style="color:#ff4757; font-size:16px; padding:10px; background:none; border:none; cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>`;
+            });
+        }
+
+        function addReminder() {
+            let name = document.getElementById('remName').value.trim();
+            let time = document.getElementById('remTime').value;
+            
+            if(!name || !time) return showToast("Medicine name aur time dono bharein!", "error");
+            
+            savedReminders.push({ name: name, time: time });
+            localStorage.setItem('nex_reminders', JSON.stringify(savedReminders));
+            
+            document.getElementById('remName').value = '';
+            document.getElementById('remTime').value = '';
+            
+            renderReminders();
+            showToast("Alarm Set Successfully! ⏰", "success");
+        }
+
+        function deleteReminder(idx) {
+            savedReminders.splice(idx, 1);
+            localStorage.setItem('nex_reminders', JSON.stringify(savedReminders));
+            renderReminders();
+        }
+
+        setInterval(() => {
+            let now = new Date();
+            let timeString = now.toTimeString().substring(0, 5); 
+            let seconds = now.getSeconds();
+            
+            if(seconds === 0) {
+                savedReminders.forEach(r => {
+                    if(r.time === timeString) {
+                        speakText("Hello! It is time to take your " + r.name + ". Please do not forget.");
+                        showToast("⏰ Reminder: Take " + r.name, "magic");
+                        if(navigator.vibrate) navigator.vibrate([500, 200, 500]); 
+                    }
+                });
+            }
+        }, 1000);
+
+        // --- CREATION STUDIO LOGIC ---
+        function openCreateSheet(defaultType = 'image') { 
+            let sheet = document.getElementById('createSheet'); 
+            let content = document.getElementById('createSheetContent'); 
+            
+            sheet.style.display = 'flex'; 
+            content.style.transform = 'translateY(100%)'; 
+            void sheet.offsetWidth; 
+            sheet.classList.add('active'); 
+            content.style.transform = 'translateY(0)'; 
             
             setCreationType(defaultType, document.getElementById('btn-type-' + defaultType)); 
         }
-        
+
         function closeCreateSheet() { 
-            let sheet = document.getElementById('createSheet');
-            let content = document.getElementById('createSheetContent');
+            let sheet = document.getElementById('createSheet'); 
+            let content = document.getElementById('createSheetContent'); 
             
-            sheet.classList.remove('active');
-            content.style.transform = 'translateY(100%)';
+            sheet.classList.remove('active'); 
+            content.style.transform = 'translateY(100%)'; 
             
-            setTimeout(() => {
-                sheet.style.display = 'none';
+            setTimeout(() => { 
+                sheet.style.display = 'none'; 
                 content.style.transform = ''; 
             }, 400); 
         }
 
-        function selectStyle(element, styleString) {
-            document.querySelectorAll('.style-pill').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
-            selectedArtStyle = styleString;
+        function selectStyle(element, styleString) { 
+            document.querySelectorAll('.style-pill').forEach(el => el.classList.remove('active')); 
+            element.classList.add('active'); 
+            selectedArtStyle = styleString; 
         }
 
         function setCreationType(type, el) {
@@ -2292,19 +3182,19 @@
             
             let promptArea = document.getElementById('promptAreaWrap'); 
             let upText = document.getElementById('upAreaText'); 
-            let styleRow = document.getElementById('artStylesRow');
+            let styleRow = document.getElementById('artStylesRow'); 
             let promptBox = document.getElementById('createPrompt');
             
             if(type === 'image') { 
                 promptArea.style.display = 'block'; 
                 styleRow.style.display = 'flex'; 
-                upText.innerText = "Add Reference Image (Optional)"; 
-                promptBox.placeholder = "Describe your vision for the image...";
+                upText.innerText = "Add Reference Image (Optional - Will be ignored)"; 
+                promptBox.placeholder = "Describe your vision for the image..."; 
             } else if (type === 'video') { 
                 promptArea.style.display = 'block'; 
                 styleRow.style.display = 'flex'; 
                 upText.innerText = "Upload Initial Frame Image (Optional)"; 
-                promptBox.placeholder = "Describe the video scene or animation...";
+                promptBox.placeholder = "Describe the video scene or animation..."; 
             } else if (type === 'bgrm') { 
                 promptArea.style.display = 'none'; 
                 styleRow.style.display = 'none'; 
@@ -2319,7 +3209,7 @@
             document.getElementById('upAreaImg').style.display = 'block'; 
             document.getElementById('rmMediaBtn').style.display = 'flex'; 
         }
-        
+
         function removeCreatePhoto() { 
             uploadedFile = null; 
             document.getElementById('hiddenCreateUpload').value = ''; 
@@ -2328,56 +3218,24 @@
             document.getElementById('rmMediaBtn').style.display = 'none'; 
         }
 
-        let isEnhancing = false;
-        async function enhancePrompt() {
-            if(isEnhancing) return;
-            
-            let input = document.getElementById('createPrompt'); 
-            let text = input.value.trim();
-            if(!text) return showToast("Type a basic idea first!", "error");
-            
-            isEnhancing = true;
-            showToast("Enhancing magically...", "magic");
-            input.value = "Enhancing your idea... ✨"; 
-            input.disabled = true;
-
-            try {
-                let res = await fetch(`${BACKEND_URL}/api/fastchat`, {
-                    method: 'POST',
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        systemPrompt: "You are an AI prompt engineer. Rewrite the user's short prompt into a highly detailed, professional Midjourney style prompt for AI image generation. Return ONLY the final prompt, no extra text.",
-                        userPrompt: text
-                    })
-                });
-                
-                if(!res.ok) throw new Error("Enhancement failed");
-                let data = await res.json();
-                
-                if(data.error) throw new Error(data.error);
-                
-                input.value = data.choices[0].message.content.trim();
-                showToast("Prompt Enhanced!", "success");
-            } catch(e) {
-                input.value = text;
-                showToast("Enhancement failed. Try again.", "error");
-            } finally { 
-                input.disabled = false; 
-                isEnhancing = false;
-            }
-        }
-
-        function stopGenerationWithError(msg) {
+        // --- GENERATION ENGINE ---
+        function stopGenerationWithError(msg) { 
             clearInterval(loaderInterval); 
-            isGenerating = false;
-            let overlay = document.getElementById('loaderOverlay');
-            overlay.classList.remove('active');
-            setTimeout(() => overlay.style.display = 'none', 300);
-            showToast(msg, "error");
+            isGenerating = false; 
+            let overlay = document.getElementById('loaderOverlay'); 
+            overlay.classList.remove('active'); 
+            setTimeout(() => overlay.style.display = 'none', 300); 
+            showToast(msg, "error"); 
         }
 
-        // --- 🔥 SUPER STABLE AI GENERATION ENGINE 🔥 (ALL BUGS FIXED) ---
-        let loaderInterval;
+        const getBase64Creation = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader(); 
+            reader.readAsDataURL(file); 
+            reader.onload = () => resolve(reader.result); 
+            reader.onerror = error => reject(error);
+        });
+
+        // --- 🔥 100% FIXED & SAFE GENERATION ENGINE 🔥 ---
         async function startGenerationEngine() {
             if(isGenerating) return;
             
@@ -2393,11 +3251,11 @@
                 return showToast("Need 2 credits to generate!", "error"); 
             }
 
-            isGenerating = true;
+            isGenerating = true; 
             closeCreateSheet(); 
             
-            let overlay = document.getElementById('loaderOverlay');
-            overlay.style.display = 'flex';
+            let overlay = document.getElementById('loaderOverlay'); 
+            overlay.style.display = 'flex'; 
             setTimeout(() => overlay.classList.add('active'), 10);
             
             let percent = 1; 
@@ -2408,16 +3266,15 @@
             circle.style.strokeDashoffset = 408; 
             text.innerText = percent;
             
-            loaderInterval = setInterval(() => {
+            loaderInterval = setInterval(() => { 
                 if(percent >= 98) return; 
-                percent += (percent > 85 ? 1 : Math.floor(Math.random() * 4) + 1);
+                percent += (percent > 85 ? 1 : Math.floor(Math.random() * 4) + 1); 
                 text.innerText = percent; 
-                circle.style.strokeDashoffset = 408 - (percent / 100) * 408;
-                if(percent % 15 === 0) msg.innerText = loaderMessages[Math.floor(Math.random() * loaderMessages.length)];
+                circle.style.strokeDashoffset = 408 - (percent / 100) * 408; 
+                if(percent % 15 === 0) msg.innerText = loaderMessages[Math.floor(Math.random() * loaderMessages.length)]; 
             }, 600);
 
             try {
-                // 1. BACKGROUND REMOVE
                 if (currentCreationType === 'bgrm') {
                     let formData = new FormData(); 
                     formData.append('image_file', uploadedFile); 
@@ -2429,7 +3286,8 @@
                         body: formData 
                     });
                     
-                    if (!response.ok) throw new Error(`Background API Limit Reached or Error`);
+                    if (!response.ok) throw new Error(`Background API Limit Reached`);
+                    
                     finalResultBlob = await response.blob(); 
                     finalResultType = 'image'; 
                     finalResultUrl = URL.createObjectURL(finalResultBlob); 
@@ -2437,128 +3295,84 @@
                     return; 
                 }
 
-                // SECURE CLOUDINARY UPLOAD
-                let safeImageUrl = null; 
-                finalResultBlob = null; 
-                
-                if(uploadedFile) {
-                    try {
-                        let fd = new FormData(); 
-                        fd.append('file', uploadedFile); 
-                        fd.append('upload_preset', UPLOAD_PRESET);
-                        
-                        let ur = await fetch(CLOUDINARY_URL, {method: 'POST', body: fd}); 
-                        if (!ur.ok) throw new Error("Preset invalid or Cloudinary block");
-                        let ud = await ur.json();
-                        safeImageUrl = ud.secure_url;
-                    } catch(err) {
-                        throw new Error("Reference Image upload failed. Check Cloudinary preset.");
-                    }
-                }
-
-                let targetUrl = "";
+                let targetUrl = ""; 
                 let payloadData = {};
 
-                // 2. IMAGE GENERATION (BUG FIXED: Smart Truncation for long prompts)
                 if (currentCreationType === 'image') {
-                    finalResultType = 'image';
-                    let seed = Math.floor(Math.random()*100000);
-                    
-                    // 🟢 TRUNCATING PROMPT to max 800 chars to avoid "URI Too Long" network crash
+                    finalResultType = 'image'; 
+                    let seed = Math.floor(Math.random()*100000); 
                     let safePrompt = (finalPrompt || "A cinematic masterpiece").substring(0, 800);
-                    let fetchUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(safePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
+                    finalResultUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(safePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
                     
-                    try {
-                        let imgResponse = await fetch(fetchUrl);
-                        if (!imgResponse.ok) throw new Error("Image API rejected the prompt.");
-                        finalResultBlob = await imgResponse.blob();
-                        finalResultUrl = URL.createObjectURL(finalResultBlob);
-                    } catch (err) {
-                        // Fallback logic
-                        await new Promise((resolve, reject) => {
-                            let img = new Image();
-                            img.onload = () => { finalResultUrl = fetchUrl; resolve(); };
-                            img.onerror = () => reject(new Error("Image Generation Failed. Try a shorter prompt."));
-                            img.src = fetchUrl;
-                        });
-                    }
-                } 
-                
-                // 3. VIDEO GENERATION (BUG FIXED: Exact Error revealing & Safe Parameters)
-                else if (currentCreationType === 'video') {
-                    finalResultType = 'video';
-                    targetUrl = "https://api.replicate.com/v1/models/luma/ray/predictions";
-                    
-                    payloadData = { 
-                        input: { 
-                            // 🟢 TRUNCATING PROMPT to avoid Replicate 422 Errors
-                            prompt: (finalPrompt || "Cinematic masterpiece, smooth motion, high quality").substring(0, 800)
-                        } 
-                    };
-                    
-                    if (safeImageUrl) {
-                        payloadData.input.image = safeImageUrl; // Safe format for replicate
-                    }
-
-                    let cr = await fetch(`${BACKEND_URL}/api/proxy`, {
-                        method: "POST",
-                        headers: {"Content-Type": "application/json"},
-                        body: JSON.stringify({
-                            targetUrl: targetUrl,
-                            method: "POST",
-                            data: payloadData
-                        })
+                    await new Promise((resolve, reject) => { 
+                        let img = new Image(); 
+                        img.onload = () => resolve(); 
+                        img.onerror = () => reject(new Error("Image Generation Failed.")); 
+                        img.src = finalResultUrl; 
                     });
+                } 
+                else if (currentCreationType === 'video') {
+                    finalResultType = 'video'; 
+                    targetUrl = "https://api.replicate.com/v1/predictions"; 
+                    
+                    let safeImageBase64 = null; 
+                    if(uploadedFile) safeImageBase64 = await getBase64Creation(uploadedFile);
 
+                    if (safeImageBase64) { 
+                        payloadData = { 
+                            version: "3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438", 
+                            input: { image: safeImageBase64, sizing_strategy: "maintain_aspect_ratio" } 
+                        }; 
+                    } else { 
+                        payloadData = { 
+                            version: "9f747673945c62801b13b84701c783929c0ee784e4748ec062204894dda1a351", 
+                            input: { prompt: (finalPrompt || "Cinematic masterpiece").substring(0, 800), num_frames: 24, fps: 8 } 
+                        }; 
+                    }
+
+                    let cr = await fetch(`${BACKEND_URL}/api/proxy`, { 
+                        method: "POST", 
+                        headers: {"Content-Type": "application/json"}, 
+                        body: JSON.stringify({ targetUrl: targetUrl, method: "POST", data: payloadData }) 
+                    });
+                    
                     let cd = await cr.json();
                     
-                    // 🟢 BUG FIXED: Replicate Error Extract - Ab aapko exact reason dikhega!
-                    if (cd.error) {
-                        let exactError = cd.error;
-                        if (cd.details) {
-                            try {
-                                let parsed = JSON.parse(cd.details);
-                                exactError = parsed.detail || parsed.error || cd.details;
-                            } catch(e) { exactError = cd.details; }
-                        }
-                        throw new Error(exactError); // Like "Payment required" or "Invalid input"
-                    }
+                    if (cd.error) throw new Error(typeof cd.error === 'string' ? cd.error : "Replicate API rejected the request.");
+                    if (!cd.urls || !cd.urls.get) throw new Error("Could not start Video API.");
 
-                    if(!cd.urls || !cd.urls.get) throw new Error("Could not start Video API");
-
-                    let rc=0;
+                    let rc = 0;
                     await new Promise((res, rej) => {
                         let chk = setInterval(async() => {
                             try {
-                                let pd = await fetch(`${BACKEND_URL}/api/proxy`, {
-                                    method: "POST",
-                                    headers: {"Content-Type": "application/json"},
-                                    body: JSON.stringify({ targetUrl: cd.urls.get, method: "GET" })
+                                let pd = await fetch(`${BACKEND_URL}/api/proxy`, { 
+                                    method: "POST", 
+                                    headers: {"Content-Type": "application/json"}, 
+                                    body: JSON.stringify({ targetUrl: cd.urls.get, method: "GET" }) 
                                 });
                                 let p = await pd.json();
-
-                                if (p.status === "succeeded") {
-                                    clearInterval(chk);
-                                    finalResultUrl = Array.isArray(p.output) ? p.output[0] : p.output;
-                                    res();
-                                } else if (p.status === "failed" || p.status === "canceled") {
-                                    clearInterval(chk);
-                                    rej(new Error(p.error || "Video model failed to render."));
+                                
+                                if (p.status === "succeeded") { 
+                                    clearInterval(chk); 
+                                    finalResultUrl = Array.isArray(p.output) ? p.output[0] : p.output; 
+                                    res(); 
+                                } else if (p.status === "failed" || p.status === "canceled") { 
+                                    clearInterval(chk); 
+                                    rej(new Error(p.error || "Video model failed.")); 
                                 }
-                            } catch(e) {
-                                rc++;
-                                if(rc>60) { 
+                            } catch(e) { 
+                                rc++; 
+                                if(rc > 60) { 
                                     clearInterval(chk); 
                                     rej(new Error("Timeout! Video generation taking too long.")); 
-                                }
+                                } 
                             }
                         }, 3000);
                     });
                 }
-
                 finishGen();
             } catch(e) { 
-                stopGenerationWithError("Generation failed: " + e.message); 
+                stopGenerationWithError("Generation Failed: " + e.message); 
             }
         }
 
@@ -2568,28 +3382,30 @@
             document.getElementById('loaderCircle').style.strokeDashoffset = 0; 
             
             setTimeout(() => { 
-                let overlay = document.getElementById('loaderOverlay');
-                overlay.classList.remove('active');
+                let overlay = document.getElementById('loaderOverlay'); 
+                overlay.classList.remove('active'); 
                 setTimeout(() => overlay.style.display = 'none', 300);
                 
-                showResultView(finalResultUrl, finalResultType);
+                showResultView(finalResultUrl, finalResultType); 
                 isGenerating = false;
                 
-                userCoinBalance = Math.max(0, userCoinBalance - 2);
-                document.getElementById('coinCount').innerText = userCoinBalance;
-                if(currentUser) db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance);
-
-                if (finalResultBlob && currentCreationType === 'bgrm') {
-                    let fd = new FormData(); 
-                    fd.append('file', finalResultBlob, `f.png`); 
-                    fd.append('upload_preset', UPLOAD_PRESET); 
-                    fetch(CLOUDINARY_URL, {method: 'POST', body: fd})
-                        .then(r=>r.json())
-                        .then(d=> {
-                            if(currentUser) db.ref(`users/${currentUser.uid}/gallery`).push({url: d.secure_url, type: 'image', timestamp: firebase.database.ServerValue.TIMESTAMP});
+                userCoinBalance = Math.max(0, userCoinBalance - 2); 
+                
+                updateCoinUI();
+                localStorage.setItem('offline_coins_' + currentUser.uid, userCoinBalance);
+                
+                if(currentUser) { 
+                    try { db.ref(`users/${currentUser.uid}/coins`).set(userCoinBalance); } catch(e){}
+                }
+                
+                if (finalResultUrl && currentUser) { 
+                    try {
+                        db.ref(`users/${currentUser.uid}/gallery`).push({ 
+                            url: finalResultUrl, 
+                            type: finalResultType, 
+                            timestamp: firebase.database.ServerValue.TIMESTAMP 
                         });
-                } else if (finalResultUrl && currentUser) {
-                    db.ref(`users/${currentUser.uid}/gallery`).push({ url: finalResultUrl, type: finalResultType, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                    } catch(e){} 
                 }
             }, 800);
         }
@@ -2598,30 +3414,33 @@
             let c = document.getElementById('resultMediaContainer'); 
             c.innerHTML = `<div style="color:var(--text-dim); position:absolute; z-index:1;"><i class="fa-solid fa-circle-notch fa-spin"></i> Finalizing HD...</div>`; 
             
-            c.innerHTML += type==='video'
-                ? `<video src="${srcUrl}" autoplay loop controls playsinline style="z-index:2; border-radius:16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-height:80vh; max-width:90vw;"></video>`
-                : `<img src="${srcUrl}" style="z-index:2; border-radius:16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-height:80vh; max-width:90vw;" onload="this.previousSibling.style.display='none'">`; 
+            if (type === 'video') { 
+                c.innerHTML += `<video src="${srcUrl}" autoplay loop controls playsinline style="z-index:2; border-radius:16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-height:80vh; max-width:90vw;"></video>`; 
+            } else { 
+                c.innerHTML += `<img src="${srcUrl}" style="z-index:2; border-radius:16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); max-height:80vh; max-width:90vw;" onload="this.previousSibling.style.display='none'">`; 
+            }
             
-            let view = document.getElementById('resultView');
+            let view = document.getElementById('resultView'); 
             view.style.display = 'flex'; 
             setTimeout(() => view.classList.add('active'), 10);
         }
         
         function closeResultView() { 
-            let view = document.getElementById('resultView');
-            view.classList.remove('active');
+            let view = document.getElementById('resultView'); 
+            view.classList.remove('active'); 
             
-            setTimeout(() => {
+            setTimeout(() => { 
                 view.style.display = 'none'; 
                 document.getElementById('resultMediaContainer').innerHTML = ''; 
                 removeCreatePhoto(); 
-                document.getElementById('createPrompt').value = '';
-            }, 400);
+                document.getElementById('createPrompt').value = ''; 
+            }, 400); 
         }
         
         async function downloadResult() { 
             if(!finalResultUrl) return; 
             showToast("Saving securely...", "info"); 
+            
             try { 
                 let blob = finalResultBlob; 
                 if(!blob){ 
@@ -2631,64 +3450,9 @@
                 let u = URL.createObjectURL(blob); 
                 let a = document.createElement("a"); 
                 a.href = u; 
-                a.download = `NexArt_${Date.now()}.${finalResultType==='video'?'mp4':'jpg'}`; 
+                a.download = `NexArt_${Date.now()}.${finalResultType === 'video' ? 'mp4' : 'jpg'}`; 
                 document.body.appendChild(a); 
                 a.click(); 
                 document.body.removeChild(a); 
-                URL.revokeObjectURL(u);
-                showToast("Masterpiece Saved! 📥", "success"); 
-            } catch(e) { 
-                window.open(finalResultUrl, '_blank'); 
-            } 
-        }
-        
-        async function shareResult() { 
-            if(navigator.share) { 
-                try { 
-                    let blob = finalResultBlob; 
-                    if(!blob){ 
-                        let r = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(finalResultUrl)); 
-                        blob = await r.blob(); 
-                    } 
-                    const f = new File([blob], `NexArt.${finalResultType==='video'?'mp4':'jpg'}`, {type:blob.type}); 
-                    await navigator.share({files:[f], title:'NexArt Studio'}); 
-                } catch(e){ 
-                    if(e.name !== "AbortError") downloadResult(); 
-                } 
-            } else {
-                downloadResult(); 
-            }
-        }
-
-        // --- STORE MODAL ---
-        function openStore() { 
-            let sheet = document.getElementById('storeModal');
-            let content = document.getElementById('storeSheetContent');
-            sheet.style.display = 'flex'; 
-            content.style.transform = 'translateY(100%)';
-            void sheet.offsetWidth;
-            sheet.classList.add('active'); 
-            content.style.transform = 'translateY(0)';
-        }
-        
-        function closeStore() { 
-            let sheet = document.getElementById('storeModal');
-            let content = document.getElementById('storeSheetContent');
-            sheet.classList.remove('active'); 
-            content.style.transform = 'translateY(100%)';
-            setTimeout(() => sheet.style.display = 'none', 400); 
-        }
-        
-        function processPayment(credits, price) { 
-            showToast("Initializing gateway...", "info"); 
-            if (window.AppInventor) {
-                window.AppInventor.setWebViewString("PAY_" + credits + "_" + price); 
-            } else {
-                setTimeout(() => showToast("Payments require the native app.", "error"), 1500); 
-            }
-            closeStore(); 
-        }
-    </script>
-</body>
-</html>
+                URL
 
