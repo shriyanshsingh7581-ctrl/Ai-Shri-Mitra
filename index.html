@@ -3454,5 +3454,60 @@
                 document.body.appendChild(a); 
                 a.click(); 
                 document.body.removeChild(a); 
-                URL
+                URL.revokeObjectURL(u); 
+                
+                showToast("Masterpiece Saved! 📥", "success"); 
+            } catch(e) { 
+                window.open(finalResultUrl, '_blank'); 
+            } 
+        }
+        
+        async function shareResult() { 
+            if(navigator.share) { 
+                try { 
+                    let blob = finalResultBlob; 
+                    if(!blob){ 
+                        let r = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(finalResultUrl)); 
+                        blob = await r.blob(); 
+                    } 
+                    const f = new File([blob], `NexArt.${finalResultType === 'video' ? 'mp4' : 'jpg'}`, { type: blob.type }); 
+                    await navigator.share({ files: [f], title: 'NexArt Studio' }); 
+                } catch(e){ 
+                    if(e.name !== "AbortError") downloadResult(); 
+                } 
+            } else { 
+                downloadResult(); 
+            }
+        }
+
+        function openStore() { 
+            let sheet = document.getElementById('storeModal'); 
+            let content = document.getElementById('storeSheetContent'); 
+            sheet.style.display = 'flex'; 
+            content.style.transform = 'translateY(100%)'; 
+            void sheet.offsetWidth; 
+            sheet.classList.add('active'); 
+            content.style.transform = 'translateY(0)'; 
+        }
+
+        function closeStore() { 
+            let sheet = document.getElementById('storeModal'); 
+            let content = document.getElementById('storeSheetContent'); 
+            sheet.classList.remove('active'); 
+            content.style.transform = 'translateY(100%)'; 
+            setTimeout(() => sheet.style.display = 'none', 400); 
+        }
+
+        function processPayment(credits, price) { 
+            showToast("Initializing gateway...", "info"); 
+            if (window.AppInventor) { 
+                window.AppInventor.setWebViewString("PAY_" + credits + "_" + price); 
+            } else { 
+                setTimeout(() => showToast("Payments require the native app.", "error"), 1500); 
+            } 
+            closeStore(); 
+        }
+    </script>
+</body>
+</html>
 
